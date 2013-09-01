@@ -1,0 +1,20 @@
+auth
+is_authenticated
+exit
+dns
+#list_domains
+create_domain name:fooxxxx.com email_address:bar@fooxxxx.com
+list_domains
+add_record type:A name:zzz.fooxxxx.com data:192.168.0.1
+list_records domain_name:'fooxxxx.com'
+create_subdomain name:yyy.fooxxxx.com email_address:bar@fooxxxx.com
+list_domains
+add_record type:A name:zzz.yyy.fooxxxx.com data:THIS_IS_NOT_AN_ADDRESS
+delete_record type:A name:zzz.fooxxxx.com data:192.168.0.1
+#list_records domain_name:'yyy.fooxxxx.com'
+#delete_records domain_name:yyy.fooxxxx.com
+#delete_domain domain_name:yyy.fooxxxx.com
+#delete_domain domain_name:fooxxxx.com
+#list_domains
+#exit
+#exit
