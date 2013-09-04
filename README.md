@@ -3,9 +3,11 @@ pyraxshell
 CLI tool and interpreter to manage [OpenStack](http://www.openstack.org/) and [Rackspace](http://www.rackspace.com/) Cloud products.
 It leverages [pyrax](https://github.com/rackspace/pyrax) module, therefore it aims to expose all the features implemented in *pyrax*. 
 
+Watch *pyraxshell* in action:
+
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=swcNTkjHzAQ
 " target="_blank"><img src="http://img.youtube.com/vi/swcNTkjHzAQ/0.jpg" 
-alt="pyraxshell v0.1" width="480" height="360" border="10" /></a>
+alt="pyraxshell v0.1" width="480" height="280" border="10" /></a>
 
 ## Installation
 
