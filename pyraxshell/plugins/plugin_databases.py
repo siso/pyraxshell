@@ -19,6 +19,7 @@ import cmd
 import logging
 from plugins.libdatabases import LibDatabases
 from utility import kvstring_to_dict
+import pyrax
 
 name = 'databases'
 
@@ -116,12 +117,58 @@ class Cmd_Databases(cmd.Cmd):
         logging.debug("line: %s" % line)
         self.libplugin.print_pt_cloud_databases_flavors()
     
-    def do_create(self, line):
+    def do_create_database(self, line):
         '''
         create a new database
+        
+        database_name    name of the database
+        instance_name    name of the instance to add database to
         ''' 
-        logging.info('NOT IMPLEMENTED YET')
-
+        logging.debug("line: %s" % line)
+        d_kv = kvstring_to_dict(line)
+        logging.debug("kvs: %s" % d_kv)
+        # default values
+        (database_name, instance_name) = (None, None)
+        # parsing parameters
+        if 'database_name' in d_kv.keys():
+            database_name = d_kv['database_name']
+        else:
+            logging.warn("database_name missing")
+            return False
+        if 'instance_name' in d_kv.keys():
+            instance_name = d_kv['instance_name']
+        else:
+            logging.warn("instance_name missing")
+            return False
+        # WORKING
+        cdb = pyrax.cloud_databases
+        # search for specified instance
+        try:
+            instance = [i for i in cdb.list() if i.name == instance_name][0]
+        except IndexError:
+            logging.warn('could not find cloud-databases instance \'%s\'' %
+                         instance_name)
+            return False
+        logging.debug('cloud-databases instance \'%s\' found' % instance_name)
+        # create db
+        try:
+            db = instance.create_database(database_name)  # @UnusedVariable
+        except:
+            logging.warn('could not create cloud-databases database \'%s\'' %
+                         database_name)
+            return False
+    
+    def complete_create_database(self, text, line, begidx, endidx):
+        params = ['database_name:', 'instance_name:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
+    
     def preloop(self):
         cmd.Cmd.preloop(self)
         logging.debug("preloop")

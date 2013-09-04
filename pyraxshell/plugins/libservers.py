@@ -37,7 +37,7 @@ class LibServers(object):
     def list_cloudservers_images(self):
         return pyrax.cloudservers.list_images()
     
-    def create_server(self, name, flavor_id, image_id, poll_time = 30):
+    def create_server(self, name, flavor_id, image_id, poll_time = 5):
         '''
         create a server, wait for completion, 
         aka server status in ('ACTIVE', 'ERROR', 'UNKNOWN')
