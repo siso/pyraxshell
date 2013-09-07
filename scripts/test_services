@@ -1,6 +1,6 @@
 services
-#    list
+    list
     endpoints
-#    endpoints raw
+    endpoints raw
     exit
 exit

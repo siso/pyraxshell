@@ -68,19 +68,23 @@ class Cmd_Services(cmd.Cmd):
         '''
         list endponts
         
-        raw            print raw JSON response
+        raw            True to print raw JSON response (default: False)
         '''
         logging.debug("line: %s" % line)
         d_kv = kvstring_to_dict(line)
         logging.debug("kvs: %s" % d_kv)
         # default values
-        (raw) = (False)
+        (raw) = (None)
         # parsing parameters
         if 'raw' in d_kv.keys():
-            raw = True
+            raw = d_kv['raw']
+            if str.lower(raw) == 'true':
+                raw = True
+            else:
+                raw = False
         if not raw:
             pt = PrettyTable(['service', 'name', 'endpoints'])
-            for k,v in pyrax.identity.services.items():
+            for k,v in pyrax.identity.services.items():  # @UndefinedVariable
 #                 print "service: %s" % k
 #                 print "\tname: %s" % v['name']
 #                 print "\tendpoints: %s" % v['endpoints']
@@ -96,6 +100,17 @@ class Cmd_Services(cmd.Cmd):
             print pt
         else:
             pprint.pprint(pyrax.identity.services)
+    
+    def complete_endpoints(self, text, line, begidx, endidx):
+        params = ['raw:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
     
     def do_list(self, line):
         '''
