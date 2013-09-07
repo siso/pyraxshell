@@ -15,20 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
-'''
-Created on 1 Aug 2013
-
-This is just a testing plugin developed to implement the plugin system.
-
-To implement a plugin:
-
-* assign a value to the 'name' attribute
-* ...
-
-@author: soldasimo
-'''
 import cmd
 import logging
+from utility import kvstring_to_dict
+from plugins.libauth import LibAuth
 
 name = 'test'
 
@@ -38,20 +28,17 @@ def injectme(c):
 #     
 #     c.do_test = do_test
     setattr(c, 'do_test', do_test)
+    logging.debug('%s injected' % __file__)
 #     
 #     logging.debug('c.get_names(): %s' % c.get_names())
-    logging.debug('plugin_test injected')
 
 def do_test(*args):
-    '''
-    just testing
-    '''
 #     logging.debug("line: %s" % line)
     Plugin().cmdloop()
 
 class Plugin(cmd.Cmd):
     """
-    pyrax shell POC Test Plugin 
+    pyraxshell - Test Plugin 
     """
     prompt = "H %s>" % name    # default prompt
     
@@ -68,3 +55,11 @@ class Plugin(cmd.Cmd):
     def do_EOF(self, line):
         print
         return True
+
+    def preloop(self):
+        cmd.Cmd.preloop(self)
+        logging.debug("preloop")
+        import plugins.libauth
+        if not plugins.libauth.LibAuth().is_authenticated():
+            logging.warn('please, authenticate yourself before continuing')
+
