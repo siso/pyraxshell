@@ -51,6 +51,20 @@ class RaxShell(cmd.Cmd):
         print
         return True
 
+    def do_credits(self, line):
+        '''
+        give credits
+        '''
+        credits = '''
+pyraxshell - Copyright (c) 2013, Simone Soldateschi - All rights reserved.
+
+author:   Simone Soldateschi
+email:    simone.soldateschi@gmail.com
+homepage: https://github.com/siso/pyraxshell
+license:  GPLv3 or later (see LICENSE)
+'''
+        logging.info(credits)
+    
     def do_exit(self,*args):
         return True
     
