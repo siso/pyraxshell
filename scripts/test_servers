@@ -1,0 +1,8 @@
+auth
+    is_authenticated
+    exit
+servers
+    list
+    create image_id:d919d2a7-5a39-48a3-be49-8c808ab4ad23 flavor_id:2 name:deb7A
+    list
+

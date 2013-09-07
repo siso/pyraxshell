@@ -19,7 +19,9 @@ import cmd
 import logging
 from utility import kvstring_to_dict
 from plugins.libservers import LibServers
-
+import traceback
+import pyrax
+from prettytable import PrettyTable
 name = 'servers'
 
 def injectme(c):
@@ -47,15 +49,76 @@ class Cmd_Servers(cmd.Cmd):
         '''
         print
         return True
+
+    def preloop(self):
+        cmd.Cmd.preloop(self)
+        logging.debug("preloop")
+        import plugins.libauth
+        if not plugins.libauth.LibAuth().is_authenticated():
+            logging.warn('please, authenticate yourself before continuing')
+
+    # ########################################
+    # SERVER    
+    def do_change_password(self, line):
+        '''
+        reboot server
         
+        id        server id
+        password  new password
+        '''
+        logging.debug("line: %s" % line)
+        d_kv = kvstring_to_dict(line)
+        logging.debug("kvs: %s" % d_kv)
+        # default values
+        (_id, password) = (None, None)
+        # parsing parameters
+        if 'id' in d_kv.keys():
+            _id = d_kv['id']
+        if (id, name) == (None, None):
+            logging.warn("server id missing, cannot continue")
+            return False
+        if 'password' in d_kv.keys():
+            password = d_kv['password']
+        else:
+            logging.warn("new password missing, cannot continue")
+            return False
+        try:
+            s = self.libplugin.get_by_id(_id)
+        except IndexError:
+            logging.warn('cannot find server identified by id:%s' % _id)
+            return False
+        try:
+            if s.status == 'ACTIVE':
+                logging.info('changing root password on server id:%s, name:%s' %
+                             (_id, s.name))
+                s.change_password(password)
+            else:
+                logging.error('cannot change root password on server id:%s, name:%s' %
+                             (_id, s.name))
+        except Exception as inst:
+            print type(inst)     # the exception instance
+            print inst.args      # arguments stored in .args
+            print inst           # __str__ allows args to printed directly
+    
+    def complete_change_password(self, text, line, begidx, endidx):
+        params = ['id:', 'password:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
+    
     def do_create(self, line):
         '''
         create a new server
         
         Parameters:
         
-        flavor_id    see: list_flavors
-        image_id     see: list_images
+        flavor_id        see: list_flavors
+        image_id         see: list_images
         name
         '''
         logging.debug("line: %s" % line)
@@ -85,9 +148,11 @@ class Cmd_Servers(cmd.Cmd):
             print type(inst)     # the exception instance
             print inst.args      # arguments stored in .args
             print inst           # __str__ allows args to printed directly
+            tb = traceback.format_exc()
+            logging.error(tb)
 
     def complete_create(self, text, line, begidx, endidx):
-        params = ['flavor_id', 'image_id', 'name']
+        params = ['flavor_id:', 'image_id:', 'name:']
         if not text:
             completions = params[:]
         else:
@@ -101,9 +166,11 @@ class Cmd_Servers(cmd.Cmd):
         '''
         delete server
         
-        Parameters:
+        It is safer deleting a CloudServer by id, as different servers
+        could have the same name.
         
-        id i.e.: H servers> delete name:XXX
+        Parameters:
+        id     server id
         '''
         logging.debug("line: %s" % line)
         d_kv = kvstring_to_dict(line)
@@ -119,13 +186,26 @@ class Cmd_Servers(cmd.Cmd):
         logging.info('deleting server id:%s' % _id)
         self.libplugin.delete_server(_id)
     
+    def complete_delete(self, text, line, begidx, endidx):
+        params = ['id:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
+    
     def do_details(self, line):
         '''
         display server details
+        id or name must be specified
         
         Parameters:
         
-        id or name
+        id        server id
+        name      server name
         
         i.e.: H servers> details name:foo
         ''' 
@@ -137,20 +217,22 @@ class Cmd_Servers(cmd.Cmd):
         # parsing parameters
         if 'name' in d_kv.keys():
             name = d_kv['name']
-        if '_id' in d_kv.keys():
-            _id = d_kv['_id']
-        if (id, name) == (None, None):
+        if 'id' in d_kv.keys():
+            _id = d_kv['id']
+        if (_id, name) == (None, None):
             logging.warn("server id and name missing, specify at least one")
             return False         
         try:
             self.libplugin.details_server(_id, name)
-        except Exception as inst:
-            print type(inst)     # the exception instance
-            print inst.args      # arguments stored in .args
-            print inst           # __str__ allows args to printed directly
+#         except Exception as inst:
+#             print type(inst)     # the exception instance
+#             print inst.args      # arguments stored in .args
+#             print inst           # __str__ allows args to printed directly
+        except:
+            logging.error(traceback.format_exc())
 
     def complete_details(self, text, line, begidx, endidx):
-        params = ['id', 'name']
+        params = ['id:', 'name:']
         if not text:
             completions = params[:]
         else:
@@ -186,10 +268,180 @@ class Cmd_Servers(cmd.Cmd):
         logging.info("list servers")
         logging.debug("line: %s" % line)
         self.libplugin.print_pt_cloudservers_images()
+    
+    def do_reboot(self, line):
+        '''
+        reboot server
+        
+        id        server id to reboot
+        type      'cold' or 'hard' reboot
+        '''
+        logging.debug("line: %s" % line)
+        d_kv = kvstring_to_dict(line)
+        logging.debug("kvs: %s" % d_kv)
+        # default values
+        (_id, _type) = (None, 'cold')
+        # parsing parameters
+        if 'id' in d_kv.keys():
+            _id = d_kv['id']
+        if (id, name) == (None, None):
+            logging.warn("server id missing, cannot continue")
+            return False
+        if 'type' in d_kv.keys():
+            _type = d_kv['type']
+        else:
+            logging.warn("reboot type not specified, defaulting to 'cold'")
+        _type = str.upper(_type)
+        if _type != 'COLD' and _type != 'HARD':
+            logging.warn("reboot type can be: cold or hard, not \'%s\'" % _type)
+            return False
+        try:
+            s = self.libplugin.get_by_id(_id)
+        except IndexError:
+            logging.warn('cannot find server identified by id:%s' % _id)
+            return False
+        try:
+            if s.status == 'ACTIVE':
+                logging.info('rebooting server id:%s' % _id)
+                s.reboot(_type)
+            else:
+                logging.error('cannot reboot server id:%s, status:%s' %
+                              (_id, s.status))
+        except Exception as inst:
+            print type(inst)     # the exception instance
+            print inst.args      # arguments stored in .args
+            print inst           # __str__ allows args to printed directly
+    
+    def complete_reboot(self, text, line, begidx, endidx):
+        params = ['id:', 'type:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
 
-    def preloop(self):
-        cmd.Cmd.preloop(self)
-        logging.debug("preloop")
-        import plugins.libauth
-        if not plugins.libauth.LibAuth().is_authenticated():
-            logging.warn('please, authenticate yourself before continuing')
+    # ########################################
+    # SERVER SNAPSHOTS
+    #
+    # "qui pro quo": server snapshots are called 'snapshot' when using API
+    #                and 'images' on the web Control Panel, which might lead to
+    #                confusion, as images are also called (on the web Control
+    #                Panel and in the API) the 'initial images' to use to spin
+    #                up servers
+    def do_take_snapshots(self, line):
+        '''
+        create an image of a server
+        
+        id               server id
+        snapshot_name    name of the snapshot to be taken
+#TODO   metadata         key-value pairs metadata
+        '''
+        logging.debug("line: %s" % line)
+        d_kv = kvstring_to_dict(line)
+        logging.debug("kvs: %s" % d_kv)
+        # default values
+        (_id, snapshot_name) = (None, None)
+        # parsing parameters
+        if 'id' in d_kv.keys():
+            _id = d_kv['id']
+        else:
+            logging.warn("server id missing, cannot continue")
+            return False
+        if 'snapshot_name' in d_kv.keys():
+            snapshot_name = d_kv['snapshot_name']
+        else:
+            logging.warn("snapshot_name missing, cannot continue")
+            return False
+        try:
+            s = self.libplugin.get_by_id(_id)
+        except IndexError:
+            logging.warn('cannot find server identified by id:%s' % _id)
+            return False
+        try:
+            logging.info('taking snapshot name:%s of server id:%s' %
+                          (snapshot_name, _id))
+            s.create_image(snapshot_name)
+        except:
+            logging.error(traceback.format_exc())
+    
+    def complete_take_snapshot(self, text, line, begidx, endidx):
+        params = ['id:', 'snapshot_name:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions    
+
+    def do_delete_snapshot(self, line):
+        '''
+        delete snapshot
+        
+        Parameters:
+        id     snapshot id
+        '''
+        logging.debug("line: %s" % line)
+        d_kv = kvstring_to_dict(line)
+        logging.debug("kvs: %s" % d_kv)
+        # default values
+        _id = None
+        # parsing parameters
+        if 'id' in d_kv.keys():
+            _id = d_kv['id']
+        if _id == None:
+            logging.warn("snapshot id is missing")
+            return False
+        try:
+            cs = pyrax.cloudservers
+            snapshot = [ss for ss in cs.list_snapshots() if ss.id == _id][0]
+            logging.info('deleting snapshot id:%s' % snapshot.id)
+            snapshot.delete()
+        except IndexError:
+            logging.warn('cannot find snapshot identified by id:%s' % _id)
+            return False
+        except:
+            logging.error(traceback.format_exc())
+    
+    def complete_delete_snapshot(self, text, line, begidx, endidx):
+        params = ['id:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions   
+    
+    def do_list_snapshots(self, line):
+        '''
+        list snapshots
+        '''
+        logging.info("list snapshots")
+        logging.debug("line: %s" % line)
+        try:
+            cs = pyrax.cloudservers
+            pt = PrettyTable(['id', 'name', 'created', 'minDisk', 'minRam',
+                              'progress', 'server id', 'status', 'updated'])
+            for ss in cs.list_snapshots():
+                pt.add_row([
+                                ss.id,
+                                ss.name,
+                                ss.created,
+                                ss.minDisk,
+                                ss.minRam,
+                                ss.progress,
+                                ss.server['id'],
+                                ss.status,
+                                ss.updated
+                            ])
+            pt.align['id'] = 'l'
+            pt.align['name'] = 'l'
+            print pt
+        except:
+            logging.error(traceback.format_exc())
