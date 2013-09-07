@@ -32,8 +32,6 @@ nosetests.xml
 
 # Mr Developer
 .mr.developer.cfg
-.project
-.pydevproject
 
 # tmp and swap
 .*.swp
@@ -42,7 +40,9 @@ nosetests.xml
 db/*
 
 # eclipse
-.settings
+#.settings
+#.project
+#.pydevproject
 
 # docs
 docs

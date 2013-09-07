@@ -26,6 +26,8 @@ import os.path  # @UnusedImport
 from utility import *  # @UnusedWildImport
 import imp
 import plugins  # @UnusedImport
+import pprint
+import pyrax
 
 
 class RaxShell(cmd.Cmd):
@@ -54,7 +56,7 @@ class RaxShell(cmd.Cmd):
         managing servers
         '''
         logging.debug("line: %s" % line)
-        print_dict(self.libpyraxshell.list_endpoints())
+        pprint.pprint(pyrax.identity.services)
     
     def do_exit(self,*args):
         return True
@@ -157,6 +159,8 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
                              pyrax_default_config_file)
         if not plugins.libauth.LibAuth().is_authenticated():
             logging.warn('please, authenticate yourself before continuing')
+        else:
+            logging.info('authenticated successfully')
         
 
 def main():

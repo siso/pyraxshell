@@ -8,3 +8,4 @@ pyraxshell - TO-DO list
 * all 'complete_XXX' methods are almost the same
 * log messages should report at least class and method names
 * support comments
+* implement 'wait_for_completion' option for long lasting operations (create db instance, server, ...)
