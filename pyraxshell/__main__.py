@@ -51,13 +51,6 @@ class RaxShell(cmd.Cmd):
         print
         return True
 
-    def do_endpoints(self, line):
-        '''
-        managing servers
-        '''
-        logging.debug("line: %s" % line)
-        pprint.pprint(pyrax.identity.services)
-    
     def do_exit(self,*args):
         return True
     
