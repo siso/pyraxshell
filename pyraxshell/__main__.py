@@ -26,6 +26,8 @@ import os.path  # @UnusedImport
 from utility import *  # @UnusedWildImport
 import imp
 import plugins  # @UnusedImport
+import pprint
+import pyrax
 
 
 class RaxShell(cmd.Cmd):
@@ -49,12 +51,19 @@ class RaxShell(cmd.Cmd):
         print
         return True
 
-    def do_endpoints(self, line):
+    def do_credits(self, line):
         '''
-        managing servers
+        give credits
         '''
-        logging.debug("line: %s" % line)
-        print_dict(self.libpyraxshell.list_endpoints())
+        credits = '''
+pyraxshell - Copyright (c) 2013, Simone Soldateschi - All rights reserved.
+
+author:   Simone Soldateschi
+email:    simone.soldateschi@gmail.com
+homepage: https://github.com/siso/pyraxshell
+license:  GPLv3 or later (see LICENSE)
+'''
+        logging.info(credits)
     
     def do_exit(self,*args):
         return True
@@ -157,6 +166,8 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
                              pyrax_default_config_file)
         if not plugins.libauth.LibAuth().is_authenticated():
             logging.warn('please, authenticate yourself before continuing')
+        else:
+            logging.info('authenticated successfully')
         
 
 def main():

@@ -1,0 +1,19 @@
+auth
+    is_authenticated
+    exit
+databases
+    # List Cloud Databases instances, flavours
+    list
+    list_flavors
+    # Create a new instance
+    create_instance name:foodbs volume:1 flavor_id:1
+    # Create a new Cloud Database
+    create_database database_name:bar instance_name:foodbs
+    exit
+servers
+   # list Cloud Servers, flavours and images
+   list
+   list_flavors
+   list_images
+   # create a Debian 7 (Wheezy) Cloud Server
+   create name:mysrv flavor_id:2 image_id:d919d2a7-5a39-48a3-be49-8c808ab4ad23
