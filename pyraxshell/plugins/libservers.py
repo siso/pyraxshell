@@ -19,40 +19,40 @@ import logging
 import pyrax
 from prettytable import PrettyTable
 import time
+import threading
+import uuid
 
-class LibServers(object):
-    '''
-    pyraxshell servers library
-    '''
-    
-    # ########################################
-    # SERVERS
-    def list_cloudservers(self):
-        cs = pyrax.cloudservers
-        return cs.list()
-    
-    def list_cloudservers_flavors(self):
-        return pyrax.cloudservers.list_flavors()
-    
-    def list_cloudservers_images(self):
-        return pyrax.cloudservers.list_images()
-    
-    def create_server(self, name, flavor_id, image_id, poll_time = 30):
+
+class ServerCreatorThread (threading.Thread):
+    def __init__(self, name, flavor_id, image_id, poll_time,
+                 threadID = uuid.uuid4()):
         '''
-        create a server, wait for completion, 
-        aka server status in ('ACTIVE', 'ERROR', 'UNKNOWN')
+        thread to create a CouldServers
         
-        poll_time    polling time waiting for completion in seconds
-        
-        return dictionary {name, id, status, adminPass, networks}, None if error
+        name        CloudServer name
+        flavor_id   CloudServer flavour id
+        image_id    CloudServer image id
+        poll_time   polling server creation progress in seconds
         '''
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.flavor_id = flavor_id
+        self.image_id = image_id
+        self.poll_time = poll_time
+        logging.debug('thread id:%s, server name:%s, flavor_id:%s, image_id:%s'
+                      % (threadID, name, flavor_id, image_id))
+    
+    def run(self):
+        logging.debug("Starting %s" % self.threadID)
         statuses = ['ACTIVE', 'ERROR', 'UNKNOWN']
         cs = pyrax.cloudservers
-        server = cs.servers.create(name, image_id, flavor_id)
+        server = cs.servers.create(self.name, self.image_id, self.flavor_id)
+        logging.debug('polling server creation progress (%d)' % self.poll_time)
         while server.status not in statuses:
-            time.sleep(poll_time)
+            time.sleep(self.poll_time)
             server.get()
-            logging.info('server \'%s\', status:%s, progress:%s' %
+            logging.debug('server \'%s\', status:%s, progress:%s' %
                          (server.name, server.status, server.progress))
         
         if server.status == 'ACTIVE':
@@ -80,6 +80,48 @@ class LibServers(object):
             logging.error(('cannot create server \'%s\' (status:%s)' %
                            (server.name, server.status)))
             return None
+        logging.debug("Exiting %s" % self.name)
+
+
+class LibServers(object):
+    '''
+    pyraxshell servers library
+    '''
+    
+    # ########################################
+    # SERVERS
+    def get_by_id(self, server_id):
+        '''
+        return a CloudServer object specified by id
+        '''
+        cs = pyrax.cloudservers
+        return [s for s in cs.list() if s.id == server_id][0]
+    
+    def list_cloudservers(self):
+        cs = pyrax.cloudservers
+        return cs.list()
+    
+    def list_cloudservers_flavors(self):
+        return pyrax.cloudservers.list_flavors()
+    
+    def list_cloudservers_images(self):
+        return pyrax.cloudservers.list_images()
+    
+    def create_server(self, name, flavor_id, image_id, poll_time = 5):
+        '''
+        create a server, wait for completion, 
+        aka server status in ('ACTIVE', 'ERROR', 'UNKNOWN')
+        
+        poll_time    polling time waiting for completion in seconds
+        
+        return dictionary {name, id, status, adminPass, networks}, None if error
+        '''
+        # create ServerCreatorTread
+        sct = ServerCreatorThread(name, flavor_id, image_id, poll_time)
+        
+        # start thread
+        sct.start()
+        
     
     def delete_server(self, _id=None, name=None):
         cs = pyrax.cloudservers
@@ -109,6 +151,7 @@ class LibServers(object):
                 pt.add_row(['network public (ipv4)', server.networks['public'][0]])
                 pt.add_row(['network public (ipv6)', server.networks['public'][1]])
                 pt.add_row(['network private (ipv4)', server.networks['private'][0]])
+                pt.add_row(['created on', server.created])
                 print pt
     
     def get_cloudserver_flavor(self, _id):
