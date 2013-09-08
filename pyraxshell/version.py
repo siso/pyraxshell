@@ -15,4 +15,4 @@
 # You should have received a copy of the GNU General Public License
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
-version='0.1.1'
+version='0.1.2'
