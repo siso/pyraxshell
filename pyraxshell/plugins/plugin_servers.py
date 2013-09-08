@@ -18,7 +18,7 @@
 import cmd
 import logging
 from utility import kvstring_to_dict
-from plugins.libservers import LibServers
+from plugins.libservers import LibServers, ServerCreatorThread
 import traceback
 import pyrax
 from prettytable import PrettyTable
@@ -143,7 +143,11 @@ class Cmd_Servers(cmd.Cmd):
             logging.warn("image_id missing")
             return False
         try:
-            self.libplugin.create_server(name, flavor_id, image_id)
+#             self.libplugin.create_server(name, flavor_id, image_id)
+            # create ServerCreatorTread
+            sct = ServerCreatorThread(name, flavor_id, image_id, poll_time = 30)
+            # start thread
+            sct.start()
         except Exception as inst:
             print type(inst)     # the exception instance
             print inst.args      # arguments stored in .args
