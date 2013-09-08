@@ -1,0 +1,8 @@
+#auth
+#    is_authenticated
+#    exit
+databases
+    list_instance_flavors
+    list_instances
+    list_databases instance_id:a8e8fc02-d6aa-4001-bb0e-e1eba9d08dbb
+    list_users instance_id:a8e8fc02-d6aa-4001-bb0e-e1eba9d08dbb
