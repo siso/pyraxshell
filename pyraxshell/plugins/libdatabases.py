@@ -16,7 +16,7 @@
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
 import pyrax
-from prettytable import PrettyTable
+import logging
 
 class LibDatabases(object):
     '''
@@ -24,46 +24,46 @@ class LibDatabases(object):
     '''
     
     # ########################################
-    # DATABASES
-    def list_cloud_databases(self):
-        return pyrax.cloud_databases.list()
-    
-    def list_cloud_databases_flavors(self):
+    # CLOUD DATABASES - INSTANCES
+    def get_instance_by_id(self, instance_id):
+        '''
+        return cloud databases instance specified by id
+        '''
         cdb = pyrax.cloud_databases
-        return cdb.list_flavors()
+        try:
+            return [cdbi for cdbi in cdb.list() if cdbi.id == instance_id][0]
+        except IndexError:
+            logging.error('cannot find cloud databases instance id:%s' %
+                          instance_id)
+            return None
+        except:
+            logging.error('error searching cloud databases instance by id:%s' %
+                          instance_id)
+            return None
     
-    def print_pt_cloud_databases(self, sortby='name'):
-        '''print my cloud databases with PrettyTable
-        
-        with 'sortby' data can be sorted by column; if 'raw' is passed, then
-        data is printed as it is returned by OpenStack'''
-        cdb = self.list_cloud_databases()
-        pt = PrettyTable(['id', 'name', 'status'])
-        for db in cdb:
-            pt.add_row([db.id, db.name, db.status])
-        pt.align['name'] = 'l'
-        if sortby != None:
-            print pt.get_string(sortby=sortby)
-        else:
-            print pt
-    
-    def print_pt_cloud_databases_flavors(self, sortby='id'):
-        '''print cloud database flavors with PrettyTable
-        
-        with 'sortby' data can be sorted by column; if 'raw' is passed, then
-        data is printed as it is returned by OpenStack'''
-        cdbf = self.list_cloud_databases_flavors()
-        pt = PrettyTable(['id', 'name', 'ram', 'loaded'])
-        for dbf in cdbf:
-            pt.add_row([dbf.id, dbf.name, dbf.ram, dbf.loaded])
-        pt.align['name'] = 'l'
-        if sortby != None:
-            print pt.get_string(sortby=sortby)
-        else:
-            print pt
+    def get_instance_flavor_by_id(self, flavor_id):
+        '''
+        return cloud databases instance flavour by id
+        '''
+        cdb = pyrax.cloud_databases
+        return [f for f in cdb.list_flavors() if f.flavor.id == flavor_id][0]
 
     # ########################################
-    # INSTANCES
-    def create_instance(self, name, flavor_id, volume):
-        cdb = pyrax.cloud_databases
-        return cdb.create(name, flavor_id, volume)
+    # CLOUD DATABASES - DATABASES
+    def get_database(self, instance_id, database_name):
+        '''
+        return cloud databases database
+        '''
+        instance = self.get_instance_by_id(instance_id)
+        if instance == None:
+            return None
+        else:
+            try:
+                return [db for db in instance.list_databases()
+                        if db.name == database_name][0]
+            except IndexError:
+                return None
+            except:
+                logging.error('cannot find database name:%s in instance_id:%s' %
+                              (database_name, instance_id))
+                return None
