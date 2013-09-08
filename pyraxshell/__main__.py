@@ -184,6 +184,8 @@ def main():
     
     # ########################################
     # DO STUFF
+    if cfg.pyrax_http_debug:
+        pyrax.set_http_debug(True)
     libpyraxshell = Libpyraxshell()
     raxshell = RaxShell(cfg, libpyraxshell)
     raxshell.cmdloop()

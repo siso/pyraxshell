@@ -37,6 +37,9 @@ class Configuration(object):
         parser.add_argument('-k', '--api-key', help='Authentication api-key')
         parser.add_argument('-i', '--identity-type',
                             help='identity type (default: \'rackspace\'')
+        parser.add_argument('--pyrax-http-debug',
+                            help = 'set pyrax http debug mode on',
+                            action = 'store_true')
         parser.add_argument('-r', '--region', required=False,
                             help=('cloud data center to build the servers in'
                                   ' (default: %s)' % self.__default_region),
@@ -54,6 +57,8 @@ class Configuration(object):
             self.args.region = self.__default_region
         if self.args.verbose != None or self.args.verbose == '':
             self.args.verbose = self.__default_verbose
+        if self.args.pyrax_http_debug == None:
+            self.args.pyrax_http_debug = False
 
     # SETTERs & GETTERs
     
@@ -71,6 +76,11 @@ class Configuration(object):
     @property
     def identity_type(self):
         return self.args.identity_type
+    
+    # --pyrax-http-debug (True)
+    @property
+    def pyrax_http_debug(self):
+        return self.args.pyrax_http_debug
     
     # -r, --region
     @property
