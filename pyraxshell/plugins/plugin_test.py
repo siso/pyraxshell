@@ -17,8 +17,11 @@
 
 import cmd
 import logging
-from utility import kvstring_to_dict
+from utility import kvstring_to_dict, print_top_right
 from plugins.libauth import LibAuth
+import threading
+import uuid
+import time
 
 name = 'test'
 
@@ -52,6 +55,9 @@ class Plugin(cmd.Cmd):
         logging.debug("TEST PLUGIN -- do_test")
         logging.debug("line: %s" % line)
     
+    def do_run_test_thread(self, line):
+        TestThread().start()
+    
     def do_EOF(self, line):
         print
         return True
@@ -62,4 +68,22 @@ class Plugin(cmd.Cmd):
         import plugins.libauth
         if not plugins.libauth.LibAuth().is_authenticated():
             logging.warn('please, authenticate yourself before continuing')
+
+
+class TestThread (threading.Thread):
+    def __init__(self, threadID = uuid.uuid4()):
+        '''
+        test thread
+        '''
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        logging.debug('thread id:%s' % (threadID))
+    
+    def run(self):
+        logging.debug("Starting %s" % self.threadID)
+        max_rep = 5
+        for i in range(max_rep):  # @UnusedVariable
+            print_top_right(time.strftime('%H:%M:%S'))
+            time.sleep(1)
+        print_top_right('task completed')
 

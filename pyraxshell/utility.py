@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import sys
+import terminalsize
 
 # This file is part of pyraxshell.
 #
@@ -78,3 +80,18 @@ def is_ipv4(address):
         return True
     except socket.error:
         return False
+
+def print_there(row, col, text):
+    sys.stdout.write("\x1b7\x1b[%d;%df%s\x1b8" % (row, col, text))
+    sys.stdout.flush()
+
+def print_top_right(text):
+    '''
+    print text to top right in terminal
+    '''
+    (width, heigth) = terminalsize.get_terminal_size()  # @UnusedVariable
+    text_len = len(text)
+    text = '| %s |' % text
+    print_there(1, width - len(text) + 1, '+%s+' % ('-' * (text_len + 2)))
+    print_there(2, width - len(text) + 1, text)
+    print_there(3, width - len(text) + 1, '+%s+' % ('-' * (text_len + 2)))

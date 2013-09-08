@@ -21,6 +21,7 @@ from prettytable import PrettyTable
 import time
 import threading
 import uuid
+from utility import print_top_right
 
 
 class ServerCreatorThread (threading.Thread):
@@ -44,17 +45,26 @@ class ServerCreatorThread (threading.Thread):
                       % (threadID, name, flavor_id, image_id))
     
     def run(self):
+        '''
+        create a server, wait for completion, 
+        aka server status in ('ACTIVE', 'ERROR', 'UNKNOWN')
+        
+        poll_time    polling time waiting for completion in seconds
+        '''
         logging.debug("Starting %s" % self.threadID)
         statuses = ['ACTIVE', 'ERROR', 'UNKNOWN']
         cs = pyrax.cloudservers
         server = cs.servers.create(self.name, self.image_id, self.flavor_id)
         logging.debug('polling server creation progress (%d)' % self.poll_time)
         while server.status not in statuses:
-            time.sleep(self.poll_time)
-            server.get()
-            logging.debug('server \'%s\', status:%s, progress:%s' %
-                         (server.name, server.status, server.progress))
-        
+            time.sleep(1)
+            if int(time.time()) % self.poll_time == 0:
+                # mitigate polling server creation progress 
+                server.get()
+                logging.debug('server \'%s\', status:%s, progress:%s' %
+                          (server.name, server.status, server.progress))
+            print_top_right('server \'%s\': %s %s' %
+                            (server.name, server.status, server.progress))
         if server.status == 'ACTIVE':
             d = {
                 'name'      : server.name,
@@ -75,6 +85,7 @@ class ServerCreatorThread (threading.Thread):
             pt.align['key'] = 'l'
             pt.align['value'] = 'l'
             print pt
+            print
             # return info
         else:
             logging.error(('cannot create server \'%s\' (status:%s)' %
@@ -106,22 +117,6 @@ class LibServers(object):
     
     def list_cloudservers_images(self):
         return pyrax.cloudservers.list_images()
-    
-    def create_server(self, name, flavor_id, image_id, poll_time = 5):
-        '''
-        create a server, wait for completion, 
-        aka server status in ('ACTIVE', 'ERROR', 'UNKNOWN')
-        
-        poll_time    polling time waiting for completion in seconds
-        
-        return dictionary {name, id, status, adminPass, networks}, None if error
-        '''
-        # create ServerCreatorTread
-        sct = ServerCreatorThread(name, flavor_id, image_id, poll_time)
-        
-        # start thread
-        sct.start()
-        
     
     def delete_server(self, _id=None, name=None):
         cs = pyrax.cloudservers
