@@ -38,7 +38,10 @@ class Configuration(object):
         parser.add_argument('-i', '--identity-type',
                             help='identity type (default: \'rackspace\'')
         parser.add_argument('--pyrax-http-debug',
-                            help = 'set pyrax http debug mode on',
+                            help = 'set pyrax http_debug setting on',
+                            action = 'store_true')
+        parser.add_argument('--pyrax-no-verify-ssl',
+                            help = 'set pyrax verify_ssl setting: False',
                             action = 'store_true')
         parser.add_argument('-r', '--region', required=False,
                             help=('cloud data center to build the servers in'
@@ -81,6 +84,11 @@ class Configuration(object):
     @property
     def pyrax_http_debug(self):
         return self.args.pyrax_http_debug
+    
+    # --pyrax-no-verify-ssl
+    @property
+    def pyrax_no_verify_ssl(self):
+        return self.args.pyrax_no_verify_ssl
     
     # -r, --region
     @property
