@@ -53,6 +53,128 @@ class Cmd_LoadBalancers(cmd.Cmd):
         print
         return True
 
+    # ########################################
+    # LOAD BALANCERS
+    
+    def do_list(self, line):
+        '''
+        list load balancers
+        '''
+        logging.debug("line: %s" % line)
+        logging.info("listing cloud load balancers")
+        clb = pyrax.cloud_loadbalancers
+        pt = PrettyTable(['id', 'name', 'node count', 'protocol',
+                          'port', 'status', 'algorithm', 'timeout'])
+        for lb in clb.list():
+            pt.add_row([
+                        lb.id, lb.name, lb.nodeCount, lb.protocol,
+                        lb.port, lb.status, lb.algorithm, lb.timeout
+                        ])
+        print pt
+    
+    def do_list_algorithms(self, line):
+        '''
+        list load balancers algorithms
+        '''
+        logging.debug("line: %s" % line)
+        logging.info("listing cloud load balancers algorithms")
+        clb = pyrax.cloud_loadbalancers
+        pt = PrettyTable(['name'])
+        for alg in clb.algorithms:
+            pt.add_row([alg])
+        pt.align['name'] = 'l'
+        print pt
+    
+    def do_list_protocols(self, line):
+        '''
+        list load balancers protocols
+        '''
+        logging.debug("line: %s" % line)
+        logging.info("listing cloud load balancers protocols")
+        clb = pyrax.cloud_loadbalancers
+        pt = PrettyTable(['name'])
+        for p in clb.protocols:
+            pt.add_row([p])
+        pt.align['name'] = 'l'
+        print pt
+    
+    def do_stats(self, line):
+        '''
+        list load balancers stats
+        
+        id    load-balancer id
+        '''
+        logging.debug("line: %s" % line)
+        d_kv = kvstring_to_dict(line)
+        logging.debug("kvs: %s" % d_kv)
+        # default values
+        (_id) = (None)
+        # parsing parameters
+        if 'id' in d_kv.keys():
+            _id = d_kv['id']
+        else:
+            logging.warn("id missing")
+            return False
+        logging.info("listing cloud load balancers stats")
+        lb = self.libplugin.get_instance_by_id(_id)
+        pt = PrettyTable(['key', 'value'])
+        for k,v in lb.get_stats().items():
+            pt.add_row([k, v])
+        pt.align['key'] = 'l'
+        pt.align['value'] = 'l'
+        print pt
+    
+    def complete_stats(self, text, line, begidx, endidx):
+        params = ['id:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
+    
+    def do_virtual_ips(self, line):
+        '''
+        list load balancers virtual IPs
+        
+        id    load-balancer id
+        '''
+        logging.debug("line: %s" % line)
+        d_kv = kvstring_to_dict(line)
+        logging.debug("kvs: %s" % d_kv)
+        # default values
+        (_id) = (None)
+        # parsing parameters
+        if 'id' in d_kv.keys():
+            _id = d_kv['id']
+        else:
+            logging.warn("id missing")
+            return False
+        logging.info("listing cloud load balancer virtual IPs")
+        lb = self.libplugin.get_loadbalancer_by_id(_id)
+        pprint.pprint(lb)
+        pt = PrettyTable(['id', 'type', 'address', 'ip_version'])
+        for vip in lb.virtual_ips:
+            pt.add_row([vip.id, vip.type, vip.address, vip.ip_version])
+        pt.align['id'] = 'l'
+        pt.align['address'] = 'l'
+        print pt
+    
+    def complete_virtual_ips(self, text, line, begidx, endidx):
+        params = ['id:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
+    
+    # ########################################
+    # NODES    
     def do_add_node(self, line):
         # WORKING...
         '''

@@ -2,4 +2,8 @@ auth
 is_authenticated
 exit
 loadbalancers
-add_node loadbalancer:foo address:192.168.1.1
+#    add_node loadbalancer:foo address:192.168.1.1
+    list
+    list_algorithms
+    list_protocols
+#    virtual_ips id:78479
