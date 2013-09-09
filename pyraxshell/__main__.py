@@ -184,8 +184,12 @@ def main():
     
     # ########################################
     # DO STUFF
+    # handle configuration
     if cfg.pyrax_http_debug:
         pyrax.set_http_debug(True)
+    if cfg.pyrax_no_verify_ssl:
+        # see: https://github.com/rackspace/pyrax/issues/187
+        pyrax.set_setting("verify_ssl", False)
     libpyraxshell = Libpyraxshell()
     raxshell = RaxShell(cfg, libpyraxshell)
     raxshell.cmdloop()
