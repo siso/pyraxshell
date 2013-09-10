@@ -8,6 +8,8 @@ Watch *pyraxshell* in action:
 " target="_blank"><img src="http://img.youtube.com/vi/swcNTkjHzAQ/0.jpg" 
 alt="pyraxshell v0.1" width="480" height="360" border="10" /></a>
 
+**ATTENTION** *pyraxshell* is currently in development stage, therefore it should be used for testing purposes only.
+
 ## Installation
 
 ### From sources

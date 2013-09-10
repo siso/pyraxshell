@@ -7,3 +7,12 @@ loadbalancers
     list_algorithms
     list_protocols
 #    virtual_ips id:78479
+    declare_node address:1.1.1.1 condition:ENABLED port:111
+    declare_node address:1.1.1.1 condition:XXX port:111
+    declare_node address:1.1.1.2
+    list_declared_nodes
+    delete_node index:99
+    list_declared_nodes
+    delete_node index:-1
+    list_declared_nodes
+#    create_load_balancer name:ssxx virtual_ip:1.1.1.1 port:80 protocol:HTTP node_index:0

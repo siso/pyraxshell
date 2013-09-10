@@ -24,6 +24,7 @@ import pyrax.exceptions as exc
 from prettytable import PrettyTable
 import pprint
 from plugins.libloadbalancers import LibLoadBalancers
+import traceback
 
 name = 'loadbalancers'
 
@@ -40,11 +41,14 @@ class Cmd_LoadBalancers(cmd.Cmd):
     pyrax shell POC - load-balancers module
     '''
     
-    prompt = "H lb>"    # default prompt
+    prompt = "H lb>"  # default prompt
     
     def __init__(self):
         cmd.Cmd.__init__(self)
         self.libplugin = LibLoadBalancers()
+        
+        # declared Cloud Load-balancers nodes
+        self.declared_nodes = []
 
     def do_EOF(self, line): 
         '''
@@ -56,6 +60,75 @@ class Cmd_LoadBalancers(cmd.Cmd):
     # ########################################
     # LOAD BALANCERS
     
+    def do_create_load_balancer(self, line):
+        '''
+        create a Cloud Load-balancers load-balancer
+        
+        name             load-balancer name
+        virtual_ip_type  load-balancer virtual ip_type (default:PUBLIC, or SERVICENET)
+        port             load-balancer port (default: 80)
+        protocol         load-balancer protocol (default: HTTP)
+        node_index       index of first node to be added to load-balancer
+        '''
+        logging.debug("line: %s" % line)
+        d_kv = kvstring_to_dict(line)
+        logging.debug("kvs: %s" % d_kv)
+        # default values
+        (name, virtual_ip_type, port, protocol, node_index) = (None, 'PUBLIC',
+                                                               80, 'HTTP', None)
+        # parsing parameters
+        if 'name' in d_kv.keys():
+            name = d_kv['name']
+        else:
+            logging.warn("name missing")
+            return False
+        if 'virtual_ip_type' in d_kv.keys():
+            virtual_ip_type = d_kv['virtual_ip_type']
+        else:
+            logging.warn("portvirtual_ip_type missing, using default value "
+                         "'%s'" % virtual_ip_type)
+        if 'port' in d_kv.keys():
+            port = d_kv['port']
+        else:
+            logging.warn("port missing, using default value '%s'" % port)
+        if 'protocol' in d_kv.keys():
+            protocol = d_kv['protocol']
+        else:
+            logging.warn("protocol missing")
+            return False
+        if 'node_index' in d_kv.keys():
+            node_index = int(d_kv['node_index'])
+        else:
+            logging.warn("node_index missing")
+            return False
+        clb = pyrax.cloud_loadbalancers
+        if protocol not in clb.protocols:
+            logging.warn("protocol '%s' not allowed possible values: " 
+                         ', '.join([p for p in clb.protocols]))
+            return False
+        logging.info('creating load-balancer name:%s, virtual_ip:%s, port:%s,'
+                     ' protocol:%s, node_index:%s' %
+                     (name, virtual_ip_type, port, protocol, node_index))
+        try:
+            vip = clb.VirtualIP(type = virtual_ip_type)
+            clb.create(name, port = port, protocol = protocol,
+                       nodes = [self.declared_nodes.pop(node_index)],
+                       virtual_ips = [vip])
+        except Exception:
+            tb = traceback.format_exc()
+            logging.error(tb)
+    
+    def complete_create_load_balancer(self, text, line, begidx, endidx):
+        params = ['name:', 'virtual_ip:', 'port:', 'protocol:', 'node_index']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
+    
     def do_list(self, line):
         '''
         list load balancers
@@ -64,12 +137,16 @@ class Cmd_LoadBalancers(cmd.Cmd):
         logging.info("listing cloud load balancers")
         clb = pyrax.cloud_loadbalancers
         pt = PrettyTable(['id', 'name', 'node count', 'protocol',
+                          'virtual_ips',
                           'port', 'status', 'algorithm', 'timeout'])
         for lb in clb.list():
             pt.add_row([
                         lb.id, lb.name, lb.nodeCount, lb.protocol,
+                        '\n'.join(["%s (%s)" % (i.address, i.type)
+                                   for i in lb.virtual_ips]),
                         lb.port, lb.status, lb.algorithm, lb.timeout
                         ])
+        pt.align['virtual_ips'] = 'l'
         print pt
     
     def do_list_algorithms(self, line):
@@ -118,7 +195,7 @@ class Cmd_LoadBalancers(cmd.Cmd):
         logging.info("listing cloud load balancers stats")
         lb = self.libplugin.get_instance_by_id(_id)
         pt = PrettyTable(['key', 'value'])
-        for k,v in lb.get_stats().items():
+        for k, v in lb.get_stats().items():
             pt.add_row([k, v])
         pt.align['key'] = 'l'
         pt.align['value'] = 'l'
@@ -174,13 +251,12 @@ class Cmd_LoadBalancers(cmd.Cmd):
         return completions
     
     # ########################################
-    # NODES    
-    def do_add_node(self, line):
-        # WORKING...
+    # NODES
+    
+    def do_declare_node(self, line):
         '''
-        add nodes to load-balancer 
+        declare Cloud Load-balancers node
         
-        loadbalancer     load-balancer name
         address          IP address
         port             port (default: 80)
         condition        ENABLED, DISABLED, DRAINING (default: ENABLED)
@@ -203,12 +279,22 @@ class Cmd_LoadBalancers(cmd.Cmd):
         if 'condition' in d_kv.keys():
             condition = d_kv['condition']
         else:
-            logging.warn("condition missing")
-            logging.warn("condition missing, using default value '%s'" %
+            logging.warn("condition missing, using default value '%s'" % 
                          condition)
-        logging.debug(pyrax.identity.is_authenticated)
-        clb = pyrax.cloud_loadbalancers
-        clb.list()
+        if condition not in ('ENABLED', 'DISABLED', 'DRAINING'):
+            logging.warn("condition value '%s' not allowed"
+                         "possible values: ENABLED, DISABLED, DRAINING" % 
+                         condition)
+            return False
+        logging.info('declared node address:%s, port:%s, condition:%s' % 
+                     (address, port, condition))
+        try:
+            clb = pyrax.cloud_loadbalancers
+            self.declared_nodes.append(clb.Node(address = address, port = port,
+                                                condition = condition))
+        except Exception:
+            tb = traceback.format_exc()
+            logging.error(tb)
     
     def complete_add_node(self, text, line, begidx, endidx):
         params = ['address:', 'condition:', 'port:']
@@ -220,7 +306,56 @@ class Cmd_LoadBalancers(cmd.Cmd):
                             if f.startswith(text)
                             ]
         return completions
-
+    
+    def do_delete_node(self, line):
+        '''
+        delete Cloud Load-balancers node from declared_nodes list
+        
+        index        node index in declared_nodes list
+        '''
+        logging.debug("line: %s" % line)
+        d_kv = kvstring_to_dict(line)
+        logging.debug("kvs: %s" % d_kv)
+        # default values
+        (index) = (None)
+        # parsing parameters
+        if 'index' in d_kv.keys():
+            index = int(d_kv['index'])
+        else:
+            logging.warn("index missing")
+            return False
+        try:
+            removed_node = self.declared_nodes.pop(index) 
+            logging.info('deleting node index: %d, address:%s, port:%s, condition:%s' % 
+                     (index, removed_node.address, removed_node.port,
+                      removed_node.condition))
+        except Exception:
+            tb = traceback.format_exc()
+            logging.error(tb)
+    
+    def complete_delete_node(self, text, line, begidx, endidx):
+        params = ['index:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
+    
+    def do_list_declared_nodes(self, lines):
+        '''
+        list declared nodes
+        '''
+        pt = PrettyTable(['index', 'address', 'port', 'condition'])
+        ctr = 0
+        for n in self.declared_nodes:
+            pprint.pprint(n)
+            pt.add_row([ctr, n.address, n.port, n.condition])
+            ctr += 1
+        print pt
+    
     def preloop(self):
         cmd.Cmd.preloop(self)
         logging.debug("preloop")
