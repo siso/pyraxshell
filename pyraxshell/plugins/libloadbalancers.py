@@ -29,14 +29,14 @@ class LibLoadBalancers(object):
 
     def get_loadbalancer_by_id(self, _id):
         '''
-        return cloud loadbalancer instance specified by id
+        return Cloud load-balancer instance specified by id
         '''
         clb = pyrax.cloud_loadbalancers
         try:
             return [lb for lb in clb.list() if lb.id == int(_id)][0]
         except IndexError:
-            logging.error('cannot find cloud loadbalancer with id:%s' % _id)
+            logging.error('cannot find Cloud loadbalancer with id:%s' % _id)
             return None
         except:
-            logging.error('error searching cloud loadbalancer by id:%s' % _id)
+            logging.error('error searching Cloud loadbalancer by id:%s' % _id)
             return None

@@ -5,6 +5,7 @@ encoding//pyraxshell/libpyraxshell.py=utf-8
 encoding//pyraxshell/plugins/libauth.py=utf-8
 encoding//pyraxshell/plugins/libdatabases.py=utf-8
 encoding//pyraxshell/plugins/libdns.py=utf-8
+encoding//pyraxshell/plugins/libloadbalancers.py=utf-8
 encoding//pyraxshell/plugins/libservers.py=utf-8
 encoding//pyraxshell/plugins/plugin_auth.py=utf-8
 encoding//pyraxshell/plugins/plugin_databases.py=utf-8
