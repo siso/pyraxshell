@@ -7,6 +7,9 @@ CLI tool and interpreter to manage
 `pyrax <https://github.com/rackspace/pyrax>`__ module, therefore it aims
 to expose all the features implemented in *pyrax*.
 
+**ATTENTION** *pyraxshell* is currently in development stage, therefore
+it should be used for testing purposes only.
+
 Installation
 ------------
 
@@ -37,9 +40,11 @@ Create ``~/.pyrax.cfg`` file with your credentials:
 ::
 
     cat > ~/.pyrax.cfg << EOF
+    [rackspace_cloud]
     identity_type=rackspace
     username = USERNAME
     api_key = APIKEY
+    region = REGION
     EOF
 
 then simply run ``python pyraxshell`` and *pyraxshell* will try to
