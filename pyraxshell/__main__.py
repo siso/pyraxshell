@@ -41,6 +41,7 @@ class RaxShell(cmd.Cmd):
         cmd.Cmd.__init__(self)
         self.cfg = cfg
         self.libpyraxshell = libpyraxshell
+        # plug-ins
         self.plugin_names = list()
         self.load_plugins()
 
@@ -87,6 +88,32 @@ You should have received a copy of the GNU General Public License
 along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 '''
         logging.info(l)
+    
+    def do_list_plugins(self, line):
+        '''
+        list loaded plugins
+        '''
+        logging.info('listing loaded plug-ins')
+        l = sorted(self.plugin_names)
+        logging.info('\n'.join([p for p in l]))
+    
+    def do_reload_plugins(self, line):
+        '''
+        manually load plugins
+        '''
+        self.do_unload_plugins('')
+        self.load_plugins()
+    
+    def do_unload_plugins(self, line):
+        '''
+        list loaded plugins
+        '''
+        print dir(self)
+        logging.info('unloading plug-ins')
+        for i in range(len(self.plugin_names)):  # @UnusedVariable
+            p = 'do_%s' % self.plugin_names.pop()
+            delattr(self, p)
+            logging.info('plugin \'%s\' unloaded' % p)
     
     def do_version(self, line):
         '''
