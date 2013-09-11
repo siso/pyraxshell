@@ -15,4 +15,8 @@ loadbalancers
     list_declared_nodes
     delete_node index:-1
     list_declared_nodes
-#    create_load_balancer name:ssxx virtual_ip:1.1.1.1 port:80 protocol:HTTP node_index:0
+#    create_load_balancer name:ssxx virtual_ip:1.1.1.1 port:80 protocol:HTTP
+#    stats id:81293
+    list_virtual_ips id:81293
+    list_nodes id:81293
+    details id:81293

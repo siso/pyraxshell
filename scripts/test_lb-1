@@ -1,0 +1,10 @@
+auth
+is_authenticated
+exit
+loadbalancers
+    declare_node address:1.1.1.1 condition:ENABLED port:111
+    declare_node address:1.1.1.2 condition:ENABLED port:111
+    list_declared_nodes
+    list_declared_nodes
+    create_load_balancer name:ssyy virtual_ip:1.1.1.1 port:80 protocol:HTTP
+    list

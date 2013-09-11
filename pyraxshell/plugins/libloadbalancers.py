@@ -30,6 +30,10 @@ class LibLoadBalancers(object):
     def get_loadbalancer_by_id(self, _id):
         '''
         return Cloud load-balancer instance specified by id
+        
+        this should be replaced by 'clb.get(id)'
+        see: https://github.com/rackspace/pyrax/blob/master/docs/cloud_loadbalancers.md#working-with-load-balancers
+        but problems with 'do_details'
         '''
         clb = pyrax.cloud_loadbalancers
         try:
@@ -39,4 +43,21 @@ class LibLoadBalancers(object):
             return None
         except:
             logging.error('error searching Cloud loadbalancer by id:%s' % _id)
+            return None
+    
+    def get_node_by_id(self, loadbalancer_id, node_id):
+        '''
+        return Cloud load-balancer node
+        '''
+        try:
+            clb = pyrax.cloud_loadbalancers
+            lb = clb.get(loadbalancer_id)
+            return [node for node in lb.nodes if node.id == int(node_id)][0]
+        except IndexError:
+            logging.error('cannot find node id:%s in Cloud loadbalancer id:%s' %
+                          (node_id, loadbalancer_id))
+            return None
+        except:
+            logging.error('error searching node id:%s in Cloud loadbalancer '
+                          'id:%s' % (node_id, loadbalancer_id))
             return None
