@@ -56,10 +56,38 @@ class Cmd_LoadBalancers(cmd.Cmd):
         '''
         print
         return True
+    
+    def preloop(self):
+        cmd.Cmd.preloop(self)
+        logging.debug("preloop")
+        import plugins.libauth
+        if not plugins.libauth.LibAuth().is_authenticated():
+            logging.warn('please, authenticate yourself before continuing')
 
     # ########################################
     # LOAD BALANCERS
     
+    def do_add_node(self, line):
+        '''
+        add a node to load-balancer
+        
+        id            load-balancer id
+        node_index    node id within load-balancer
+        '''
+#TODO --
+        logging.info('TO BE IMPLEMENTED')
+    
+    def complete_add_node(self, text, line, begidx, endidx):
+        params = ['id:', 'node_index']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
+        
     def do_create_load_balancer(self, line):
         '''
         create a Cloud Load-balancers load-balancer
@@ -68,14 +96,12 @@ class Cmd_LoadBalancers(cmd.Cmd):
         virtual_ip_type  load-balancer virtual ip_type (default:PUBLIC, or SERVICENET)
         port             load-balancer port (default: 80)
         protocol         load-balancer protocol (default: HTTP)
-        node_index       index of first node to be added to load-balancer
         '''
         logging.debug("line: %s" % line)
         d_kv = kvstring_to_dict(line)
         logging.debug("kvs: %s" % d_kv)
         # default values
-        (name, virtual_ip_type, port, protocol, node_index) = (None, 'PUBLIC',
-                                                               80, 'HTTP', None)
+        (name, virtual_ip_type, port, protocol) = (None, 'PUBLIC', 80, 'HTTP')
         # parsing parameters
         if 'name' in d_kv.keys():
             name = d_kv['name']
@@ -96,30 +122,26 @@ class Cmd_LoadBalancers(cmd.Cmd):
         else:
             logging.warn("protocol missing")
             return False
-        if 'node_index' in d_kv.keys():
-            node_index = int(d_kv['node_index'])
-        else:
-            logging.warn("node_index missing")
-            return False
         clb = pyrax.cloud_loadbalancers
         if protocol not in clb.protocols:
             logging.warn("protocol '%s' not allowed possible values: " 
                          ', '.join([p for p in clb.protocols]))
             return False
         logging.info('creating load-balancer name:%s, virtual_ip:%s, port:%s,'
-                     ' protocol:%s, node_index:%s' %
-                     (name, virtual_ip_type, port, protocol, node_index))
+                     ' protocol:%s, nodes:[%s]' %
+                     (name, virtual_ip_type, port, protocol,
+                      ",".join(["%s" % n for n in self.declared_nodes])))
         try:
             vip = clb.VirtualIP(type = virtual_ip_type)
             clb.create(name, port = port, protocol = protocol,
-                       nodes = [self.declared_nodes.pop(node_index)],
+                       nodes = self.declared_nodes,
                        virtual_ips = [vip])
         except Exception:
             tb = traceback.format_exc()
             logging.error(tb)
     
     def complete_create_load_balancer(self, text, line, begidx, endidx):
-        params = ['name:', 'virtual_ip:', 'port:', 'protocol:', 'node_index']
+        params = ['name:', 'virtual_ip:', 'port:', 'protocol:']
         if not text:
             completions = params[:]
         else:
@@ -129,6 +151,88 @@ class Cmd_LoadBalancers(cmd.Cmd):
                             ]
         return completions
     
+    def do_delete(self, line):
+        '''
+        delete Cloud Load-balancers load-balancer
+        
+        id             load-balancer id
+        '''
+        logging.debug("line: %s" % line)
+        d_kv = kvstring_to_dict(line)
+        logging.debug("kvs: %s" % d_kv)
+        # default values
+        (_id) = (None)
+        # parsing parameters
+        if 'id' in d_kv.keys():
+            _id = d_kv['id']
+        else:
+            logging.warn("id missing")
+            return False
+        logging.info('deleting load-balancer id:%s' % _id)
+        try:
+            clb = pyrax.cloud_loadbalancers
+            lb = clb.get(_id)
+            lb.delete()
+        except Exception:
+            tb = traceback.format_exc()
+            logging.error(tb)
+    
+    def complete_delete(self, text, line, begidx, endidx):
+        params = ['id:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
+    
+    def do_details(self, line):
+        '''
+        load-balancer details
+        
+        id            load-balancer id
+        '''
+        logging.debug("line: %s" % line)
+        d_kv = kvstring_to_dict(line)
+        logging.debug("kvs: %s" % d_kv)
+        # default values
+        (_id) = (None)
+        # parsing parameters
+        if 'id' in d_kv.keys():
+            _id = d_kv['id']
+        else:
+            logging.warn("id missing")
+            return False
+        logging.info("Cloud load-balancer id:%s details" % _id)
+        try:
+            pt = PrettyTable(['key', 'value'])
+# TODO --   #
+            # if I do 'lb = clb.get(_id)' then lb does not have 'nodeCount'
+            # attribute. Why?
+            #clb = pyrax.cloud_loadbalancers
+            lb = self.libplugin.get_loadbalancer_by_id(_id)
+            #
+            pt.add_row(['id', _id])
+            pt.add_row(['node count', lb.nodeCount])
+            pt.align['key'] = 'l'
+            pt.align['value'] = 'l'
+            print pt
+        except Exception:
+            tb = traceback.format_exc()
+            logging.error(tb)
+    
+    def complete_details(self, text, line, begidx, endidx):
+        params = ['id:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
     def do_list(self, line):
         '''
         list load balancers
@@ -162,6 +266,53 @@ class Cmd_LoadBalancers(cmd.Cmd):
         pt.align['name'] = 'l'
         print pt
     
+    def do_list_nodes(self, line):
+        '''
+        list load-balancer nodes
+        
+        id            load-balancer id
+        '''
+        logging.debug("line: %s" % line)
+        d_kv = kvstring_to_dict(line)
+        logging.debug("kvs: %s" % d_kv)
+        # default values
+        (_id) = (None)
+        # parsing parameters
+        if 'id' in d_kv.keys():
+            _id = d_kv['id']
+        else:
+            logging.warn("id missing")
+            return False
+        logging.info("listing cloud load-balancer id:%s nodes" % _id)
+        clb = pyrax.cloud_loadbalancers
+        pt = PrettyTable(['index', 'type', 'condition', 'id', 'address', 'port',
+                          'weight'])
+        try:
+            lb = clb.get(_id)
+            ctr = 0
+            for n in lb.nodes:
+                pt.add_row([
+                            ctr, n.type, n.condition, n.id, n.address,
+                            n.port, n.weight
+                            ])
+                ctr += 1
+            pt.align['virtual_ips'] = 'l'
+            print pt
+        except Exception:
+            tb = traceback.format_exc()
+            logging.error(tb)
+    
+    def complete_list_nodes(self, text, line, begidx, endidx):
+        params = ['id:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
+    
     def do_list_protocols(self, line):
         '''
         list load balancers protocols
@@ -174,6 +325,49 @@ class Cmd_LoadBalancers(cmd.Cmd):
             pt.add_row([p])
         pt.align['name'] = 'l'
         print pt
+    
+    def do_list_virtual_ips(self, line):
+        '''
+        list load balancers virtual IPs
+        
+        id    load-balancer id
+        '''
+        logging.debug("line: %s" % line)
+        d_kv = kvstring_to_dict(line)
+        logging.debug("kvs: %s" % d_kv)
+        # default values
+        (_id) = (None)
+        # parsing parameters
+        if 'id' in d_kv.keys():
+            _id = d_kv['id']
+        else:
+            logging.warn("id missing")
+            return False
+        logging.info("listing cloud load balancer virtual IPs")
+        try:
+            clb = pyrax.cloud_loadbalancers
+            lb = clb.get(_id)
+            pprint.pprint(lb)
+            pt = PrettyTable(['id', 'type', 'address', 'ip_version'])
+            for vip in lb.virtual_ips:
+                pt.add_row([vip.id, vip.type, vip.address, vip.ip_version])
+            pt.align['id'] = 'l'
+            pt.align['address'] = 'l'
+            print pt
+        except Exception:
+            tb = traceback.format_exc()
+            logging.error(tb)
+    
+    def complete_list_virtual_ips(self, text, line, begidx, endidx):
+        params = ['id:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
     
     def do_stats(self, line):
         '''
@@ -193,7 +387,7 @@ class Cmd_LoadBalancers(cmd.Cmd):
             logging.warn("id missing")
             return False
         logging.info("listing cloud load balancers stats")
-        lb = self.libplugin.get_instance_by_id(_id)
+        lb = self.libplugin.get_loadbalancer_by_id(_id)
         pt = PrettyTable(['key', 'value'])
         for k, v in lb.get_stats().items():
             pt.add_row([k, v])
@@ -212,44 +406,6 @@ class Cmd_LoadBalancers(cmd.Cmd):
                             ]
         return completions
     
-    def do_virtual_ips(self, line):
-        '''
-        list load balancers virtual IPs
-        
-        id    load-balancer id
-        '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (_id) = (None)
-        # parsing parameters
-        if 'id' in d_kv.keys():
-            _id = d_kv['id']
-        else:
-            logging.warn("id missing")
-            return False
-        logging.info("listing cloud load balancer virtual IPs")
-        lb = self.libplugin.get_loadbalancer_by_id(_id)
-        pprint.pprint(lb)
-        pt = PrettyTable(['id', 'type', 'address', 'ip_version'])
-        for vip in lb.virtual_ips:
-            pt.add_row([vip.id, vip.type, vip.address, vip.ip_version])
-        pt.align['id'] = 'l'
-        pt.align['address'] = 'l'
-        print pt
-    
-    def complete_virtual_ips(self, text, line, begidx, endidx):
-        params = ['id:']
-        if not text:
-            completions = params[:]
-        else:
-            completions = [ f
-                           for f in params
-                            if f.startswith(text)
-                            ]
-        return completions
-    
     # ########################################
     # NODES
     
@@ -258,8 +414,8 @@ class Cmd_LoadBalancers(cmd.Cmd):
         declare Cloud Load-balancers node
         
         address          IP address
-        port             port (default: 80)
         condition        ENABLED, DISABLED, DRAINING (default: ENABLED)
+        port             port (default: 80)
         '''
         logging.debug("line: %s" % line)
         d_kv = kvstring_to_dict(line)
@@ -296,7 +452,7 @@ class Cmd_LoadBalancers(cmd.Cmd):
             tb = traceback.format_exc()
             logging.error(tb)
     
-    def complete_add_node(self, text, line, begidx, endidx):
+    def complete_declare_node(self, text, line, begidx, endidx):
         params = ['address:', 'condition:', 'port:']
         if not text:
             completions = params[:]
@@ -309,7 +465,55 @@ class Cmd_LoadBalancers(cmd.Cmd):
     
     def do_delete_node(self, line):
         '''
-        delete Cloud Load-balancers node from declared_nodes list
+        delete the node from its load balancer
+        
+        id            load-balancer id
+        node_id       id of node to delete 
+        '''
+        logging.debug("line: %s" % line)
+        d_kv = kvstring_to_dict(line)
+        logging.debug("kvs: %s" % d_kv)
+        # default values
+        (_id, node_id) = (None, None)
+        # parsing parameters
+        if 'id' in d_kv.keys():
+            _id = d_kv['id']
+        else:
+            logging.warn("id missing")
+            return False
+        if 'node_id' in d_kv.keys():
+            node_id = d_kv['node_id']
+        else:
+            logging.warn("node_id missing")
+            return False
+        logging.info("deleting node id:%s from Cloud load-balancer id:%s" %
+                     (_id, node_id))
+        try:
+            node = self.libplugin.get_node_by_id(_id, node_id)
+#TODO -- print node details
+            node.delete()
+            logging.info("node id:%s from Cloud load-balancer id:%s deleted" %
+                     (_id, node_id))
+        except Exception:
+            logging.info("error deleting node id:%s from Cloud load-balancer "
+                         "id:%s deleted" % (_id, node_id))
+            tb = traceback.format_exc()
+            logging.error(tb)
+    
+    def complete_delete_node(self, text, line, begidx, endidx):
+        params = ['id:', 'node_id:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
+    
+    def do_undeclare_node(self, line):
+        '''
+        undeclare Cloud Load-balancers node from declared_nodes list
         
         index        node index in declared_nodes list
         '''
@@ -329,11 +533,13 @@ class Cmd_LoadBalancers(cmd.Cmd):
             logging.info('deleting node index: %d, address:%s, port:%s, condition:%s' % 
                      (index, removed_node.address, removed_node.port,
                       removed_node.condition))
+        except IndexError:
+            logging.error('no declared node with index:%d' % index)
         except Exception:
             tb = traceback.format_exc()
             logging.error(tb)
     
-    def complete_delete_node(self, text, line, begidx, endidx):
+    def complete_undeclare_node(self, text, line, begidx, endidx):
         params = ['index:']
         if not text:
             completions = params[:]
@@ -356,9 +562,63 @@ class Cmd_LoadBalancers(cmd.Cmd):
             ctr += 1
         print pt
     
-    def preloop(self):
-        cmd.Cmd.preloop(self)
-        logging.debug("preloop")
-        import plugins.libauth
-        if not plugins.libauth.LibAuth().is_authenticated():
-            logging.warn('please, authenticate yourself before continuing')
+    def do_set_node_condition(self, line):
+        '''
+        set node condition
+        
+        id            load-balancer id
+        node_id       id of node to delete
+        condition    can be in one of 3 "conditions": ENABLED, DISABLED, and DRAINING
+        '''
+        logging.debug("line: %s" % line)
+        d_kv = kvstring_to_dict(line)
+        logging.debug("kvs: %s" % d_kv)
+        # default values
+        (_id, node_id, condition) = (None, None, None)
+        # parsing parameters
+        if 'id' in d_kv.keys():
+            _id = d_kv['id']
+        else:
+            logging.warn("id missing")
+            return False
+        if 'node_id' in d_kv.keys():
+            node_id = d_kv['node_id']
+        else:
+            logging.warn("node_id missing")
+            return False
+        logging.info("deleting node id:%s from Cloud load-balancer id:%s" %
+                     (_id, node_id))
+        if 'condition' in d_kv.keys():
+            condition = d_kv['condition']
+        else:
+            logging.warn("condition missing")
+            return False
+        condition_domain = ['ENABLED', 'DISABLED', 'DRAINING']
+        if condition not in condition_domain:
+            logging.warn('condition can be: \'%s\', not \'%s\'' %
+                         (', '.join([c for c in condition_domain]), condition))
+            return False
+        logging.info("setting node id:%s condition:%s in Cloud load-balancer"
+                     "id:%s" % (_id, condition, node_id))
+        try:
+            node = self.libplugin.get_node_by_id(_id, node_id)
+            node.condition = condition
+            node.update()
+            logging.info("node id:%s condition:%s in Cloud load-balancer id:%s"
+                         % (_id, condition, node_id))
+        except Exception:
+            logging.info("error setting node id:%s condition:%s in Cloud"
+                         "load-balancer id:%s" % (_id, condition, node_id))
+            tb = traceback.format_exc()
+            logging.error(tb)
+    
+    def complete_set_node_condition(self, text, line, begidx, endidx):
+        params = ['id:', 'node_id:', 'condition:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
