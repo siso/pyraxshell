@@ -108,7 +108,7 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
         '''
         list loaded plugins
         '''
-        print dir(self)
+        logging.debug(dir(self))
         logging.info('unloading plug-ins')
         for i in range(len(self.plugin_names)):  # @UnusedVariable
             p = 'do_%s' % self.plugin_names.pop()
