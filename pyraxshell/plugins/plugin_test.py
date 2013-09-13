@@ -37,9 +37,9 @@ def injectme(c):
 
 def do_test(*args):
 #     logging.debug("line: %s" % line)
-    Plugin().cmdloop()
+    TestPlugin().cmdloop()
 
-class Plugin(cmd.Cmd):
+class TestPlugin(cmd.Cmd):
     """
     pyraxshell - Test Plugin 
     """
@@ -52,8 +52,8 @@ class Plugin(cmd.Cmd):
         '''
         provide credentials and authenticate
         '''
-        logging.debug("TEST PLUGIN -- do_test")
         logging.debug("line: %s" % line)
+        logging.info("TEST PLUGIN -- do_test")
     
     def do_run_test_thread(self, line):
         TestThread().start()

@@ -1,1 +1,2 @@
 * if thread is running, quitting is not possible
+* if "ENTER" is pressed on a blank line, then last command is executed
