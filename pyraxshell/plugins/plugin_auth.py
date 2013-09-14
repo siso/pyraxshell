@@ -48,6 +48,27 @@ class Cmd_Auth(cmd.Cmd):
         print
         return True
     
+    def emptyline(self):
+        """Called when an empty line is entered in response to the prompt.
+
+        If this method is not overridden, it repeats the last nonempty
+        command entered.
+
+        """
+        if self.lastcmd:
+            self.lastcmd = ""
+            return self.onecmd('\n')
+
+    def preloop(self):
+        cmd.Cmd.preloop(self)
+        logging.debug("preloop")
+        import plugins.libauth
+        if not plugins.libauth.LibAuth().is_authenticated():
+            logging.warn('please, authenticate yourself before continuing')
+    
+    # ########################################
+    # CLOUD AUTHENTICATION
+    
     def do_change_password(self, line):
         '''
         change user\'s password
@@ -213,10 +234,3 @@ class Cmd_Auth(cmd.Cmd):
                             if f.startswith(text)
                             ]
         return completions
-    
-    def preloop(self):
-        cmd.Cmd.preloop(self)
-        logging.debug("preloop")
-        import plugins.libauth
-        if not plugins.libauth.LibAuth().is_authenticated():
-            logging.warn('please, authenticate yourself before continuing')
