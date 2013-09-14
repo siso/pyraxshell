@@ -18,10 +18,10 @@
 import cmd
 import logging
 from utility import kvstring_to_dict, print_top_right
-from plugins.libauth import LibAuth
 import threading
 import uuid
 import time
+from plugin import Plugin 
 
 name = 'test'
 
@@ -39,25 +39,12 @@ def do_test(*args):
 #     logging.debug("line: %s" % line)
     TestPlugin().cmdloop()
 
-class TestPlugin(cmd.Cmd):
+
+class TestPlugin(Plugin, cmd.Cmd):
     """
     pyraxshell - Test Plugin 
     """
     prompt = "H %s>" % name    # default prompt
-    
-    def emptyline(self):
-        """Called when an empty line is entered in response to the prompt.
-
-        If this method is not overridden, it repeats the last nonempty
-        command entered.
-
-        """
-        if self.lastcmd:
-            self.lastcmd = ""
-            return self.onecmd('\n')
-    
-    def do_exit(self,*args):
-        return True
 
     def do_test(self, line):
         '''
@@ -68,17 +55,6 @@ class TestPlugin(cmd.Cmd):
     
     def do_run_test_thread(self, line):
         TestThread().start()
-    
-    def do_EOF(self, line):
-        print
-        return True
-
-    def preloop(self):
-        cmd.Cmd.preloop(self)
-        logging.debug("preloop")
-        import plugins.libauth
-        if not plugins.libauth.LibAuth().is_authenticated():
-            logging.warn('please, authenticate yourself before continuing')
 
 
 class TestThread (threading.Thread):
