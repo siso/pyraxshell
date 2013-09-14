@@ -7,5 +7,5 @@ pyraxshell - TO-DO list
 * all 'complete_XXX' methods are almost the same
 * code can be optimised (get rid of repetition (focus on adding features until v0.2))
 * log messages should report at least class and method names
-* support comments
+* support comments, mainly useful in non-interactive mode
 * implement 'wait_for_completion' option for long lasting operations (create db instance, server, ...)
