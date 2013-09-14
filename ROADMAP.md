@@ -8,6 +8,7 @@ pyraxshell - ROADMAP
 ## v0.4
 * save command history to file (~/.pyraxshell/history ?)
 * threaded creation of objects with callback (i.e. servers)
+* pip installer
 
 ## v0.3
 * write unit-tests
@@ -18,7 +19,6 @@ pyraxshell - ROADMAP
 * load-balancers
 * databases
 * dns
-* pip installer
 
 ## v0.1 <== we are here!
 * plug-ins system

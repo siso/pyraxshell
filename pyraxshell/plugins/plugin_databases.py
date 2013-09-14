@@ -21,6 +21,7 @@ import pyrax
 from prettytable import PrettyTable
 from plugins.libdatabases import LibDatabases
 from utility import kvstring_to_dict
+from plugin import Plugin
 
 name = 'databases'
 
@@ -32,7 +33,7 @@ def do_databases(*args):
     Cmd_Databases().cmdloop()
 
 
-class Cmd_Databases(cmd.Cmd):
+class Cmd_Databases(Plugin, cmd.Cmd):
     '''
     pyrax shell POC - Manage databases
     '''
@@ -43,34 +44,6 @@ class Cmd_Databases(cmd.Cmd):
         cmd.Cmd.__init__(self)
         self.libplugin = LibDatabases()
         self.cdb = pyrax.cloud_databases
-
-    def do_EOF(self, line):
-        '''
-        just press CTRL-D to quit this menu
-        '''
-        print
-        return True
-    
-    def do_exit(self, *args):
-        return True
-    
-    def emptyline(self):
-        """Called when an empty line is entered in response to the prompt.
-
-        If this method is not overridden, it repeats the last nonempty
-        command entered.
-
-        """
-        if self.lastcmd:
-            self.lastcmd = ""
-            return self.onecmd('\n')
-    
-    def preloop(self):
-        cmd.Cmd.preloop(self)
-        logging.debug("preloop")
-        import plugins.libauth
-        if not plugins.libauth.LibAuth().is_authenticated():
-            logging.warn('please, authenticate yourself before continuing')
     
     # ########################################
     # CLOUD DATABASES - INSTANCES
