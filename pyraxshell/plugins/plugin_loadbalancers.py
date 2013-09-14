@@ -25,6 +25,7 @@ from prettytable import PrettyTable
 import pprint
 from plugins.libloadbalancers import LibLoadBalancers
 import traceback
+from plugin import Plugin
 
 name = 'loadbalancers'
 
@@ -36,7 +37,7 @@ def do_loadbalancers(*args):
     Cmd_LoadBalancers().cmdloop()
 
 
-class Cmd_LoadBalancers(cmd.Cmd):
+class Cmd_LoadBalancers(Plugin, cmd.Cmd):
     '''
     pyrax shell POC - load-balancers module
     '''
@@ -49,20 +50,6 @@ class Cmd_LoadBalancers(cmd.Cmd):
         
         # declared Cloud Load-balancers nodes
         self.declared_nodes = []
-
-    def do_EOF(self, line): 
-        '''
-        just press CTRL-D to quit this menu
-        '''
-        print
-        return True
-    
-    def preloop(self):
-        cmd.Cmd.preloop(self)
-        logging.debug("preloop")
-        import plugins.libauth
-        if not plugins.libauth.LibAuth().is_authenticated():
-            logging.warn('please, authenticate yourself before continuing')
 
     # ########################################
     # LOAD BALANCERS

@@ -22,6 +22,8 @@ from plugins.libservers import LibServers, ServerCreatorThread
 import traceback
 import pyrax
 from prettytable import PrettyTable
+from plugin import Plugin
+
 name = 'servers'
 
 def injectme(c):
@@ -32,7 +34,7 @@ def do_servers(*args):
     Cmd_Servers().cmdloop()
 
 
-class Cmd_Servers(cmd.Cmd):
+class Cmd_Servers(Plugin, cmd.Cmd):
     '''
     pyrax shell POC - Manage servers module
     '''
@@ -42,20 +44,6 @@ class Cmd_Servers(cmd.Cmd):
     def __init__(self):
         cmd.Cmd.__init__(self)
         self.libplugin = LibServers()
-
-    def do_EOF(self, line):
-        '''
-        just press CTRL-D to quit this menu
-        '''
-        print
-        return True
-
-    def preloop(self):
-        cmd.Cmd.preloop(self)
-        logging.debug("preloop")
-        import plugins.libauth
-        if not plugins.libauth.LibAuth().is_authenticated():
-            logging.warn('please, authenticate yourself before continuing')
 
     # ########################################
     # SERVER    

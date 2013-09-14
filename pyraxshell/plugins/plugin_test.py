@@ -18,10 +18,10 @@
 import cmd
 import logging
 from utility import kvstring_to_dict, print_top_right
-from plugins.libauth import LibAuth
 import threading
 import uuid
 import time
+from plugin import Plugin 
 
 name = 'test'
 
@@ -37,37 +37,24 @@ def injectme(c):
 
 def do_test(*args):
 #     logging.debug("line: %s" % line)
-    Plugin().cmdloop()
+    TestPlugin().cmdloop()
 
-class Plugin(cmd.Cmd):
+
+class TestPlugin(Plugin, cmd.Cmd):
     """
     pyraxshell - Test Plugin 
     """
     prompt = "H %s>" % name    # default prompt
-    
-    def do_exit(self,*args):
-        return True
 
     def do_test(self, line):
         '''
         provide credentials and authenticate
         '''
-        logging.debug("TEST PLUGIN -- do_test")
         logging.debug("line: %s" % line)
+        logging.info("TEST PLUGIN -- do_test")
     
     def do_run_test_thread(self, line):
         TestThread().start()
-    
-    def do_EOF(self, line):
-        print
-        return True
-
-    def preloop(self):
-        cmd.Cmd.preloop(self)
-        logging.debug("preloop")
-        import plugins.libauth
-        if not plugins.libauth.LibAuth().is_authenticated():
-            logging.warn('please, authenticate yourself before continuing')
 
 
 class TestThread (threading.Thread):

@@ -51,6 +51,20 @@ class RaxShell(cmd.Cmd):
         '''
         print
         return True
+    
+    def emptyline(self):
+        """Called when an empty line is entered in response to the prompt.
+
+        If this method is not overridden, it repeats the last nonempty
+        command entered.
+
+        """
+        if self.lastcmd:
+            self.lastcmd = ""
+            return self.onecmd('\n')
+    
+    # ########################################
+    # MAIN
 
     def do_credits(self, line):
         '''
@@ -108,7 +122,7 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
         '''
         list loaded plugins
         '''
-        print dir(self)
+        logging.debug(dir(self))
         logging.info('unloading plug-ins')
         for i in range(len(self.plugin_names)):  # @UnusedVariable
             p = 'do_%s' % self.plugin_names.pop()

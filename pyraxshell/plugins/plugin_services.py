@@ -23,6 +23,8 @@ import pprint
 import pyrax
 from prettytable import PrettyTable
 
+from plugin import Plugin
+
 name = 'services'
 
 def injectme(c):
@@ -35,32 +37,11 @@ def do_services(*args):
 #     logging.debug("line: %s" % line)
     Cmd_Services().cmdloop()
 
-class Cmd_Services(cmd.Cmd):
+class Cmd_Services(Plugin, cmd.Cmd):
     """
     pyraxshell - Services plugin 
     """
     prompt = "H %s>" % name    # default prompt
-    
-    def do_exit(self,*args):
-        return True
-
-    def do_test(self, line):
-        '''
-        provide credentials and authenticate
-        '''
-        logging.debug("TEST PLUGIN -- do_test")
-        logging.debug("line: %s" % line)
-    
-    def do_EOF(self, line):
-        print
-        return True
-
-    def preloop(self):
-        cmd.Cmd.preloop(self)
-        logging.debug("preloop")
-        import plugins.libauth
-        if not plugins.libauth.LibAuth().is_authenticated():
-            logging.warn('please, authenticate yourself before continuing')
 
     # ########################################
     # ENDPOINTS
@@ -117,3 +98,10 @@ class Cmd_Services(cmd.Cmd):
         list services
         '''
         logging.info("\n".join([s for s in pyrax.services]))
+    
+    def do_test(self, line):
+        '''
+        provide credentials and authenticate
+        '''
+        logging.debug("TEST PLUGIN -- do_test")
+        logging.debug("line: %s" % line)

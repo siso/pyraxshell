@@ -23,6 +23,7 @@ import pyrax
 import pyrax.exceptions as exc
 from prettytable import PrettyTable
 import pprint
+from plugin import Plugin
 
 name = 'dns'
 
@@ -34,7 +35,7 @@ def do_dns(*args):
     Cmd_DNS().cmdloop()
 
 
-class Cmd_DNS(cmd.Cmd):
+class Cmd_DNS(Plugin, cmd.Cmd):
     '''
     pyrax shell POC - DNS module
     '''
@@ -45,13 +46,9 @@ class Cmd_DNS(cmd.Cmd):
         cmd.Cmd.__init__(self)
         self.libplugin = LibDNS()
 
-    def do_EOF(self, line): 
-        '''
-        just press CTRL-D to quit this menu
-        '''
-        print
-        return True
-    
+    # ########################################
+    # CLOUD DNS
+            
     def do_add_record(self, line):
         '''
         add DNS record
@@ -459,10 +456,3 @@ class Cmd_DNS(cmd.Cmd):
         list subdomains
         '''
         logging.info('NOT IMPLEMENTED YET')
-    
-    def preloop(self):
-        cmd.Cmd.preloop(self)
-        logging.debug("preloop")
-        import plugins.libauth
-        if not plugins.libauth.LibAuth().is_authenticated():
-            logging.warn('please, authenticate yourself before continuing')
