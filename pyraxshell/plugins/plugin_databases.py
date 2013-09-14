@@ -54,6 +54,17 @@ class Cmd_Databases(cmd.Cmd):
     def do_exit(self, *args):
         return True
     
+    def emptyline(self):
+        """Called when an empty line is entered in response to the prompt.
+
+        If this method is not overridden, it repeats the last nonempty
+        command entered.
+
+        """
+        if self.lastcmd:
+            self.lastcmd = ""
+            return self.onecmd('\n')
+    
     def preloop(self):
         cmd.Cmd.preloop(self)
         logging.debug("preloop")

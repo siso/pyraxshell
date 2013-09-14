@@ -51,6 +51,20 @@ class RaxShell(cmd.Cmd):
         '''
         print
         return True
+    
+    def emptyline(self):
+        """Called when an empty line is entered in response to the prompt.
+
+        If this method is not overridden, it repeats the last nonempty
+        command entered.
+
+        """
+        if self.lastcmd:
+            self.lastcmd = ""
+            return self.onecmd('\n')
+    
+    # ########################################
+    # MAIN
 
     def do_credits(self, line):
         '''

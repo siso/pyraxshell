@@ -45,6 +45,17 @@ class TestPlugin(cmd.Cmd):
     """
     prompt = "H %s>" % name    # default prompt
     
+    def emptyline(self):
+        """Called when an empty line is entered in response to the prompt.
+
+        If this method is not overridden, it repeats the last nonempty
+        command entered.
+
+        """
+        if self.lastcmd:
+            self.lastcmd = ""
+            return self.onecmd('\n')
+    
     def do_exit(self,*args):
         return True
 
