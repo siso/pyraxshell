@@ -9,7 +9,7 @@ pyraxshell - Plug-ins system
 * see ```./pyraxshell/plugins/plugin_test.py``` to understando how to write a plugin
 
 
-##' Reloading plug-ins
+## Reloading plug-ins
 Plug-ins can be reloaded from the *main* interpreter:
 
 ```

@@ -18,6 +18,7 @@
 import logging
 import pyrax
 import pyrax.exceptions as exc
+import traceback
 
 class LibDNS(object):
     '''
@@ -28,6 +29,9 @@ class LibDNS(object):
     # DNS
     
     def create_domain(self, domain_name, email_address, ttl, comment):
+        '''
+        create a domain
+        '''
         try:
             logging.debug('creating dns domain name:%s, emailAddress:%s,'
                           'ttl:%s, comment:%s' %
@@ -44,4 +48,20 @@ class LibDNS(object):
             return False
         except Exception as e:
             logging.error("error: %s" % e)
+            return False
+
+    def get_domain_by_name(self, domain_name):
+        '''
+        return domain by name
+        '''
+        try:
+            cdns = pyrax.cloud_dns
+            domain =  [d for d in cdns.list() if d.name == domain_name][0]
+            return domain
+        except IndexError:
+            logging.error('cannot find domain name: \'%s\'' % domain_name)
+            return False
+        except:
+            tb = traceback.format_exc()
+            logging.error(tb)
             return False
