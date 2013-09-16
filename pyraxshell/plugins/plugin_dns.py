@@ -24,6 +24,7 @@ import pyrax.exceptions as exc
 from prettytable import PrettyTable
 import pprint
 from plugin import Plugin
+import traceback
 
 name = 'dns'
 
@@ -108,6 +109,17 @@ class Cmd_DNS(Plugin, cmd.Cmd):
         except exc.NotFound:
             logging.error("domain '%s' not found" % name)
     
+    def complete_add_record(self, text, line, begidx, endidx):
+        params = ['data:', 'name:', 'ttl:', 'type:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
+    
     def do_create_domain(self, line):
         '''
         create a domain
@@ -147,7 +159,7 @@ class Cmd_DNS(Plugin, cmd.Cmd):
         self.libplugin.create_domain(name, email_address, ttl, comment)
     
     def complete_create_domain(self, text, line, begidx, endidx):
-        params = ['name:', 'emanameil_address:', 'ttl:', 'comment:']
+        params = ['name:', 'email_address:', 'ttl:', 'comment:']
         if not text:
             completions = params[:]
         else:
@@ -227,7 +239,7 @@ class Cmd_DNS(Plugin, cmd.Cmd):
         '''
         delete DNS record
         
-        type    record type, currently supported: A, MX
+        type    record type, currently supported: A
         name    domain name
         data    i.e.: 1.2.3.4
         '''
@@ -272,6 +284,17 @@ class Cmd_DNS(Plugin, cmd.Cmd):
                 logging.error("cannot delete dns record '%s'" % name)
         except exc.NotFound:
             logging.error("domain '%s' not found" % name)
+    
+    def complete_delete_record(self, text, line, begidx, endidx):
+        params = ['data:', 'name:', 'type:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
     
     def do_delete_records(self, line):
         '''
@@ -431,10 +454,10 @@ class Cmd_DNS(Plugin, cmd.Cmd):
         dns = pyrax.cloud_dns
         domains = dns.list()
         try:
-            header = ['name', 'email address', 'created']
+            header = ['id', 'name', 'email address', 'created', 'ttl']
             pt = PrettyTable(header)
             for d in domains:
-                pt.add_row([d.name, d.emailAddress, d.created])
+                pt.add_row([d.id, d.name, d.emailAddress, d.created, d.ttl])
                 logging.debug(pprint.pformat(d))
             pt.align['name'] = 'l'
             pt.align['email address'] = 'l'
@@ -442,6 +465,8 @@ class Cmd_DNS(Plugin, cmd.Cmd):
             print pt
         except:
             logging.error('cannot list dns domains')
+            tb = traceback.format_exc()
+            logging.error(tb)
     
     def do_list_ptr_records(self, line):
 #TODO -- 
@@ -454,5 +479,45 @@ class Cmd_DNS(Plugin, cmd.Cmd):
 #TODO -- 
         '''
         list subdomains
+        
+        domain_name    name of the domain for which to list sub-domains
         '''
-        logging.info('NOT IMPLEMENTED YET')
+        logging.debug("line: %s" % line)
+        d_kv = kvstring_to_dict(line)
+        logging.debug("kvs: %s" % d_kv)
+        # default values
+        (domain_name) = (None)
+        # parsing parameters
+        if 'domain_name' in d_kv.keys():
+            domain_name = d_kv['domain_name']
+        else:
+            logging.warn("domain_name missing")
+            return False
+        logging.debug('listing \'%s\' sub-domains' % domain_name)
+        try:
+            domain = self.libplugin.get_domain_by_name(domain_name)
+            subdomains = domain.list_subdomains()
+            header = ['id', 'name', 'email address']
+            pt = PrettyTable(header)
+            for d in subdomains:
+                pt.add_row([d.id, d.name, d.emailAddress])
+                logging.debug(pprint.pformat(d))
+            pt.align['name'] = 'l'
+            pt.align['email address'] = 'l'
+            pt.get_string(sortby='name')
+            print pt
+        except:
+            logging.debug('cannot list \'%s\' sub-domains' % domain_name)
+            tb = traceback.format_exc()
+            logging.error(tb)
+
+    def complete_list_subdomains(self, text, line, begidx, endidx):
+        params = ['domain_name:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
