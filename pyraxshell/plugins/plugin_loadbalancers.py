@@ -362,6 +362,8 @@ class Cmd_LoadBalancers(Plugin, cmd.Cmd):
         
         id    load-balancer id
         '''
+        logging.info("currently does not work")
+        return False
         logging.debug("line: %s" % line)
         d_kv = kvstring_to_dict(line)
         logging.debug("kvs: %s" % d_kv)
