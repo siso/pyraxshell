@@ -14,13 +14,13 @@ pyraxshell - ROADMAP
 * write unit-tests
 * review documentation
 
-## v0.2
+## v0.2 <== we are here!
 * servers
 * load-balancers
 * databases
 * dns
 
-## v0.1 <== we are here!
+## v0.1
 * plug-ins system
 * servers -- BASIC FEATURES
 * databases -- BASIC FEATURES
