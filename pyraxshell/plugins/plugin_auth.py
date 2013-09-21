@@ -19,6 +19,7 @@ import cmd
 import logging
 from utility import kvstring_to_dict
 from plugins.libauth import LibAuth
+from plugins.plugin import Plugin
 
 name = 'auth'
 
@@ -27,18 +28,18 @@ def injectme(c):
     logging.debug('%s injected' % __file__)
 
 def do_auth(*args):
-    Cmd_Auth().cmdloop()
+    Cmd_auth().cmdloop()
 
 
-class Cmd_Auth(cmd.Cmd):
+class Cmd_auth(cmd.Cmd):
     '''
     pyrax shell POC - Authenticate module
     '''
     
-    prompt = "H auth>"    # default prompt
+    prompt = "RS auth>"    # default prompt
     
     def __init__(self):
-        cmd.Cmd.__init__(self)
+        Plugin.__init__(self)
         self.libplugin = LibAuth()
 
     def do_EOF(self, line):

@@ -16,16 +16,14 @@
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
 import cmd
-from libpyraxshell import Libpyraxshell
 import logging
 from utility import kvstring_to_dict, is_ipv4
 import pyrax
 import pyrax.exceptions as exc
 from prettytable import PrettyTable
 import pprint
-from plugins.libloadbalancers import LibLoadBalancers
 import traceback
-from plugin import Plugin
+import plugins
 
 name = 'loadbalancers'
 
@@ -34,18 +32,20 @@ def injectme(c):
     logging.debug('%s injected' % __file__)
 
 def do_loadbalancers(*args):
-    Cmd_LoadBalancers().cmdloop()
+    Cmd_loadbalancers().cmdloop()
 
+from plugins.libloadbalancers import LibLoadBalancers
+from plugin import Plugin
 
-class Cmd_LoadBalancers(Plugin, cmd.Cmd):
+class Cmd_loadbalancers(Plugin, cmd.Cmd):
     '''
     pyrax shell POC - load-balancers module
     '''
     
-    prompt = "H lb>"  # default prompt
+    prompt = "RS lb>"  # default prompt
     
     def __init__(self):
-        cmd.Cmd.__init__(self)
+        Plugin.__init__(self)
         self.libplugin = LibLoadBalancers()
         
         # declared Cloud Load-balancers nodes

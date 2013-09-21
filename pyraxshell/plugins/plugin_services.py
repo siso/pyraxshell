@@ -24,6 +24,7 @@ import pyrax
 from prettytable import PrettyTable
 
 from plugin import Plugin
+from plugins.libservices import LibServices
 
 name = 'services'
 
@@ -35,13 +36,18 @@ def injectme(c):
 
 def do_services(*args):
 #     logging.debug("line: %s" % line)
-    Cmd_Services().cmdloop()
+    Cmd_services().cmdloop()
 
-class Cmd_Services(Plugin, cmd.Cmd):
+
+class Cmd_services(Plugin, cmd.Cmd):
     """
     pyraxshell - Services plugin 
     """
-    prompt = "H %s>" % name    # default prompt
+    prompt = "RS %s>" % name    # default prompt
+    
+    def __init__(self):
+        Plugin.__init__(self)
+        self.libplugin = LibServices()
 
     # ########################################
     # ENDPOINTS
