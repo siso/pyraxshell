@@ -7,6 +7,8 @@ CLI tool and interpreter to manage
 `pyrax <https://github.com/rackspace/pyrax>`__ module, therefore it aims
 to expose all the features implemented in *pyrax*.
 
+Watch *pyraxshell* in action:
+
 **ATTENTION** *pyraxshell* is currently in development stage, therefore
 it should be used for testing purposes only.
 
@@ -140,6 +142,16 @@ If a parameter has a default value, then it is considered optional:
             email_address    
             ttl                TTL (optional, default:900)
             comment            (optional, default:void)
+
+Using pyraxshell non-interactively with pyraxcli
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``pyraxcli`` is a wrapper which allows to run *pyraxshell* commands from
+the command-line, e.g.:
+
+``$ python pyraxshell/pyraxcli.py servers, list, EOF, loadbalancers, list, list_nodes id:81957``
+
+using the same *pyraxshell syntax*, and commands separated by *commas*.
 
 Using pyraxshell non-interactively
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

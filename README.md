@@ -117,6 +117,14 @@ H dns>help create_domain
         comment            (optional, default:void)
 ```
 
+### Using pyraxshell non-interactively with pyraxcli
+
+```pyraxcli``` is a wrapper which allows to run *pyraxshell* commands from the command-line, e.g.:
+
+```$ python pyraxshell/pyraxcli.py servers, list, EOF, loadbalancers, list, list_nodes id:81957```
+
+using the same *pyraxshell syntax*, and commands separated by *commas*.
+
 ### Using pyraxshell non-interactively
 
 Running *pyraxshell* **non-teractively** is pretty easy, and it is the best way to automate tasks. Just create a text file with the commands you want to run:
