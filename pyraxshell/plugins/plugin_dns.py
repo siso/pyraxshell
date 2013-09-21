@@ -446,6 +446,12 @@ class Cmd_DNS(Plugin, cmd.Cmd):
                             ]
         return completions
     
+    def do_list(self, line):
+        '''
+        list domains
+        '''
+        self.do_list_domains(line)
+    
     def do_list_domains(self, line):
         '''
         list domains

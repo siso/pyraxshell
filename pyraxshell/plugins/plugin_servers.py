@@ -152,6 +152,15 @@ class Cmd_Servers(Plugin, cmd.Cmd):
                            for f in params
                             if f.startswith(text)
                             ]
+#TODO --
+        last_token = line.split()[-1]
+        logging.debug("last_token: %s" % last_token)
+        if last_token == 'flavor_id:':
+            logging.debug("auto-complete flavour")
+        elif last_token == 'image_id:':
+            logging.debug("auto-complete image_id")
+        elif last_token == 'name:':
+            logging.debug("auto-complete name")
         return completions
     
     def do_delete(self, line):
@@ -359,7 +368,7 @@ class Cmd_Servers(Plugin, cmd.Cmd):
         except:
             logging.error(traceback.format_exc())
     
-    def complete_take_snapshot(self, text, line, begidx, endidx):
+    def complete_take_snapshots(self, text, line, begidx, endidx):
         params = ['id:', 'snapshot_name:']
         if not text:
             completions = params[:]

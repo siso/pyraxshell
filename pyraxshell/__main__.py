@@ -115,10 +115,10 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
         '''
         manually load plugins
         '''
-        self.do_unload_plugins('')
+        self.unload_plugins('')
         self.load_plugins()
     
-    def do_unload_plugins(self, line):
+    def unload_plugins(self, line):
         '''
         list loaded plugins
         '''
@@ -134,7 +134,7 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
         display pyraxshell version
         '''
         import version
-        logging.info('pyraxshell version: %s' % version.version)
+        logging.info('pyraxshell version: %s' % version.VERSION)
 
     def get_names(self):
         '''
