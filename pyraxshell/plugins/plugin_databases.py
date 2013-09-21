@@ -30,18 +30,18 @@ def injectme(c):
     logging.debug('%s injected' % __file__)
 
 def do_databases(*args):
-    Cmd_Databases().cmdloop()
+    Cmd_databases().cmdloop()
 
 
-class Cmd_Databases(Plugin, cmd.Cmd):
+class Cmd_databases(Plugin, cmd.Cmd):
     '''
     pyrax shell POC - Manage databases
     '''
     
-    prompt = "H db>"    # default prompt
+    prompt = "RS db>"    # default prompt
 
     def __init__(self):
-        cmd.Cmd.__init__(self)
+        Plugin.__init__(self)
         self.libplugin = LibDatabases()
         self.cdb = pyrax.cloud_databases
     

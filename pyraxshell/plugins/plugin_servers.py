@@ -31,18 +31,18 @@ def injectme(c):
     logging.debug('%s injected' % __file__)
 
 def do_servers(*args):
-    Cmd_Servers().cmdloop()
+    Cmd_servers().cmdloop()
 
 
-class Cmd_Servers(Plugin, cmd.Cmd):
+class Cmd_servers(Plugin, cmd.Cmd):
     '''
     pyrax shell POC - Manage servers module
     '''
     
-    prompt = "H servers>"    # default prompt
+    prompt = "RS servers>"    # default prompt
 
     def __init__(self):
-        cmd.Cmd.__init__(self)
+        Plugin.__init__(self)
         self.libplugin = LibServers()
 
     # ########################################

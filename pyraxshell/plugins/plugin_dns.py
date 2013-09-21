@@ -33,18 +33,18 @@ def injectme(c):
     logging.debug('%s injected' % __file__)
 
 def do_dns(*args):
-    Cmd_DNS().cmdloop()
+    Cmd_dns().cmdloop()
 
 
-class Cmd_DNS(Plugin, cmd.Cmd):
+class Cmd_dns(Plugin, cmd.Cmd):
     '''
     pyrax shell POC - DNS module
     '''
     
-    prompt = "H dns>"    # default prompt
+    prompt = "RS dns>"    # default prompt
     
     def __init__(self):
-        cmd.Cmd.__init__(self)
+        Plugin.__init__(self)
         self.libplugin = LibDNS()
 
     # ########################################

@@ -19,9 +19,14 @@ import argparse
 import logging
 import pyrax
 import pprint
+from singleton import Singleton
 
-class Configuration(object):
+@Singleton
+class Configuration:
     def __init__(self):
+        self.set_defaults()
+
+    def set_defaults(self):
         # DEFAULTS
 #         self.default_data_center = pyrax.default_region
         self.__default_identity_type = 'rackspace'
