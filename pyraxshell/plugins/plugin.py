@@ -17,18 +17,23 @@
 
 import cmd
 import logging
+from configuration import Configuration
 
+name = 'none'
 
 class Plugin(cmd.Cmd):
     '''
     Plugin base class
     '''
-
+    
+    prompt = "RS %s>" % name    # default prompt
+    
     def __init__(self):
         '''
         Constructor
         '''
         cmd.Cmd.__init__(self)
+        self.cfg = Configuration.Instance()  # @UndefinedVariable
     
     def do_EOF(self, line):
         '''
@@ -48,11 +53,11 @@ class Plugin(cmd.Cmd):
             self.lastcmd = ""
             return self.onecmd('\n')
 
-    def do_exit(self,*args):
+    def do_exit(self, line):
         '''
-        exit this interpreter
+        EOF alias
         '''
-        return True
+        return self.do_EOF(line)
         
     def preloop(self):
         cmd.Cmd.preloop(self)
@@ -60,3 +65,9 @@ class Plugin(cmd.Cmd):
         import plugins.libauth
         if not plugins.libauth.LibAuth().is_authenticated():
             logging.warn('please, authenticate yourself before continuing')
+
+    def do_quit(self, line):
+        '''
+        EOF alias
+        '''
+        return self.do_EOF(line)

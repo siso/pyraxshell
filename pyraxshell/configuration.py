@@ -19,9 +19,17 @@ import argparse
 import logging
 import pyrax
 import pprint
+from singleton import Singleton
 
-class Configuration(object):
+@Singleton
+class Configuration:
     def __init__(self):
+        self.set_defaults()
+        # is pyraxshell running interactively?
+        import os
+        self.interactive = os.isatty(0)
+
+    def set_defaults(self):
         # DEFAULTS
 #         self.default_data_center = pyrax.default_region
         self.__default_identity_type = 'rackspace'
@@ -80,6 +88,10 @@ class Configuration(object):
     def identity_type(self):
         return self.args.identity_type
     
+    @property
+    def interactive(self):
+        return self.interactive
+
     # --pyrax-http-debug (True)
     @property
     def pyrax_http_debug(self):
@@ -106,4 +118,4 @@ class Configuration(object):
         return self.args.verbosity
      
     def __str__(self):
-        return pprint.pformat(self.args)
+        return "%s, interactive=%s" % (pprint.pformat(self.args), self.interactive)

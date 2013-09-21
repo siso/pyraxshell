@@ -16,16 +16,14 @@
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
 import cmd
-from libpyraxshell import Libpyraxshell
 import logging
 from utility import kvstring_to_dict, is_ipv4
 import pyrax
 import pyrax.exceptions as exc
 from prettytable import PrettyTable
 import pprint
-from plugins.libloadbalancers import LibLoadBalancers
 import traceback
-from plugin import Plugin
+import plugins
 
 name = 'loadbalancers'
 
@@ -34,18 +32,20 @@ def injectme(c):
     logging.debug('%s injected' % __file__)
 
 def do_loadbalancers(*args):
-    Cmd_LoadBalancers().cmdloop()
+    Cmd_loadbalancers().cmdloop()
 
+from plugins.libloadbalancers import LibLoadBalancers
+from plugin import Plugin
 
-class Cmd_LoadBalancers(Plugin, cmd.Cmd):
+class Cmd_loadbalancers(Plugin, cmd.Cmd):
     '''
     pyrax shell POC - load-balancers module
     '''
     
-    prompt = "H lb>"  # default prompt
+    prompt = "RS lb>"  # default prompt
     
     def __init__(self):
-        cmd.Cmd.__init__(self)
+        Plugin.__init__(self)
         self.libplugin = LibLoadBalancers()
         
         # declared Cloud Load-balancers nodes
@@ -220,6 +220,78 @@ class Cmd_LoadBalancers(Plugin, cmd.Cmd):
                             if f.startswith(text)
                             ]
         return completions
+    
+    def do_get_usage(self, line):
+        '''
+        show Cloud Load-balancer usage
+        
+        Please note that usage statistics are very fine-grained, with a record
+        for every hour that the load balancer is active.
+        
+        id    load-balancer id
+        '''
+        logging.debug("line: %s" % line)
+        d_kv = kvstring_to_dict(line)
+        logging.debug("kvs: %s" % d_kv)
+        # default values
+        (_id) = (None)
+        # parsing parameters
+        if 'id' in d_kv.keys():
+            _id = d_kv['id']
+        else:
+            logging.warn("id missing")
+            return False
+        logging.info("Cloud load-balancer id:%s usage" % _id)
+        lb = self.libplugin.get_loadbalancer_by_id(_id)
+        try:
+            d_usage = lb.get_usage()['loadBalancerUsageRecords']
+#             print d_usage
+            pt = PrettyTable(['averageNumConnections',
+                              'averageNumConnectionsSsl',
+                              'endTime',
+                              'id',
+                              'incomingTransfer',
+                              'incomingTransferSsl',
+                              'numPolls',
+                              'numVips',
+                              'outgoingTransfer',
+                              'outgoingTransferSsl',
+                              'sslMode',
+                              'startTime',
+                              'vipType'
+                              ])
+            for record in d_usage:
+#                 print record.values()
+                pt.add_row([record['averageNumConnections'],
+                            record['averageNumConnectionsSsl'],
+                            record['endTime'],
+                            record['id'],
+                            record['incomingTransfer'],
+                            record['incomingTransferSsl'],
+                            record['numPolls'],
+                            record['numVips'],
+                            record['outgoingTransfer'],
+                            record['outgoingTransferSsl'],
+                            record['sslMode'],
+                            record['startTime'],
+                            record['vipType']
+                            ])
+            print pt
+        except:
+            tb = traceback.format_exc()
+            logging.error(tb)
+    
+    def complete_get_usage(self, text, line, begidx, endidx):
+        params = ['id:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
+    
     def do_list(self, line):
         '''
         list load balancers
@@ -394,6 +466,80 @@ class Cmd_LoadBalancers(Plugin, cmd.Cmd):
                             if f.startswith(text)
                             ]
         return completions
+    
+    def do_update(self, line):
+        '''
+        update Cloud Load-balancer attributes 
+        
+        id    load-balancer id
+        name
+        algorithm
+        protocol
+        halfClosed
+        port
+        timeout
+        '''
+        logging.debug("line: %s" % line)
+        d_kv = kvstring_to_dict(line)
+        logging.debug("kvs: %s" % d_kv)
+        # default values
+        (_id, name, algorithm, protocol, halfClosed, port, timeout) = (
+         (None, None, None, None, None, None, None))
+        # parsing parameters
+        if 'id' in d_kv.keys():
+            _id = d_kv['id']
+        else:
+            logging.warn("id missing")
+            return False
+        if 'name' in d_kv.keys():
+            name = d_kv['name']
+            logging.debug("name: %s" % name)
+        if 'algorithm' in d_kv.keys():
+            algorithm = d_kv['algorithm']
+            logging.debug("algorithm: %s" % algorithm)
+        if 'protocol' in d_kv.keys():
+            protocol = d_kv['protocol']
+            logging.debug("protocol: %s" % protocol)
+        if 'halfClosed' in d_kv.keys():
+            halfClosed = d_kv['halfClosed']
+            logging.debug("halfClosed: %s" % halfClosed)
+        if 'port' in d_kv.keys():
+            port = d_kv['port']
+            logging.debug("port: %s" % port)
+        if 'timeout' in d_kv.keys():
+            timeout = d_kv['timeout']
+            logging.debug("timeout: %s" % timeout)
+        logging.info("updating Cloud load-balancer id:%s (%s)" % (_id, d_kv))
+        lb = self.libplugin.get_loadbalancer_by_id(_id)
+        del d_kv['id']  # remove 'id' and use d_kv as kargs
+        # check params
+        k_domain = ['name', 'algorithm', 'protocol', 'halfClosed', 'port',
+                    'timeout']
+        for k in d_kv.keys():
+            if k not in k_domain:
+                logging.warn('found invalid param \'%s\'' % k)
+                del d_kv[k]
+        if len(d_kv) == 0:
+            logging.warn('no params to update Cloud load-balancer')
+            return False
+        try:
+            lb.update(**d_kv)
+        except:
+            tb = traceback.format_exc()
+            logging.error(tb)
+    
+    def complete_update(self, text, line, begidx, endidx):
+        params = ['id:', 'name:', 'algorithm:', 'protocol:', 'halfClosed:',
+                  'port:', 'timeout:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
+    
     
     # ########################################
     # NODES

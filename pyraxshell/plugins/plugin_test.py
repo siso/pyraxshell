@@ -44,7 +44,7 @@ class TestPlugin(Plugin, cmd.Cmd):
     """
     pyraxshell - Test Plugin 
     """
-    prompt = "H %s>" % name    # default prompt
+    prompt = "RS %s>" % name    # default prompt
 
     def do_test(self, line):
         '''

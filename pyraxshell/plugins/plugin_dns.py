@@ -33,18 +33,18 @@ def injectme(c):
     logging.debug('%s injected' % __file__)
 
 def do_dns(*args):
-    Cmd_DNS().cmdloop()
+    Cmd_dns().cmdloop()
 
 
-class Cmd_DNS(Plugin, cmd.Cmd):
+class Cmd_dns(Plugin, cmd.Cmd):
     '''
     pyrax shell POC - DNS module
     '''
     
-    prompt = "H dns>"    # default prompt
+    prompt = "RS dns>"    # default prompt
     
     def __init__(self):
-        cmd.Cmd.__init__(self)
+        Plugin.__init__(self)
         self.libplugin = LibDNS()
 
     # ########################################
@@ -445,6 +445,12 @@ class Cmd_DNS(Plugin, cmd.Cmd):
                             if f.startswith(text)
                             ]
         return completions
+    
+    def do_list(self, line):
+        '''
+        list domains
+        '''
+        self.do_list_domains(line)
     
     def do_list_domains(self, line):
         '''
