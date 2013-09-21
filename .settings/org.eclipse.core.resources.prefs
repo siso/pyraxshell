@@ -16,6 +16,7 @@ encoding//pyraxshell/plugins/plugin_loadbalancers.py=utf-8
 encoding//pyraxshell/plugins/plugin_servers.py=utf-8
 encoding//pyraxshell/plugins/plugin_services.py=utf-8
 encoding//pyraxshell/plugins/plugin_test.py=utf-8
+encoding//pyraxshell/pyraxcli.py=utf-8
 encoding//pyraxshell/pyraxshell.py=utf-8
 encoding//pyraxshell/singleton.py=utf-8
 encoding//pyraxshell/utility.py=utf-8
