@@ -109,9 +109,8 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
         '''
         list loaded plugins
         '''
-        logging.info('listing loaded plug-ins')
         l = sorted(self.plugin_names)
-        logging.info('\n'.join([p for p in l]))
+        logging.info("loaded plugins: %s" % ', '.join([p for p in l]))
     
     def do_reload_plugins(self, line):
         '''
