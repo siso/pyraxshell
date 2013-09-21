@@ -1,10 +1,11 @@
 Release notes for pyraxshell
 =======
 
-## 2013.09.XX - Version 0.2.1
+## 2013.09.21 - Version 0.2.1
   * Fixed issue #7 - Remove "unload_plugins"
   * Fixed 'import' in 'pyraxshell::load_plugins()'
   * Fixed issue #6
+  * Fixed issue #10
 
 ## 2013.09.16 - Version 0.2.0
   * Added features to plugin_loadbalancers
