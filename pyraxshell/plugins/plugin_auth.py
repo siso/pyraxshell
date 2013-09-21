@@ -73,6 +73,7 @@ class Cmd_Auth(cmd.Cmd):
         '''
         change user\'s password
         '''
+#TODO --
         logging.info('NOT IMPLEMENTED YET')
     
     def do_credentials(self, line):

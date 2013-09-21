@@ -43,7 +43,7 @@ class PyTest(TestCommand):
         sys.exit(errno)
 
 setup(
-    name='pyrxshell',
+    name='pyraxshell',
     version=pyraxshell.__version__,
     url='http://github.com/siso/pyraxshell/',
     license='GPL 3',
