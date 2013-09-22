@@ -2,7 +2,9 @@ Release notes for pyraxshell
 =======
 
 ## 2013.09.22 - Version 0.2.2
-  * ...
+  * Fixed issue #3
+  * Improved 'plugins.libdns'
+  * Started writing unit-tests 
 
 ## 2013.09.21 - Version 0.2.1
   * Fixed issue #7 - Remove "unload_plugins"
