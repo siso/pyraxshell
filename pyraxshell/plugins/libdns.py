@@ -65,3 +65,97 @@ class LibDNS(object):
             tb = traceback.format_exc()
             logging.error(tb)
             return False
+
+    def get_domains(self):
+        '''
+        return domains
+        '''
+        dns = pyrax.cloud_dns
+        return dns.list()
+    
+    def is_parent(self, record, domain):
+        '''
+        check if record is a child of domain
+        '''
+        record_tokens = record.split('.')
+        domain_tokens = domain.split('.')
+        if len(record_tokens) <= len(domain_tokens):
+            return False
+        for i in range(1, len(domain_tokens) + 1):
+            if domain_tokens[-i] != record_tokens[-i]:
+                return False
+        return True
+    
+    def list_domain_names(self):
+        '''
+        return list of domain names
+        '''
+        dns = pyrax.cloud_dns
+        return [d.name for d in dns.list()]
+    
+    def missing_subdomains(self, record, domain):
+        '''return missing subdomains as a difference between given record and
+           domain
+        
+        i.e.: record:foo.bar.example.com, domain:example.com -> bar.example.com
+        
+        record    DNS record as string
+        domain    domain as string
+        
+        return None if record is not within domain
+        '''
+        if record == domain:
+            return []
+        if not self.is_parent(record, domain):
+            return None
+        record_tokens = record.split('.')
+        domain_tokens = domain.split('.')
+        diff = record_tokens[1:]
+        for i in range(1, len(domain_tokens) + 1):
+            if domain_tokens[-i] != record_tokens[-i]:
+                return False
+            diff.pop()
+        for i in range(len(diff)):
+            for j in range(0, i):
+                diff[j] += '.' + diff[-i]
+        for i in range(len(diff)):
+            diff[i] = diff[i] + '.' + domain
+        return diff
+        
+    
+    def nearest_domain(self, record, domains):
+        '''return the nearest domain in domains for record
+        
+        
+        i.e.:
+        
+        domains = [ "bar.example.co.uk", "example.co.uk", "example.com",
+                    "someexample.com", "example.bar.com", "bar.example.com"]
+        record = "foo.bar.example.com"
+        ...
+        return 'bar.example.com'
+        
+        record    DNS record as string
+        domains   list of domains as string
+        '''
+        biggest_match = 0
+        actual_domain = ""
+        for domain in domains:
+            domparts = domain.split(".")
+            recparts = record.split(".")
+            domparts.reverse()
+            i = len(recparts)-1
+            matches = 0
+            for dompart in domparts:
+                if recparts[i] == dompart:
+                    matches +=1
+                i -= 1
+            domain_num_tokens = len(domain.split('.'))
+            if (matches >= biggest_match) and (matches >= domain_num_tokens):
+                biggest_match = matches
+                actual_domain = domain
+        msg = lambda s1, s2, s3: ("record '%s', domains:'%s', the nearest "
+                                  "domain:'%s'" % (s1, s2, s3))
+        logging.debug(msg(record, ', '.join([d for d in domains]),
+                          actual_domain))
+        return actual_domain

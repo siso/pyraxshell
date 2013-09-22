@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
-# usage:    $ python -m tests.unit.singleton
+# usage:    $ python -m tests.unit.test_singleton
 
 import unittest 
 from pyraxshell.singleton import Singleton  # @UnresolvedImport
