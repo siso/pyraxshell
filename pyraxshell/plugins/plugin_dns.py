@@ -95,6 +95,23 @@ class Cmd_dns(Plugin, cmd.Cmd):
                 "name": name,
                 "data": data,
                 "ttl": ttl}
+        # create missing subdomains
+        domains = self.libplugin.list_domain_names()
+        nearest_domain = self.libplugin.nearest_domain(name, domains)
+        if nearest_domain == None:
+            logging.warning('no matching domain found')
+            return False
+        logging.debug('nearest_domain:%s' % nearest_domain)
+        missing_subdomains = self.libplugin.missing_subdomains(name, nearest_domain)
+        print "create: ", missing_subdomains
+        nearest_domain_obj = self.libplugin.get_domain_by_name(nearest_domain)
+        for subdomain in missing_subdomains:
+            self.libplugin.create_domain(subdomain,
+                                         nearest_domain_obj.emailAddress,
+                                         nearest_domain_obj.ttl,
+                                         ''     # comment
+                                         )
+#         return False # DEBUG
         try:
             (new_rec_data, domain_name) = name.split('.', 1)
             logging.debug("add '%s' in domain '%s'" %
