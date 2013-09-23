@@ -31,7 +31,7 @@ def do_auth(*args):
     Cmd_auth().cmdloop()
 
 
-class Cmd_auth(cmd.Cmd):
+class Cmd_auth(Plugin, cmd.Cmd):
     '''
     pyrax shell POC - Authenticate module
     '''
