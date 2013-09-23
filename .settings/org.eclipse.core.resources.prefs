@@ -22,4 +22,5 @@ encoding//pyraxshell/singleton.py=utf-8
 encoding//pyraxshell/utility.py=utf-8
 encoding//pyraxshell/version.py=utf-8
 encoding//tests/unit/test_libdns.py=utf-8
+encoding//tests/unit/test_utility.py=utf-8
 encoding/setup.py=utf-8

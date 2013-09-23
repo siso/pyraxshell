@@ -21,7 +21,7 @@ from prettytable import PrettyTable
 import time
 import threading
 import uuid
-from utility import print_top_right
+from utility import print_top_right, is_ipv4, is_ipv6, str_ip_version
 
 
 class ServerCreatorThread (threading.Thread):
@@ -79,9 +79,9 @@ class ServerCreatorThread (threading.Thread):
             pt.add_row(['id', d['id']])
             pt.add_row(['status', d['status']])
             pt.add_row(['adminPass', d['adminPass']])
-            pt.add_row(['network public ipv4', d['networks']['public'][0]])
-            pt.add_row(['network public ipv6', d['networks']['public'][1]])
-            pt.add_row(['network private ipv4', d['networks']['private'][0]])
+            pt.add_row(['network public %s' % str_ip_version(d['networks']['public'][0]), d['networks']['public'][0]])
+            pt.add_row(['network public %s' % str_ip_version(d['networks']['public'][1]), d['networks']['public'][1]])
+            pt.add_row(['network private %s' % str_ip_version(d['networks']['private'][0]), d['networks']['private'][0]])
             pt.align['key'] = 'l'
             pt.align['value'] = 'l'
             print pt
@@ -143,9 +143,9 @@ class LibServers(object):
 #                 pt.add_row(['password', server.get_password()])
                 pt.add_row(['progress', server.progress])
 #                 pt.add_row(['adminPass', server.get_password()])
-                pt.add_row(['network public (ipv4)', server.networks['public'][0]])
-                pt.add_row(['network public (ipv6)', server.networks['public'][1]])
-                pt.add_row(['network private (ipv4)', server.networks['private'][0]])
+                pt.add_row(['network public (%s)' % str_ip_version(server.networks['public'][0]), server.networks['public'][0]])
+                pt.add_row(['network public (%s)' % str_ip_version(server.networks['public'][1]), server.networks['public'][1]])
+                pt.add_row(['network private (%s)' % str_ip_version(server.networks['private'][0]), server.networks['private'][0]])
                 pt.add_row(['created on', server.created])
                 print pt
     
