@@ -21,7 +21,7 @@ from prettytable import PrettyTable
 import time
 import threading
 import uuid
-from utility import print_top_right, is_ipv4, is_ipv6, str_ip_version
+from utility import print_top_right, is_ipv4, is_ipv6, get_ip_family
 
 
 class ServerCreatorThread (threading.Thread):
@@ -79,9 +79,10 @@ class ServerCreatorThread (threading.Thread):
             pt.add_row(['id', d['id']])
             pt.add_row(['status', d['status']])
             pt.add_row(['adminPass', d['adminPass']])
-            pt.add_row(['network public %s' % str_ip_version(d['networks']['public'][0]), d['networks']['public'][0]])
-            pt.add_row(['network public %s' % str_ip_version(d['networks']['public'][1]), d['networks']['public'][1]])
-            pt.add_row(['network private %s' % str_ip_version(d['networks']['private'][0]), d['networks']['private'][0]])
+            for srv_net in d['networks']['public']:
+                pt.add_row(['network public (%s)' % get_ip_family(srv_net), srv_net])
+            for srv_net in server.networks['private']:
+                pt.add_row(['network private (%s)' % get_ip_family(srv_net), srv_net])
             pt.align['key'] = 'l'
             pt.align['value'] = 'l'
             print pt
@@ -143,9 +144,10 @@ class LibServers(object):
 #                 pt.add_row(['password', server.get_password()])
                 pt.add_row(['progress', server.progress])
 #                 pt.add_row(['adminPass', server.get_password()])
-                pt.add_row(['network public (%s)' % str_ip_version(server.networks['public'][0]), server.networks['public'][0]])
-                pt.add_row(['network public (%s)' % str_ip_version(server.networks['public'][1]), server.networks['public'][1]])
-                pt.add_row(['network private (%s)' % str_ip_version(server.networks['private'][0]), server.networks['private'][0]])
+            	for srv_net in server.networks['public']:
+                    pt.add_row(['network public (%s)' % get_ip_family(srv_net), srv_net])
+                for srv_net in server.networks['private']:
+                    pt.add_row(['network private (%s)' % get_ip_family(srv_net), srv_net])				
                 pt.add_row(['created on', server.created])
                 print pt
     
