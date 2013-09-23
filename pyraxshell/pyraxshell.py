@@ -22,8 +22,9 @@ from utility import *  # @UnusedWildImport
 import imp
 # import plugins  # @UnusedImport
 from configuration import Configuration
+from plugins.plugin import Plugin
 
-class Cmd_Pyraxshell(cmd.Cmd):
+class Cmd_Pyraxshell(Plugin, cmd.Cmd):
     """
     pyrax shell POC
     """
@@ -61,6 +62,11 @@ class Cmd_Pyraxshell(cmd.Cmd):
         EOF alias
         '''
         return self.do_EOF(line)
+    
+    def do_list(self, line):
+        '''
+        '''
+        logging.info('nothing to list here')
     
     def do_quit(self, line):
         '''
