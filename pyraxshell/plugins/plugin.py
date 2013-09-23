@@ -52,13 +52,36 @@ class Plugin(cmd.Cmd):
         if self.lastcmd:
             self.lastcmd = ""
             return self.onecmd('\n')
+    
+    def do_dir(self, line):
+        '''
+        list alias
+        '''
+        return self.do_list(line)
 
     def do_exit(self, line):
         '''
         EOF alias
         '''
         return self.do_EOF(line)
-        
+    
+    def do_list(self, line):
+        '''
+        default list method (this needs to be here to define aliases: ls, ll, dir)
+        '''
+    
+    def do_ll(self, line):
+        '''
+        list alias
+        '''
+        return self.do_list(line)
+    
+    def do_ls(self, line):
+        '''
+        list alias
+        '''
+        return self.do_list(line)
+    
     def preloop(self):
         cmd.Cmd.preloop(self)
         logging.debug("preloop")
