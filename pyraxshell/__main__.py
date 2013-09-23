@@ -21,8 +21,16 @@ import sys
 import pyrax
 import utility
 from pyraxshell import Cmd_Pyraxshell
+from globals import CONFIG_FILE
+from utility import check_dir_home
 
 def main():
+    # check '~/.ipnotify' and config files  exist
+    if not check_dir_home():
+        print ("This is the first time 'pyraxshell' runs, please, configure "
+               "'%s' according to your needs" % CONFIG_FILE)
+        sys.exit(0)
+    
     # ########################################
     # LOGGING
     utility.logging_start()  # @UndefinedVariable
