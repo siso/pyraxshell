@@ -81,6 +81,33 @@ def is_ipv4(address):
     except socket.error:
         return False
 
+def is_ipv6(address):
+	'''
+	check if address is valid IP v6
+	'''
+	import socket
+	try:
+		socket.inet_pton(socket.AF_INET6, address)
+		return True
+	except socket.error:
+		return False
+
+def get_ip_family(address):
+	'''
+	obtain the address family an IP belongs to
+	'''
+	import socket
+	try:
+		socket.inet_aton(address)
+		return "ipv4"
+	except socket.error:
+		pass
+	try:
+		socket.inet_pton(socket.AF_INET6, address)
+		return "ipv6"
+	except socket.error:
+		pass
+
 def print_there(row, col, text):
     sys.stdout.write("\x1b7\x1b[%d;%df%s\x1b8" % (row, col, text))
     sys.stdout.flush()
