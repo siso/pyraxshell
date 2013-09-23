@@ -26,14 +26,14 @@ import os.path
 import logging  # @UnusedImport
 import logging.config
 
-def print_dict(d, indent=0, indent_string = "--"):
+def print_dict(d, indent=0, indent_string="--"):
     '''recursively print nested dictionaries''' 
-    for k,v in d.items():
+    for k, v in d.items():
         if type(v) is not dict:
             print "%s%s --> %s" % ((indent_string * indent), k, v)
         else:
             print "%s%s:" % ((indent_string * indent), k)
-            print_dict(v, indent+1)
+            print_dict(v, indent + 1)
 
 def logging_start():
     this_dir, this_filename = os.path.split(__file__)  # @UnusedVariable
@@ -92,16 +92,21 @@ def is_ipv6(address):
     except socket.error:
         return False
 
-def str_ip_version(address):
-        '''
-        return IP version for address ('ipv4', 'ipv6', None)
-        '''
-        if is_ipv4(address):
-            return 'ipv4'
-        elif is_ipv6(address):
-            return 'ipv6'
-        else:
-            return None
+def get_ip_family(address):
+    '''
+    obtain the address family an IP belongs to
+    '''
+    import socket
+    try:
+        socket.inet_aton(address)
+        return "ipv4"
+    except socket.error:
+        pass
+    try:
+        socket.inet_pton(socket.AF_INET6, address)
+        return "ipv6"
+    except socket.error:
+        pass
 
 def print_there(row, col, text):
     sys.stdout.write("\x1b7\x1b[%d;%df%s\x1b8" % (row, col, text))
