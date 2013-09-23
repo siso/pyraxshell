@@ -168,17 +168,11 @@ def get_ip_family(address):
     '''
     obtain the address family an IP belongs to
     '''
-    import socket
-    try:
-        socket.inet_aton(address)
-        return "ipv4"
-    except socket.error:
-        pass
-    try:
-        socket.inet_pton(socket.AF_INET6, address)
-        return "ipv6"
-    except socket.error:
-        pass
+    if is_ipv4(address):
+        return 'ipv4'
+    elif is_ipv6(address):
+        return 'ipv6'
+    return None
 
 def print_dict(d, indent=0, indent_string="--"):
     '''recursively print nested dictionaries''' 

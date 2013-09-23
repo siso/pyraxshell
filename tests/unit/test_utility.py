@@ -17,7 +17,7 @@
 
 import unittest
 from pyraxshell.utility import is_ipv4, is_ipv6  # @UnresolvedImport
-from pyraxshell.utility import str_ip_version   # @UnresolvedImport
+from pyraxshell.utility import get_ip_family  # @UnresolvedImport
 
 
 class Test(unittest.TestCase):
@@ -35,10 +35,10 @@ class Test(unittest.TestCase):
         self.assertFalse(is_ipv6('THIS IS NOT AN IP ADDRESS!'))
         self.assertTrue(is_ipv6('2a00:1a48:7806:0116:b1ee:476b:ff08:7bb4'))
     
-    def test_str_ip_version(self):
-        self.assertEquals(str_ip_version('0.0.0.0'), 'ipv4')
-        self.assertEquals(str_ip_version('2a00:1a48:7806:0116:b1ee:476b:ff08:7bb4'), 'ipv6')
-        self.assertEquals(str_ip_version('THIS IS NOT AN IP ADDRESS!'), None)
+    def test_get_ip_family(self):
+        self.assertEquals(get_ip_family('0.0.0.0'), 'ipv4')
+        self.assertEquals(get_ip_family('2a00:1a48:7806:0116:b1ee:476b:ff08:7bb4'), 'ipv6')
+        self.assertEquals(get_ip_family('THIS IS NOT AN IP ADDRESS!'), None)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

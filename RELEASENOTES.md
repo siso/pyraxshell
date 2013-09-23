@@ -4,6 +4,8 @@ Release notes for pyraxshell
 ## 2013.09.23 - Version 0.2.3
   * Fixed issue #11
   * Fixed issue #9
+  * Added SQLite3 support
+  * Added '~/.pyraxshell' directory and config files support
 
 ## 2013.09.22 - Version 0.2.2
   * Fixed issue #3
