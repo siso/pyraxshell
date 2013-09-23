@@ -1,6 +1,7 @@
 eclipse.preferences.version=1
 encoding//pyraxshell/__main__.py=utf-8
 encoding//pyraxshell/configuration.py=utf-8
+encoding//pyraxshell/db.py=utf-8
 encoding//pyraxshell/libpyraxshell.py=utf-8
 encoding//pyraxshell/plugins/libauth.py=utf-8
 encoding//pyraxshell/plugins/libdatabases.py=utf-8
@@ -18,6 +19,7 @@ encoding//pyraxshell/plugins/plugin_services.py=utf-8
 encoding//pyraxshell/plugins/plugin_test.py=utf-8
 encoding//pyraxshell/pyraxcli.py=utf-8
 encoding//pyraxshell/pyraxshell.py=utf-8
+encoding//pyraxshell/sessions.py=utf-8
 encoding//pyraxshell/singleton.py=utf-8
 encoding//pyraxshell/utility.py=utf-8
 encoding//pyraxshell/version.py=utf-8
