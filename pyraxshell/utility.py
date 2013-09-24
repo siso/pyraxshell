@@ -133,7 +133,8 @@ def logging_start():
         log_config_file = None    
         for f in log_config_file_locations:
             if os.path.exists(os.path.expanduser(f)):
-                log_config_file = f
+                log_config_file = os.path.expanduser(f)
+                print log_config_file
                 logging.config.fileConfig(log_config_file)
                 logging.debug("found log config file: %s" % f)
         if log_config_file == None:
