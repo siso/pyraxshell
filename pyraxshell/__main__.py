@@ -23,12 +23,18 @@ import utility
 from pyraxshell import Cmd_Pyraxshell
 from globals import CONFIG_FILE
 from utility import check_dir_home
+from sessions import Sessions
+from db import DB
 
 def main():
-    # check '~/.ipnotify' and config files  exist
+    # check '~/.pyraxshell' and config files  exist, if not then create it
     if not check_dir_home():
         print ("This is the first time 'pyraxshell' runs, please, configure "
                "'%s' according to your needs" % CONFIG_FILE)
+        #create db
+        DB()
+        Sessions().create_table_sessions()
+        Sessions().create_table_commands()
         sys.exit(0)
     
     # ########################################
@@ -41,6 +47,10 @@ def main():
     cfg = Configuration.Instance()  # @UndefinedVariable
     cfg.parsecli(sys.argv)
     logging.info("configuration: %s" % cfg)
+    
+    # ########################################
+    # START SESSION
+    Sessions().start_session()
     
     # ########################################
     # DO STUFF

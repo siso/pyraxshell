@@ -20,13 +20,12 @@ import pyrax
 from prettytable import PrettyTable
 import time
 import threading
-import uuid
-from utility import print_top_right, is_ipv4, is_ipv6, get_ip_family
+from utility import print_top_right, get_ip_family, get_uuid
 
 
 class ServerCreatorThread (threading.Thread):
     def __init__(self, name, flavor_id, image_id, poll_time,
-                 threadID = uuid.uuid4()):
+                 threadID = get_uuid()):
         '''
         thread to create a CouldServers
         
@@ -144,7 +143,7 @@ class LibServers(object):
 #                 pt.add_row(['password', server.get_password()])
                 pt.add_row(['progress', server.progress])
 #                 pt.add_row(['adminPass', server.get_password()])
-            	for srv_net in server.networks['public']:
+                for srv_net in server.networks['public']:
                     pt.add_row(['network public (%s)' % get_ip_family(srv_net), srv_net])
                 for srv_net in server.networks['private']:
                     pt.add_row(['network private (%s)' % get_ip_family(srv_net), srv_net])				

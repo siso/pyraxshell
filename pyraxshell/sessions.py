@@ -17,10 +17,14 @@
 
 from db import DB
 import logging
+from configuration import Configuration
+from utility import get_uuid
 
 class Sessions(DB):
     '''
     manage sessions
+    
+    sid has a local meaning
     '''
 
 
@@ -29,12 +33,42 @@ class Sessions(DB):
         Constructor
         '''
         DB.__init__(self)
+        self.cfg = Configuration.Instance()  # @UndefinedVariable
+        self.sid = get_uuid()
+        logging.debug('session uuid:%s' % self.sid)
+
+    def start_session(self):
+        api_key = ''
+        if hasattr(self.cfg, 'api_key') and self.cfg.api_key != None:
+            api_key = self.cfg.api_key
+        identity_type = ''
+        if (hasattr(self.cfg, 'identity_type') and
+            self.cfg.identity_type != None):
+            identity_type = self.cfg.identity_type
+        region = ''
+        if hasattr(self.cfg, 'region') and self.cfg.region != None:
+            region = self.cfg.region
+        token = ''
+        if hasattr(self.cfg, 'token') and self.cfg.token != None:
+            token = self.cfg.token
+        username = ''
+        if hasattr(self.cfg, 'username') and self.cfg.username != None:
+            username = self.cfg.username
+        sql = ('''insert into sessions
+        (sid, username, apikey, token, region,identity_type)
+        values ('%s', '%s', '%s', '%s', '%s', '%s')''' %
+        (self.sid, username, api_key, token, region, identity_type))
+        logging.debug(sql)
+        self.query(sql)
 
     def create_table_commands(self):
+        '''
+        create 'commands' table
+        '''
         sql = '''
 CREATE TABLE commands (
-id    INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-sid   INTEGER,
+id    TEXT PRIMARY KEY NOT NULL,
+sid   TEXT,
 t     timestamp default (strftime('%s', 'now')),
 cmd_in    TEXT NOT NULL,
 cmd_out   TEXT NOT NULL,
@@ -45,9 +79,12 @@ FOREIGN KEY(sid) REFERENCES sessions(id)
         self.query(sql)
         
     def create_table_sessions(self):
+        '''
+        create 'sessions' table
+        '''
         sql = '''
 CREATE TABLE sessions (
-id             INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+sid            TEXT PRIMARY KEY NOT NULL,
 t              timestamp default (strftime('%s', 'now')),
 username       TEXT NOT NULL,
 apikey         TEXT NOT NULL,
@@ -58,3 +95,4 @@ identity_type  TEXT NOT NULL
 '''
         logging.debug(sql)
         self.query(sql)
+ 

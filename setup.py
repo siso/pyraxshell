@@ -22,7 +22,7 @@ import codecs
 import os
 import sys
 
-import pyraxshell
+from pyraxshell.version import VERSION
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -44,13 +44,13 @@ class PyTest(TestCommand):
 
 setup(
     name='pyraxshell',
-    version=pyraxshell.__version__,
+        version=VERSION,
     url='http://github.com/siso/pyraxshell/',
     license='GPL 3',
     author='Simone Soldateschi',
     tests_require=['pytest'],
-    install_requires=['pyrax=1.4.9',
-                    ],
+#    install_requires=['pyrax=1.4.9',
+#                    ],
     cmdclass={'test': PyTest},
     author_email='simone.soldateschi@gmail.com',
     description='pyrax shell - manage OpenStack with a CLI tool',

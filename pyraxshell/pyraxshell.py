@@ -27,6 +27,9 @@ from plugins.plugin import Plugin
 class Cmd_Pyraxshell(Plugin, cmd.Cmd):
     """
     pyrax shell POC
+    
+    Beware that additional 'do_*' methods might be added at run-time from
+    'plugins.plugin_*' modules
     """
     
     prompt = "RS>"    # default prompt

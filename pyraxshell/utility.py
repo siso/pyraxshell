@@ -21,9 +21,8 @@ import os.path
 import logging  # @UnusedImport
 import logging.config
 from globals import LOG_CONF_FILE, HOME_DIR, CONFIG_FILE
-import db
-import sessions
 import traceback
+import uuid
 
 
 def check_dir_home():
@@ -35,10 +34,6 @@ def check_dir_home():
         check_dir(os.path.expanduser(HOME_DIR))
         create_default_conf()
         create_default_log_conf()
-        #create db
-        db.DB()
-        sessions.Sessions().create_table_sessions()
-        sessions.Sessions().create_table_commands()
         return False
     return True
 
@@ -133,10 +128,10 @@ def logging_start():
         log_config_file = None    
         for f in log_config_file_locations:
             if os.path.exists(os.path.expanduser(f)):
+                logging.debug("found log config file: %s" %
+                              os.path.expanduser(f))
                 log_config_file = os.path.expanduser(f)
-                print log_config_file
                 logging.config.fileConfig(log_config_file)
-                logging.debug("found log config file: %s" % f)
         if log_config_file == None:
             logging.warn('could not find log config file (default locations: \'%s\')'
                          % log_config_file_locations)
@@ -175,6 +170,9 @@ def get_ip_family(address):
         return 'ipv6'
     return None
 
+def get_uuid():
+    return uuid.uuid4()
+
 def print_dict(d, indent=0, indent_string="--"):
     '''recursively print nested dictionaries''' 
     for k, v in d.items():
@@ -198,4 +196,3 @@ def print_top_right(text):
     print_there(1, width - len(text) + 1, '+%s+' % ('-' * (text_len + 2)))
     print_there(2, width - len(text) + 1, text)
     print_there(3, width - len(text) + 1, '+%s+' % ('-' * (text_len + 2)))
-
