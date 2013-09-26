@@ -33,8 +33,8 @@ def main():
                "'%s' according to your needs" % CONFIG_FILE)
         #create db
         DB()
-        Sessions().create_table_sessions()
-        Sessions().create_table_commands()
+        Sessions.Instance().create_table_sessions()  # @UndefinedVariable
+        Sessions.Instance().create_table_commands()  # @UndefinedVariable
         sys.exit(0)
     
     # ########################################
@@ -50,7 +50,8 @@ def main():
     
     # ########################################
     # START SESSION
-    Sessions().start_session()
+    Sessions.Instance().start_session()  # @UndefinedVariable
+#     Sessions.Instance().insert_table_commands('IN', 'OUT')  # @UndefinedVariable
     
     # ########################################
     # DO STUFF

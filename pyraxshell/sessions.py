@@ -19,7 +19,9 @@ from db import DB
 import logging
 from configuration import Configuration
 from utility import get_uuid
+from singleton import Singleton
 
+@Singleton
 class Sessions(DB):
     '''
     manage sessions
@@ -67,7 +69,7 @@ class Sessions(DB):
         '''
         sql = '''
 CREATE TABLE commands (
-id    TEXT PRIMARY KEY NOT NULL,
+id    INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 sid   TEXT,
 t     timestamp default (strftime('%s', 'now')),
 cmd_in    TEXT NOT NULL,
@@ -95,4 +97,14 @@ identity_type  TEXT NOT NULL
 '''
         logging.debug(sql)
         self.query(sql)
- 
+
+    def insert_table_commands(self, cmd_in, cmd_out):
+        '''
+        inster record in to 'commands' table
+        '''
+        logging.debug('cmd_in:%s, cmd_out:%s' % (cmd_in, cmd_out))
+        sql = '''
+INSERT INTO commands (sid, cmd_in, cmd_out)
+VALUES ('%s', '%s', '%s')''' % (self.sid, cmd_in, cmd_out)
+        logging.debug('sql: \'%s\'' % sql)
+        self.query(sql)
