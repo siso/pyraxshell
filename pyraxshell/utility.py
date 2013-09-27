@@ -20,7 +20,7 @@ import terminalsize
 import os.path
 import logging  # @UnusedImport
 import logging.config
-from globals import LOG_CONF_FILE, HOME_DIR, CONFIG_FILE
+from globals import *  # @UnusedWildImport
 import traceback
 import uuid
 

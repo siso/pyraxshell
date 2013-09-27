@@ -20,6 +20,7 @@ import pyrax
 import os.path
 from prettytable import PrettyTable
 from libpyraxshell import Libpyraxshell
+import pprint
 
 class LibAuth(object):
     '''

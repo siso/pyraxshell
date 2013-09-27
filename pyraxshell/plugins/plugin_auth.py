@@ -20,6 +20,7 @@ import logging
 from utility import kvstring_to_dict
 from plugins.libauth import LibAuth
 from plugins.plugin import Plugin
+from globals import INFO
 
 name = 'auth'
 
@@ -70,19 +71,18 @@ class Cmd_auth(Plugin, cmd.Cmd):
     # ########################################
     # CLOUD AUTHENTICATION
     
-    def do_change_password(self, line):
-        '''
-        change user\'s password
-        '''
-#TODO --
-        logging.info('NOT IMPLEMENTED YET')
+#     def do_change_password(self, line):
+#         '''
+#         change user\'s password
+#         '''
+# #TODO --
+#         logging.info('NOT IMPLEMENTED YET')
     
     def do_credentials(self, line):
         '''
-        authenticate using credentials file
+        authentication with credentials file
         '''
-        logging.info("authenticating using credentials file")
-        logging.debug("line: %s" % line)
+        logging.debug("authentication with credentials file")
         if self.libplugin.authenticate_credentials_file():
             logging.info("token: %s" % self.libplugin.get_token())
         else:
@@ -95,8 +95,10 @@ class Cmd_auth(Plugin, cmd.Cmd):
         '''
         show Whether or not the user is authenticated
         '''
-        logging.info(self.libplugin.is_authenticated())
-        logging.debug("line: %s" % line)
+        retcode = 1
+        if self.libplugin.is_authenticated():
+            retcode = 0
+        self.r(retcode, 'authenticated', INFO)
     
     def do_login(self, line):
         '''

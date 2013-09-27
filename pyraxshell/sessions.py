@@ -20,6 +20,7 @@ import logging
 from configuration import Configuration
 from utility import get_uuid
 from singleton import Singleton
+from globals import log_levels  # @UnresolvedImport
 
 @Singleton
 class Sessions(DB):
@@ -74,6 +75,8 @@ sid   TEXT,
 t     timestamp default (strftime('%s', 'now')),
 cmd_in    TEXT NOT NULL,
 cmd_out   TEXT NOT NULL,
+retcode   INTEGER NOT NULL,
+log_level   TEXT NOT NULL,
 FOREIGN KEY(sid) REFERENCES sessions(id)
 );
 '''
@@ -98,13 +101,15 @@ identity_type  TEXT NOT NULL
         logging.debug(sql)
         self.query(sql)
 
-    def insert_table_commands(self, cmd_in, cmd_out):
+    def insert_table_commands(self, cmd_in, cmd_out, retcode, log_level):
         '''
         inster record in to 'commands' table
         '''
-        logging.debug('cmd_in:%s, cmd_out:%s' % (cmd_in, cmd_out))
+        logging.debug('cmd_in:%s, cmd_out:%s, retcode:%d, log_level:%s' %
+                      (cmd_in, cmd_out, retcode, log_level))
         sql = '''
-INSERT INTO commands (sid, cmd_in, cmd_out)
-VALUES ('%s', '%s', '%s')''' % (self.sid, cmd_in, cmd_out)
+INSERT INTO commands (sid, cmd_in, cmd_out, retcode, log_level)
+VALUES ('%s', '%s', '%s', %d, '%s')''' % (self.sid, cmd_in, cmd_out, retcode,
+                                          log_levels[log_level])
         logging.debug('sql: \'%s\'' % sql)
         self.query(sql)

@@ -7,6 +7,8 @@ Release notes for pyraxshell
   * Added SQLite3 support
   * Added '~/.pyraxshell' directory and config files support
   * Fixed issue #14
+  * Added sessions support
+  * Added 'r' (record) function to log messages to file and sessions to db
 
 ## 2013.09.22 - Version 0.2.2
   * Fixed issue #3

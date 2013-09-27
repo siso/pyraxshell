@@ -23,6 +23,7 @@ import traceback
 import pyrax
 from prettytable import PrettyTable
 from plugin import Plugin
+from globals import *  # @UnusedWildImport
 
 name = 'servers'
 
@@ -54,7 +55,7 @@ class Cmd_servers(Plugin, cmd.Cmd):
         id        server id
         password  new password
         '''
-        logging.debug("line: %s" % line)
+#         cmd_in = "%s %s" % (inspect.stack()[0][3][3:], line)
         d_kv = kvstring_to_dict(line)
         logging.debug("kvs: %s" % d_kv)
         # default values
@@ -63,30 +64,32 @@ class Cmd_servers(Plugin, cmd.Cmd):
         if 'id' in d_kv.keys():
             _id = d_kv['id']
         if (id, name) == (None, None):
-            logging.warn("server id missing, cannot continue")
+            cmd_out = "server id missing"
+            self.r(cmd_out, ERROR)
             return False
         if 'password' in d_kv.keys():
             password = d_kv['password']
         else:
-            logging.warn("new password missing, cannot continue")
+            cmd_out = "new password missing"
+            self.r(cmd_out, ERROR)
             return False
         try:
             s = self.libplugin.get_by_id(_id)
         except IndexError:
-            logging.warn('cannot find server identified by id:%s' % _id)
+            cmd_out = 'server id:%s not found' % _id
+            self.r(cmd_out, ERROR)
             return False
         try:
             if s.status == 'ACTIVE':
-                logging.info('changing root password on server id:%s, name:%s' %
-                             (_id, s.name))
                 s.change_password(password)
+                cmd_out = 'changed root password on server id:%s, name:%s' % (_id, s.name)
+                self.r(cmd_out, INFO)
             else:
-                logging.error('cannot change root password on server id:%s, name:%s' %
-                             (_id, s.name))
-        except Exception as inst:
-            print type(inst)     # the exception instance
-            print inst.args      # arguments stored in .args
-            print inst           # __str__ allows args to printed directly
+                cmd_out = 'cannot change root password on server id:%s, name:%s' % (_id, s.name)
+                self.r(cmd_out, ERROR)
+        except:
+            tb = traceback.format_exc()
+            logging.error(tb)
     
     def complete_change_password(self, text, line, begidx, endidx):
         params = ['id:', 'password:']

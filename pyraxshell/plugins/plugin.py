@@ -18,8 +18,11 @@
 import cmd
 import logging
 from configuration import Configuration
+from sessions import Sessions
+from globals import *  # @UnusedWildImport
 
 name = 'none'
+
 
 class Plugin(cmd.Cmd):
     '''
@@ -34,13 +37,10 @@ class Plugin(cmd.Cmd):
         '''
         cmd.Cmd.__init__(self)
         self.cfg = Configuration.Instance()  # @UndefinedVariable
-    
-    def do_EOF(self, line):
-        '''
-        just press CTRL-D to quit this menu
-        '''
-        print
-        return True
+        # current command
+        self.cmd = None
+        self.arg = None
+        self.line = None
     
     def emptyline(self):
         """Called when an empty line is entered in response to the prompt.
@@ -52,6 +52,30 @@ class Plugin(cmd.Cmd):
         if self.lastcmd:
             self.lastcmd = ""
             return self.onecmd('\n')
+    
+    def parseline(self, line):
+        '''
+        override 'cmd.Cmd.parseline' to store cmd, arg and line
+        '''
+        self.cmd, self.arg, self.line = cmd.Cmd.parseline(self, line)
+        return self.cmd, self.arg, self.line
+
+    def preloop(self):
+        '''
+        override preloop and verify if user is authenticated
+        '''
+        cmd.Cmd.preloop(self)
+        logging.debug("preloop")
+        import plugins.libauth
+        if not plugins.libauth.LibAuth().is_authenticated():
+            logging.warn('please, authenticate yourself before continuing')
+    
+    def do_EOF(self, line):
+        '''
+        just press CTRL-D to quit this menu
+        '''
+        print
+        return True
     
     def do_dir(self, line):
         '''
@@ -82,15 +106,39 @@ class Plugin(cmd.Cmd):
         '''
         return self.do_list(line)
     
-    def preloop(self):
-        cmd.Cmd.preloop(self)
-        logging.debug("preloop")
-        import plugins.libauth
-        if not plugins.libauth.LibAuth().is_authenticated():
-            logging.warn('please, authenticate yourself before continuing')
-
     def do_quit(self, line):
         '''
         EOF alias
         '''
         return self.do_EOF(line)
+
+    def r(self, retcode, msg, log_level):
+        '''
+        record Session command input/output to 'commands' table, and
+        logging message facility
+        '''
+        logging.debug("[IN] %s" % self.cmd)
+        logging.debug("[OUT] %s, log_level:%d" % (msg, log_level))
+        interactive = Configuration.Instance().interactive  # @UndefinedVariable
+        if log_level == DEBUG:
+            logging.debug(msg)
+            if not interactive:
+                msg += "0|%s" % msg
+        if log_level == INFO:
+            logging.info(msg)
+            if not interactive:
+                msg += "0|%s" % msg
+        if log_level == WARN:
+            logging.warn(msg)
+            if not interactive:
+                msg += "0|%s" % msg
+        if log_level == ERROR:
+            logging.error(msg)
+            if not interactive:
+                msg += "1|%s" % msg
+        if log_level == CRITICAL:  # @UndefinedVariable
+            logging.critical(msg)
+            if not interactive:
+                msg += "1|%s" % msg
+        Sessions.Instance().insert_table_commands(self.cmd, msg, retcode, # @UndefinedVariable
+                                                  log_level)
