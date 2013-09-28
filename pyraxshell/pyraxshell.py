@@ -27,6 +27,9 @@ from plugins.plugin import Plugin
 class Cmd_Pyraxshell(Plugin, cmd.Cmd):
     """
     pyrax shell POC
+    
+    Beware that additional 'do_*' methods might be added at run-time from
+    'plugins.plugin_*' modules
     """
     
     prompt = "RS>"    # default prompt
@@ -81,7 +84,7 @@ class Cmd_Pyraxshell(Plugin, cmd.Cmd):
         '''
         give credits
         '''
-        credits = '''
+        _credits = '''
 pyraxshell - Copyright (c) 2013, Simone Soldateschi - All rights reserved.
 
 author:   Simone Soldateschi
@@ -89,7 +92,7 @@ email:    simone.soldateschi@gmail.com
 homepage: https://github.com/siso/pyraxshell
 license:  GPLv3 or later (see LICENSE)
 '''
-        logging.info(credits)
+        logging.info(_credits)
     
     def do_license(self, line):
         '''
@@ -183,7 +186,7 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
                 p.injectme(self)
                 msg_loaded_plugins += " " + plugin_name
         logging.debug('loading plug-ins done')
-        logging.info('plug-ins loaded: %s' %
+        logging.debug('plug-ins loaded: %s' %
                      ", ".join(sorted(msg_loaded_plugins.split())))
         return True
 
@@ -204,7 +207,7 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
             except:
                 logging.warn('cannot login with %s' %
                              pyrax_default_config_file)
-            logging.info('authenticated as \'%s@%s\' in \'%s\'' %
+            logging.debug('authenticated as \'%s@%s\' in \'%s\'' %
                          (self.cfg.username, self.cfg.identity_type,
                           self.cfg.region))
         # try to authenticate automatically if '~/.pyrax.cfg' exists
@@ -217,4 +220,4 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
         if not plugins.libauth.LibAuth().is_authenticated():
             logging.warn('please, authenticate yourself before continuing')
         else:
-            logging.info('authenticated successfully')
+            logging.debug('authenticated successfully')

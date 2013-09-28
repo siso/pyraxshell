@@ -86,10 +86,9 @@ class Cmd_databases(Plugin, cmd.Cmd):
             cdb.create(name,
                        flavor=int(flavor_id),
                        volume=volume)
-        except Exception as inst:
-            print type(inst)     # the exception instance
-            print inst.args      # arguments stored in .args
-            print inst           # __str__ allows args to printed directly
+        except:
+            tb = traceback.format_exc()
+            logging.error(tb)
     
     def complete_create_instance(self, text, line, begidx, endidx):
         params = ['flavor_id:', 'name:', 'volume:']
@@ -124,10 +123,9 @@ class Cmd_databases(Plugin, cmd.Cmd):
         try:
             db_instance = self.libplugin.get_instance_by_id(_id)
             db_instance.delete()
-        except Exception as inst:
-            print type(inst)     # the exception instance
-            print inst.args      # arguments stored in .args
-            print inst           # __str__ allows args to printed directly
+        except:
+            tb = traceback.format_exc()
+            logging.error(tb)
     
     def complete_delete_instance(self, text, line, begidx, endidx):
         params = ['id:']
@@ -213,10 +211,9 @@ class Cmd_databases(Plugin, cmd.Cmd):
                 db_instance.resize(int(ram))
             if volume != None:
                 db_instance.resize_volume(volume)
-        except Exception as inst:
-            print type(inst)     # the exception instance
-            print inst.args      # arguments stored in .args
-            print inst           # __str__ allows args to printed directly
+        except:
+            tb = traceback.format_exc()
+            logging.error(tb)
     
     def complete_resize_instance(self, text, line, begidx, endidx):
         params = ['id:', 'ram:', 'volume:']
@@ -263,10 +260,9 @@ class Cmd_databases(Plugin, cmd.Cmd):
                           % (instance_id, database_name))
             db_instance = self.libplugin.get_instance_by_id(instance_id)
             db_instance.create_database(database_name)
-        except Exception as inst:
-            print type(inst)     # the exception instance
-            print inst.args      # arguments stored in .args
-            print inst           # __str__ allows args to printed directly
+        except:
+            tb = traceback.format_exc()
+            logging.error(tb)
     
     def complete_create_database(self, text, line, begidx, endidx):
         params = ['instance_id:', 'database_name:']
@@ -314,10 +310,9 @@ class Cmd_databases(Plugin, cmd.Cmd):
                               (database_name, instance_id))
             else:
                 database.delete()
-        except Exception as inst:
-            print type(inst)     # the exception instance
-            print inst.args      # arguments stored in .args
-            print inst           # __str__ allows args to printed directly
+        except:
+            tb = traceback.format_exc()
+            logging.error(tb)
     
     def complete_delete_database(self, text, line, begidx, endidx):
         params = ['instance_id:', 'database_name:']
@@ -359,10 +354,9 @@ class Cmd_databases(Plugin, cmd.Cmd):
                 logging.debug("%s" % db.name)
                 pt.add_row([db.name])
             print pt
-        except Exception as inst:
-            print type(inst)     # the exception instance
-            print inst.args      # arguments stored in .args
-            print inst           # __str__ allows args to printed directly
+        except:
+            tb = traceback.format_exc()
+            logging.error(tb)
     
     def complete_list_databases(self, text, line, begidx, endidx):
         params = ['instance_id:']
@@ -423,10 +417,9 @@ class Cmd_databases(Plugin, cmd.Cmd):
             db_instance = self.libplugin.get_instance_by_id(instance_id)
             db_instance.create_user(username, password,
                                     database_names = database_name)
-        except Exception as inst:
-            print type(inst)     # the exception instance
-            print inst.args      # arguments stored in .args
-            print inst           # __str__ allows args to printed directly
+        except:
+            tb = traceback.format_exc()
+            logging.error(tb)
     
     def complete_create_user(self, text, line, begidx, endidx):
         params = ['instance_id:', 'database_name:', 'username:', 'password:']
@@ -469,10 +462,9 @@ class Cmd_databases(Plugin, cmd.Cmd):
                           % (username, instance_id))
             db_instance = self.libplugin.get_instance_by_id(instance_id)
             db_instance.delete_user(username)
-        except Exception as inst:
-            print type(inst)     # the exception instance
-            print inst.args      # arguments stored in .args
-            print inst           # __str__ allows args to printed directly
+        except:
+            tb = traceback.format_exc()
+            logging.error(tb)
     
     def complete_delete_user(self, text, line, begidx, endidx):
         params = ['instance_id:', 'username:']
@@ -517,10 +509,9 @@ class Cmd_databases(Plugin, cmd.Cmd):
                             user.name
                             ])
             print pt
-        except Exception as inst:
-            print type(inst)     # the exception instance
-            print inst.args      # arguments stored in .args
-            print inst           # __str__ allows args to printed directly
+        except:
+            tb = traceback.format_exc()
+            logging.error(tb)
     
     def complete_list_users(self, text, line, begidx, endidx):
         params = ['instance_id:']
