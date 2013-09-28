@@ -17,11 +17,8 @@
 
 import sys
 import terminalsize
-import os.path
 import logging  # @UnusedImport
-import logging.config
 from globals import *  # @UnusedWildImport
-import traceback
 import uuid
 
 
@@ -32,7 +29,6 @@ def check_dir_home():
     if not os.path.isdir(os.path.expanduser(HOME_DIR)):
         # create dirs and config files
         check_dir(os.path.expanduser(HOME_DIR))
-        create_default_log_conf()
         return False
     return True
 
@@ -47,47 +43,6 @@ def check_dir(directory):
         except OSError as exc:
             logging.warn("error creating directory '%s'")
             raise exc
-
-def create_default_log_conf():
-    '''
-    write default logging configuration file
-    '''
-    log_cfg = '''[loggers]
-keys=root
-
-[handlers]
-keys=consoleHandler,fileHandler
-
-[formatters]
-keys=simpleFormatter,consoleFormatter
-
-[logger_root]
-level=DEBUG
-handlers=fileHandler,consoleHandler
-
-[handler_consoleHandler]
-class=StreamHandler
-level=INFO
-formatter=consoleFormatter
-args=(sys.stdout,)
-
-[handler_fileHandler]
-class=handlers.RotatingFileHandler
-level=DEBUG
-args=(os.path.expanduser('~/.pyraxshell/pyraxshell.log'),'a','maxBytes=1024k','backupCount=5')
-formatter=simpleFormatter
-
-[formatter_simpleFormatter]
-format=%(asctime)s - %(name)s - %(levelname)s - %(module)s - %(message)s
-datefmt=
-
-[formatter_consoleFormatter]
-format=%(message)s (%(levelname)s)
-datefmt=
-'''
-    with open(os.path.expanduser(LOG_CONF_FILE), 'w') as f:
-        f.write(log_cfg)
-        f.flush()
 
 def kvstring_to_dict(kvs):
     '''
@@ -108,23 +63,6 @@ def kvstring_to_dict(kvs):
     except:
         logging.error('cannot parse key-value-string')
     return d_out
-
-def logging_start():
-    try:
-        this_dir, this_filename = os.path.split(__file__)  # @UnusedVariable
-        log_config_file_locations = [LOG_CONF_FILE]
-        log_config_file = None    
-        for f in log_config_file_locations:
-            if os.path.exists(os.path.expanduser(f)):
-                logging.debug("found log config file: %s" %
-                              os.path.expanduser(f))
-                log_config_file = os.path.expanduser(f)
-                logging.config.fileConfig(log_config_file)
-        if log_config_file == None:
-            logging.warn('could not find log config file (default locations: \'%s\')'
-                         % log_config_file_locations)
-    except:
-        print traceback.format_exc()
 
 def is_ipv4(address):
     '''

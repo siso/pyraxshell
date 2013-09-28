@@ -26,12 +26,16 @@ import os.path
 @Singleton
 class Configuration:
     '''
-    cli params and configuration file settings
+    CLI params and configuration file settings
+    
+    Configuration file settings are read first, and can be overwritten by
+    CLI params.
     '''
     
     def __init__(self):
         # check if it is running interactively
         self.interactive = os.isatty(0)
+        self.check_config_file()
     
     # ########################################
     # CONFIGURATION FILE
@@ -42,7 +46,7 @@ class Configuration:
         '''
         self.check_config_file()
         self.config = ConfigParser.ConfigParser()
-        self.config.read(os.path.expanduser(CONFIG_FILE))
+        self.config.read(CONFIG_FILE)
         
     def get_param(self, section, param, raw=1):
         """
@@ -54,7 +58,7 @@ class Configuration:
         '''
         search config file, write it if missing
         '''
-        config_file = os.path.expanduser(CONFIG_FILE)
+        config_file = CONFIG_FILE
         if not os.path.isfile(config_file):
             logging.debug('creating default config file \'%s\'' % config_file)
             cfg = '''

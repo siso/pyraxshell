@@ -34,8 +34,8 @@ class LibAuth(object):
         '''authenticate with Rackspace Cloud
         
         using credentials file'''
-        logging.info('authenticating with credentials file \'%s\'' % 
-                     credentials_file)
+        logging.debug('authenticating with credentials file \'%s\'' %
+                      credentials_file)
         self.credentials_file = credentials_file
         if self.credentials_file == None:
             # search for credentials file default locations
