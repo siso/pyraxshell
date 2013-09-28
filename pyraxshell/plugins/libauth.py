@@ -108,9 +108,8 @@ class LibAuth(object):
             return pyrax.identity.authenticated
         except Exception as inst:
             logging.debug('authentication test failed, not authenticated')
-            logging.debug(type(inst))  # the exception instance
-            logging.debug(inst.args)  # arguments stored in .args
-            logging.debug(inst)  # __str__ allows args to printed directly
+            tb = traceback.format_exc()
+            logging.error(tb)
             return False
     
     def get_token(self):

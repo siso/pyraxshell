@@ -4,6 +4,7 @@ pyraxshell - ROADMAP
 ## v0.5
 * upload/download files (optimised, only objects with non matching md5)
 * in-line help
+* params auto-completion
 
 ## v0.4
 * pip installer

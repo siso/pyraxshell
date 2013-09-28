@@ -84,7 +84,7 @@ class Cmd_Pyraxshell(Plugin, cmd.Cmd):
         '''
         give credits
         '''
-        credits = '''
+        _credits = '''
 pyraxshell - Copyright (c) 2013, Simone Soldateschi - All rights reserved.
 
 author:   Simone Soldateschi
@@ -92,7 +92,7 @@ email:    simone.soldateschi@gmail.com
 homepage: https://github.com/siso/pyraxshell
 license:  GPLv3 or later (see LICENSE)
 '''
-        logging.info(credits)
+        logging.info(_credits)
     
     def do_license(self, line):
         '''

@@ -139,10 +139,7 @@ class Cmd_servers(Plugin, cmd.Cmd):
             sct = ServerCreatorThread(name, flavor_id, image_id, poll_time = 30)
             # start thread
             sct.start()
-        except Exception as inst:
-            print type(inst)     # the exception instance
-            print inst.args      # arguments stored in .args
-            print inst           # __str__ allows args to printed directly
+        except:
             tb = traceback.format_exc()
             logging.error(tb)
 
@@ -228,10 +225,6 @@ class Cmd_servers(Plugin, cmd.Cmd):
             return False         
         try:
             self.libplugin.details_server(_id, name)
-#         except Exception as inst:
-#             print type(inst)     # the exception instance
-#             print inst.args      # arguments stored in .args
-#             print inst           # __str__ allows args to printed directly
         except:
             logging.error(traceback.format_exc())
 
@@ -311,10 +304,9 @@ class Cmd_servers(Plugin, cmd.Cmd):
             else:
                 logging.error('cannot reboot server id:%s, status:%s' %
                               (_id, s.status))
-        except Exception as inst:
-            print type(inst)     # the exception instance
-            print inst.args      # arguments stored in .args
-            print inst           # __str__ allows args to printed directly
+        except:
+            tb = traceback.format_exc()
+            logging.error(tb)
     
     def complete_reboot(self, text, line, begidx, endidx):
         params = ['id:', 'type:']

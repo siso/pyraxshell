@@ -19,7 +19,6 @@ import logging
 from configuration import Configuration
 import sys
 import pyrax
-import utility
 from pyraxshell import Cmd_Pyraxshell
 from globals import CONFIG_FILE
 from utility import check_dir_home

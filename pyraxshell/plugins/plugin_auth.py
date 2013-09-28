@@ -145,10 +145,9 @@ class Cmd_auth(Plugin, cmd.Cmd):
                                                   username = _username,
                                                   apikey = _apikey,
                                                   region = _region)
-        except Exception as inst:
-            print type(inst)     # the exception instance
-            print inst.args      # arguments stored in .args
-            print inst           # __str__ allows args to printed directly
+        except:
+            tb = traceback.format_exc()
+            logging.error(tb)
     
     def complete_login(self, text, line, begidx, endidx):
         params = ['identity_type:', 'username:', 'apikey:', 'region:']
@@ -223,10 +222,9 @@ class Cmd_auth(Plugin, cmd.Cmd):
             self.libplugin.authenticate_token(token=_token, tenantId=_tenantId,
                                               region=_region,
                                               identity_type=_identity_type)
-        except Exception as inst:
-            print type(inst)     # the exception instance
-            print inst.args      # arguments stored in .args
-            print inst           # __str__ allows args to printed directly
+        except:
+            tb = traceback.format_exc()
+            logging.error(tb)
     
     def complete_token(self, text, line, begidx, endidx):
         params = ['identity_type', 'region', 'tenantId', 'token']
