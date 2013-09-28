@@ -17,26 +17,68 @@
 
 import argparse
 import logging
-import pyrax
-import pprint
 from singleton import Singleton
+import ConfigParser
+from globals import CONFIG_FILE
+import os.path
+
 
 @Singleton
 class Configuration:
+    '''
+    cli params and configuration file settings
+    '''
+    
     def __init__(self):
-        self.set_defaults()
-        # is pyraxshell running interactively?
-        import os
+        # check if it is running interactively
         self.interactive = os.isatty(0)
+    
+    # ########################################
+    # CONFIGURATION FILE
+    
+    def parse_config_file(self):
+        '''
+        parse configuration file
+        '''
+        self.check_config_file()
+        self.config = ConfigParser.ConfigParser()
+        self.config.read(os.path.expanduser(CONFIG_FILE))
+        
+    def get_param(self, section, param, raw=1):
+        """
+        fetch a parameter from configuration file
+        """
+        return self.config.get(section, param, raw)
+    
+    def check_config_file(self):
+        '''
+        search config file, write it if missing
+        '''
+        config_file = os.path.expanduser(CONFIG_FILE)
+        if not os.path.isfile(config_file):
+            logging.debug('creating default config file \'%s\'' % config_file)
+            cfg = '''
+[main]
+verbose = false
 
-    def set_defaults(self):
-        # DEFAULTS
-#         self.default_data_center = pyrax.default_region
-        self.__default_identity_type = 'rackspace'
-        self.__default_region = 'LON'
-        self.__default_verbose = False
-     
-    def parsecli(self, cliargv):
+[pyrax]
+http_debug = False
+no_verify_ssl = False
+'''
+            with open(config_file, 'w') as f:
+                f.write(cfg)
+                f.flush()
+        else:
+            logging.debug('found default config file \'%s\'' % config_file)
+
+
+    # ########################################
+    # CLI
+    
+    def parse_cli(self, cliargv):
+        '''
+        parse CLI parameters
+        '''
         parser = argparse.ArgumentParser()
 #         parser.add_argument("command", type=str,
 #                             help="command to execute")
@@ -44,35 +86,29 @@ class Configuration:
                             help='file with credentials')
         parser.add_argument('-k', '--api-key', help='Authentication api-key')
         parser.add_argument('-i', '--identity-type',
-                            help='identity type (default: \'rackspace\'')
-        parser.add_argument('--pyrax-http-debug',
-                            help = 'set pyrax http_debug setting on',
-                            action = 'store_true')
-        parser.add_argument('--pyrax-no-verify-ssl',
-                            help = 'set pyrax verify_ssl setting: False',
-                            action = 'store_true')
+                            help='identity type (default: \'rackspace\'',
+                            default='rackspace')
+        parser.add_argument('--pyrax-http-debug', nargs='?', const=True,
+                            type=bool,
+                            help = 'set pyrax http_debug on (default: False)')
+        parser.add_argument('--pyrax-no-verify-ssl', nargs='?', const=True,
+                            help = 'set pyrax verify_ssl (default: False)')
         parser.add_argument('-r', '--region', required=False,
                             help=('cloud data center to build the servers in'
-                                  ' (default: %s)' % self.__default_region),
+                                  ' (default: LON)'),
                             choices=['DFW', 'ORD', 'LON', 'SYD'],
-                            default=pyrax.default_region)
+#                             default=pyrax.default_region
+                            default='LON')
         parser.add_argument('-u', '--username', help='Authentication username')
-        parser.add_argument("-v", "--verbose", action="store_true",
-                            help="increase output verbosity")
+        parser.add_argument("-v", "--verbose", nargs='?', const=True,
+                            help="verbose output (default: False)")
         self.args = parser.parse_args()
         logging.debug('username: %s', self.args.username)
-        # CHECK DEFAULTS
-        if self.args.identity_type == None or self.args.identity_type == '':
-            self.args.identity_type = self.__default_identity_type
-        if self.args.region == None or self.args.region == '':
-            self.args.region = self.__default_region
-        if self.args.verbose != None or self.args.verbose == '':
-            self.args.verbose = self.__default_verbose
-        if self.args.pyrax_http_debug == None:
-            self.args.pyrax_http_debug = False
 
-    # SETTERs & GETTERs
     
+    # ########################################
+    # SETTERs & GETTERs
+        
     # -c
     @property
     def credentials(self):
@@ -95,12 +131,18 @@ class Configuration:
     # --pyrax-http-debug (True)
     @property
     def pyrax_http_debug(self):
-        return self.args.pyrax_http_debug
+        if self.args.pyrax_http_debug != None:
+            return self.args.pyrax_http_debug
+        else:
+            return self.get_param('pyrax', 'http_debug')
     
     # --pyrax-no-verify-ssl
     @property
     def pyrax_no_verify_ssl(self):
-        return self.args.pyrax_no_verify_ssl
+        if self.args.pyrax_no_verify_ssl != None:
+            return self.args.pyrax_no_verify_ssl
+        else:
+            return self.get_param('pyrax', 'no_verify_ssl')
     
     # -r, --region
     @property
@@ -114,8 +156,25 @@ class Configuration:
     
     # -v, --verbose
     @property
-    def verbosity(self):
-        return self.args.verbosity
+    def verbose(self):
+        if self.args.verbose != None:
+            return self.args.verbose
+        else:
+            return self.get_param('main', 'verbose')
      
     def __str__(self):
-        return "%s, interactive=%s" % (pprint.pformat(self.args), self.interactive)
+        '''
+        string representation of Configuration
+        '''
+        return ("%s" %
+                (', '.join( [ 'credentials:%s' % self.credentials,
+                             'api-key:%s' % self.api_key,
+                             'identity-type:%s' % self.identity_type,
+                             'interactive:%s' % self.interactive,
+                             'identity-type:%s' % self.identity_type,
+                             'pyrax-http-debug:%s' % self.pyrax_http_debug,
+                             'pyrax_no_verify_ssl:%s' % self.pyrax_no_verify_ssl,
+                             'region:%s' % self.region,
+                             'username:%s' % self.username,
+                             'verbose:%s' % self.verbose,
+                             ])))

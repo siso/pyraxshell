@@ -45,7 +45,10 @@ def main():
     # ########################################
     # CONFIGURATION
     cfg = Configuration.Instance()  # @UndefinedVariable
-    cfg.parsecli(sys.argv)
+    # first read config file 
+    cfg.parse_config_file()
+    # override settings with CLI params
+    cfg.parse_cli(sys.argv)
     logging.debug("configuration: %s" % cfg)
     
     # ########################################
@@ -61,6 +64,7 @@ def main():
     if cfg.pyrax_no_verify_ssl:
         # see: https://github.com/rackspace/pyrax/issues/187
         pyrax.set_setting("verify_ssl", False)
+    # main loop
     Cmd_Pyraxshell().cmdloop()
 
 if __name__ == '__main__':

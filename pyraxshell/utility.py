@@ -32,7 +32,6 @@ def check_dir_home():
     if not os.path.isdir(os.path.expanduser(HOME_DIR)):
         # create dirs and config files
         check_dir(os.path.expanduser(HOME_DIR))
-        create_default_conf()
         create_default_log_conf()
         return False
     return True
@@ -48,17 +47,6 @@ def check_dir(directory):
         except OSError as exc:
             logging.warn("error creating directory '%s'")
             raise exc
-
-def create_default_conf():
-    '''
-    write default configuration file
-    '''
-    cfg = '''
-THIS IS FOR FUTURE USE
-'''
-    with open(os.path.expanduser(CONFIG_FILE), 'w') as f:
-        f.write(cfg)
-        f.flush()
 
 def create_default_log_conf():
     '''
