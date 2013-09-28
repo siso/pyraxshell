@@ -213,6 +213,21 @@ its features. Please, read ``PLUGINS.md`` to know more about the
 *pyraxshell plug-ins system*, and feel free to poke around
 ``./pyraxshell/plugins`` directory too!
 
+Configuration
+-------------
+
+On first run ``~/.pyraxshell`` directory is created, and populated with
+default file: \* ``db.sqlite3`` - database to store sessions, commands,
+*etc* \* ``logging.conf`` - logging configuration file \*
+``pyraxshell.conf`` - main configuration file \* ``pyraxshell.log`` -
+default logging file
+
+pyraxshell.conf
+~~~~~~~~~~~~~~~
+
+``pyraxshell.conf`` contains default settings that can be overwritten
+with CLI params.
+
 Logging
 -------
 
