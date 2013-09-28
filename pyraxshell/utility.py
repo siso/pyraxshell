@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import sys
-import terminalsize
 
 # This file is part of pyraxshell.
 #
@@ -17,38 +15,34 @@ import terminalsize
 # You should have received a copy of the GNU General Public License
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
-'''
-Created on 8 Jul 2013
-
-@author: soldasimo
-'''
-import os.path
+import sys
+import terminalsize
 import logging  # @UnusedImport
-import logging.config
+from globals import *  # @UnusedWildImport
+import uuid
 
-def print_dict(d, indent=0, indent_string = "--"):
-    '''recursively print nested dictionaries''' 
-    for k,v in d.items():
-        if type(v) is not dict:
-            print "%s%s --> %s" % ((indent_string * indent), k, v)
-        else:
-            print "%s%s:" % ((indent_string * indent), k)
-            print_dict(v, indent+1)
 
-def logging_start():
-    this_dir, this_filename = os.path.split(__file__)  # @UnusedVariable
-    log_config_file_locations = map(lambda i: os.path.join(this_dir, i),
-                                    ['./logging.conf', './conf/logging.conf',
-                                     '../conf/logging.conf'])
-    log_config_file = None    
-    for f in log_config_file_locations:
-        if os.path.exists(os.path.expanduser(f)):
-            log_config_file = f
-            logging.config.fileConfig(log_config_file)
-            logging.debug("found log config file: %s" % f)
-    if log_config_file == None:
-        logging.warn('could not find log config file (default locations: \'%s\')'
-                     % log_config_file_locations)
+def check_dir_home():
+    '''
+    check and create missing dirs and files
+    '''
+    if not os.path.isdir(os.path.expanduser(HOME_DIR)):
+        # create dirs and config files
+        check_dir(os.path.expanduser(HOME_DIR))
+        return False
+    return True
+
+def check_dir(directory):
+    '''
+    Check dir, create it if necessary
+    '''
+    if not os.path.isdir(directory):
+        logging.info("ipnotify directory '%s' is missing, creating it" % directory)
+        try:
+            os.mkdir(directory)
+        except OSError as exc:
+            logging.warn("error creating directory '%s'")
+            raise exc
 
 def kvstring_to_dict(kvs):
     '''
@@ -82,31 +76,37 @@ def is_ipv4(address):
         return False
 
 def is_ipv6(address):
-	'''
-	check if address is valid IP v6
-	'''
-	import socket
-	try:
-		socket.inet_pton(socket.AF_INET6, address)
-		return True
-	except socket.error:
-		return False
+    '''
+    check if address is valid IP v6
+    '''
+    import socket
+    try:
+        socket.inet_pton(socket.AF_INET6, address)
+        return True
+    except socket.error:
+        return False
 
 def get_ip_family(address):
-	'''
-	obtain the address family an IP belongs to
-	'''
-	import socket
-	try:
-		socket.inet_aton(address)
-		return "ipv4"
-	except socket.error:
-		pass
-	try:
-		socket.inet_pton(socket.AF_INET6, address)
-		return "ipv6"
-	except socket.error:
-		pass
+    '''
+    obtain the address family an IP belongs to
+    '''
+    if is_ipv4(address):
+        return 'ipv4'
+    elif is_ipv6(address):
+        return 'ipv6'
+    return None
+
+def get_uuid():
+    return uuid.uuid4()
+
+def print_dict(d, indent=0, indent_string="--"):
+    '''recursively print nested dictionaries''' 
+    for k, v in d.items():
+        if type(v) is not dict:
+            print "%s%s --> %s" % ((indent_string * indent), k, v)
+        else:
+            print "%s%s:" % ((indent_string * indent), k)
+            print_dict(v, indent + 1)
 
 def print_there(row, col, text):
     sys.stdout.write("\x1b7\x1b[%d;%df%s\x1b8" % (row, col, text))

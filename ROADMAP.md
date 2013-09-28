@@ -4,17 +4,18 @@ pyraxshell - ROADMAP
 ## v0.5
 * upload/download files (optimised, only objects with non matching md5)
 * in-line help
+* params auto-completion
 
 ## v0.4
-* save command history to file (~/.pyraxshell/history ?)
-* threaded creation of objects with callback (i.e. servers)
 * pip installer
+* write unit-tests
 
 ## v0.3
-* write unit-tests
 * review documentation
+* save command history to file (~/.pyraxshell/history ?)
+* threaded creation of objects with callback (i.e. servers)
 
-## v0.2 <== we are here!
+## v0.2
 * servers
 * load-balancers
 * databases

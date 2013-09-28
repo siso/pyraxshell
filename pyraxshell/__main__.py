@@ -19,29 +19,56 @@ import logging
 from configuration import Configuration
 import sys
 import pyrax
-import utility
 from pyraxshell import Cmd_Pyraxshell
+from globals import CONFIG_FILE
+from utility import check_dir_home
+from sessions import Sessions
+from db import DB
+import log
 
 def main():
+    # check '~/.pyraxshell' and config files  exist, if not then create it
+    if not check_dir_home():
+        print ("This is the first time 'pyraxshell' runs, please, configure "
+               "'%s' according to your needs" % CONFIG_FILE)
+        #create db
+        DB()
+        Sessions.Instance().create_table_sessions()  # @UndefinedVariable
+        Sessions.Instance().create_table_commands()  # @UndefinedVariable
+        # create default logging configuration file 
+        log.Log()
+        # create default configuration file
+        Configuration.Instance()  # @UndefinedVariable
+        sys.exit(0)
+    
     # ########################################
     # LOGGING
-    utility.logging_start()  # @UndefinedVariable
+    log.Log().start()
     logging.debug('starting')
     
     # ########################################
     # CONFIGURATION
     cfg = Configuration.Instance()  # @UndefinedVariable
-    cfg.parsecli(sys.argv)
-    logging.info("configuration: %s" % cfg)
+    # first read config file 
+    cfg.parse_config_file()
+    # override settings with CLI params
+    cfg.parse_cli(sys.argv)
+    logging.debug("configuration: %s" % cfg)
+    
+    # ########################################
+    # START SESSION
+    Sessions.Instance().start_session()  # @UndefinedVariable
+#     Sessions.Instance().insert_table_commands('IN', 'OUT')  # @UndefinedVariable
     
     # ########################################
     # DO STUFF
     # handle configuration
-    if cfg.pyrax_http_debug:
+    if cfg.pyrax_http_debug == True:
         pyrax.set_http_debug(True)
-    if cfg.pyrax_no_verify_ssl:
+    if cfg.pyrax_no_verify_ssl == True:
         # see: https://github.com/rackspace/pyrax/issues/187
         pyrax.set_setting("verify_ssl", False)
+    # main loop
     Cmd_Pyraxshell().cmdloop()
 
 if __name__ == '__main__':

@@ -20,6 +20,7 @@ import logging
 from utility import kvstring_to_dict
 from plugins.libauth import LibAuth
 from plugins.plugin import Plugin
+from globals import INFO
 
 name = 'auth'
 
@@ -31,7 +32,7 @@ def do_auth(*args):
     Cmd_auth().cmdloop()
 
 
-class Cmd_auth(cmd.Cmd):
+class Cmd_auth(Plugin, cmd.Cmd):
     '''
     pyrax shell POC - Authenticate module
     '''
@@ -70,19 +71,18 @@ class Cmd_auth(cmd.Cmd):
     # ########################################
     # CLOUD AUTHENTICATION
     
-    def do_change_password(self, line):
-        '''
-        change user\'s password
-        '''
-#TODO --
-        logging.info('NOT IMPLEMENTED YET')
+#     def do_change_password(self, line):
+#         '''
+#         change user\'s password
+#         '''
+# #TODO --
+#         logging.info('NOT IMPLEMENTED YET')
     
     def do_credentials(self, line):
         '''
-        authenticate using credentials file
+        authentication with credentials file
         '''
-        logging.info("authenticating using credentials file")
-        logging.debug("line: %s" % line)
+        logging.debug("authentication with credentials file")
         if self.libplugin.authenticate_credentials_file():
             logging.info("token: %s" % self.libplugin.get_token())
         else:
@@ -95,8 +95,10 @@ class Cmd_auth(cmd.Cmd):
         '''
         show Whether or not the user is authenticated
         '''
-        logging.info(self.libplugin.is_authenticated())
-        logging.debug("line: %s" % line)
+        retcode = 1
+        if self.libplugin.is_authenticated():
+            retcode = 0
+        self.r(retcode, 'authenticated', INFO)
     
     def do_login(self, line):
         '''
@@ -143,10 +145,9 @@ class Cmd_auth(cmd.Cmd):
                                                   username = _username,
                                                   apikey = _apikey,
                                                   region = _region)
-        except Exception as inst:
-            print type(inst)     # the exception instance
-            print inst.args      # arguments stored in .args
-            print inst           # __str__ allows args to printed directly
+        except:
+            tb = traceback.format_exc()
+            logging.error(tb)
     
     def complete_login(self, text, line, begidx, endidx):
         params = ['identity_type:', 'username:', 'apikey:', 'region:']
@@ -221,10 +222,9 @@ class Cmd_auth(cmd.Cmd):
             self.libplugin.authenticate_token(token=_token, tenantId=_tenantId,
                                               region=_region,
                                               identity_type=_identity_type)
-        except Exception as inst:
-            print type(inst)     # the exception instance
-            print inst.args      # arguments stored in .args
-            print inst           # __str__ allows args to printed directly
+        except:
+            tb = traceback.format_exc()
+            logging.error(tb)
     
     def complete_token(self, text, line, begidx, endidx):
         params = ['identity_type', 'region', 'tenantId', 'token']

@@ -20,6 +20,7 @@ import pyrax
 import os.path
 from prettytable import PrettyTable
 from libpyraxshell import Libpyraxshell
+import pprint
 
 class LibAuth(object):
     '''
@@ -28,12 +29,13 @@ class LibAuth(object):
     
     # ########################################
     # AUTHENTICATE
+    
     def authenticate_credentials_file(self, credentials_file=None):
         '''authenticate with Rackspace Cloud
         
         using credentials file'''
-        logging.info('authenticating with credentials file \'%s\'' % 
-                     credentials_file)
+        logging.debug('authenticating with credentials file \'%s\'' %
+                      credentials_file)
         self.credentials_file = credentials_file
         if self.credentials_file == None:
             # search for credentials file default locations
@@ -106,9 +108,8 @@ class LibAuth(object):
             return pyrax.identity.authenticated
         except Exception as inst:
             logging.debug('authentication test failed, not authenticated')
-            logging.debug(type(inst))  # the exception instance
-            logging.debug(inst.args)  # arguments stored in .args
-            logging.debug(inst)  # __str__ allows args to printed directly
+            tb = traceback.format_exc()
+            logging.error(tb)
             return False
     
     def get_token(self):
@@ -124,7 +125,7 @@ class LibAuth(object):
             pt.add_row(['auth token', pyrax.identity.auth_token])
             pt.add_row(['authenticated', pyrax.identity.authenticated])
             pt.add_row(['region', pyrax.identity.region])
-            pt.add_row(['regions', pyrax.identity.regions])
+            pt.add_row(['regions', ','.join(r for r in pyrax.identity.regions)])
             pt.add_row(['tenant id', pyrax.identity.tenant_id])
             pt.add_row(['tenant name', pyrax.identity.tenant_name])
             pt.add_row(['username', pyrax.identity.username])
