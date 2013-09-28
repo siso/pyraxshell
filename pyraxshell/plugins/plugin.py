@@ -60,6 +60,11 @@ class Plugin(cmd.Cmd):
         self.cmd, self.arg, self.line = cmd.Cmd.parseline(self, line)
         return self.cmd, self.arg, self.line
 
+    def precmd(self, line):
+        if not self.cfg.interactive:
+            print
+        return cmd.Cmd.precmd(self, line)
+    
     def preloop(self):
         '''
         override preloop and verify if user is authenticated
@@ -105,6 +110,15 @@ class Plugin(cmd.Cmd):
         list alias
         '''
         return self.do_list(line)
+    
+    def do_emptyline(self, line):
+        '''
+        print a new empty line
+        '''
+        if self.cfg.interactive:
+            print
+        else:
+            print "\n"
     
     def do_quit(self, line):
         '''

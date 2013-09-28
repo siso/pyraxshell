@@ -186,7 +186,7 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
                 p.injectme(self)
                 msg_loaded_plugins += " " + plugin_name
         logging.debug('loading plug-ins done')
-        logging.info('plug-ins loaded: %s' %
+        logging.debug('plug-ins loaded: %s' %
                      ", ".join(sorted(msg_loaded_plugins.split())))
         return True
 
@@ -207,7 +207,7 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
             except:
                 logging.warn('cannot login with %s' %
                              pyrax_default_config_file)
-            logging.info('authenticated as \'%s@%s\' in \'%s\'' %
+            logging.debug('authenticated as \'%s@%s\' in \'%s\'' %
                          (self.cfg.username, self.cfg.identity_type,
                           self.cfg.region))
         # try to authenticate automatically if '~/.pyrax.cfg' exists
@@ -220,4 +220,4 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
         if not plugins.libauth.LibAuth().is_authenticated():
             logging.warn('please, authenticate yourself before continuing')
         else:
-            logging.info('authenticated successfully')
+            logging.debug('authenticated successfully')

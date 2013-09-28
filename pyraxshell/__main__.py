@@ -46,7 +46,7 @@ def main():
     # CONFIGURATION
     cfg = Configuration.Instance()  # @UndefinedVariable
     cfg.parsecli(sys.argv)
-    logging.info("configuration: %s" % cfg)
+    logging.debug("configuration: %s" % cfg)
     
     # ########################################
     # START SESSION

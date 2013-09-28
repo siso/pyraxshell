@@ -29,6 +29,7 @@ class LibAuth(object):
     
     # ########################################
     # AUTHENTICATE
+    
     def authenticate_credentials_file(self, credentials_file=None):
         '''authenticate with Rackspace Cloud
         
@@ -125,7 +126,7 @@ class LibAuth(object):
             pt.add_row(['auth token', pyrax.identity.auth_token])
             pt.add_row(['authenticated', pyrax.identity.authenticated])
             pt.add_row(['region', pyrax.identity.region])
-            pt.add_row(['regions', pyrax.identity.regions])
+            pt.add_row(['regions', ','.join(r for r in pyrax.identity.regions)])
             pt.add_row(['tenant id', pyrax.identity.tenant_id])
             pt.add_row(['tenant name', pyrax.identity.tenant_name])
             pt.add_row(['username', pyrax.identity.username])

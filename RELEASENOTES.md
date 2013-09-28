@@ -9,6 +9,7 @@ Release notes for pyraxshell
   * Fixed issue #14
   * Added sessions support
   * Added 'r' (record) function to log messages to file and sessions to db
+  * Fixed non-interactive command output
 
 ## 2013.09.22 - Version 0.2.2
   * Fixed issue #3
