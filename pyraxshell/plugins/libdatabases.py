@@ -17,6 +17,60 @@
 
 import pyrax
 import logging
+import threading
+import time
+from globals import msg_queue
+
+
+class InstanceCreatorThread (threading.Thread):
+    '''
+    thread to create a Cloud Databases instance
+    '''
+    
+    def __init__(self, _name, flavor_id, volume, poll_time=30):
+        '''
+        Constructor
+        
+        _name       Cloud Databases Instance name
+        flavor_id   Cloud Databases Instance flavour id
+        volume      Cloud Databases Instance volume
+        poll_time   polling server creation progress in seconds
+        '''
+        threading.Thread.__init__(self)
+        self._name = _name
+        self.flavor_id = flavor_id
+        self.volume = volume
+        self.poll_time = poll_time
+        logging.debug('thread name:%s, instance name:%s, flavor_id:%s,'
+                      ' volume:%s'
+                      % (self.getName, _name, flavor_id, volume))
+        self._terminate = False
+    
+    def run(self):
+        '''
+        create a server, wait for completion, 
+        aka server status in ('ACTIVE', 'ERROR', 'UNKNOWN')
+        
+        poll_time    polling time waiting for completion in seconds
+        '''
+        logging.debug("Starting %s" % self.name)
+        statuses = ['ACTIVE', 'ERROR', 'UNKNOWN']
+        cdb = pyrax.cloud_databases
+        cdbi = cdb.create(self._name, flavor=int(self.flavor_id),
+                          volume=self.volume)
+        logging.debug('polling Cloud database instance creation progress (%d)' % self.poll_time)
+        while cdbi.status not in statuses:
+            if self._terminate == True:
+                logging.debug("terminating thread %s" % self.name)
+                return
+            time.sleep(1)
+            if int(time.time()) % self.poll_time == 0:
+                # mitigate polling server creation progress 
+                cdbi.get()
+                logging.debug('server \'%s\', status:%s' % (cdbi.name,
+                                                            cdbi.status))
+            msg_queue.put('db instance \'%s\': %s' % (cdbi.name, cdbi.status))
+
 
 class LibDatabases(object):
     '''

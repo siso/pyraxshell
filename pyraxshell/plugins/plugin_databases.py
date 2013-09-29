@@ -19,9 +19,10 @@ import cmd
 import logging
 import pyrax
 from prettytable import PrettyTable
-from plugins.libdatabases import LibDatabases
+from plugins.libdatabases import LibDatabases, InstanceCreatorThread
 from utility import kvstring_to_dict
 from plugin import Plugin
+import traceback
 
 name = 'databases'
 
@@ -81,11 +82,9 @@ class Cmd_databases(Plugin, cmd.Cmd):
         try:
             logging.debug('create database instance - name:%s, flavor_id:%s, '
                           'volume=%s' % (name, flavor_id, volume))
-            cdb = pyrax.cloud_databases
-#TODO -- poll progress as in cloud_servers
-            cdb.create(name,
-                       flavor=int(flavor_id),
-                       volume=volume)
+            cdbit = InstanceCreatorThread(name, flavor_id, volume)
+            cdbit.setName('CloudDBInstance-%s' % name)
+            cdbit.start()
         except:
             tb = traceback.format_exc()
             logging.error(tb)
@@ -172,6 +171,12 @@ class Cmd_databases(Plugin, cmd.Cmd):
             pt.add_row([dbf.id, dbf.name, dbf.ram, dbf.loaded])
         pt.align['name'] = 'l'
         print pt
+    
+    def do_list(self, line):
+        '''
+        list_instances alias
+        '''
+        return self.do_list_instances(line)
     
     def do_resize_instance(self, line):
         '''

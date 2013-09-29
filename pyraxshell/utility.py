@@ -20,6 +20,7 @@ import terminalsize
 import logging  # @UnusedImport
 from globals import *  # @UnusedWildImport
 import uuid
+import threading
 
 
 def check_dir_home():
@@ -122,3 +123,17 @@ def print_top_right(text):
     print_there(1, width - len(text) + 1, '+%s+' % ('-' * (text_len + 2)))
     print_there(2, width - len(text) + 1, text)
     print_there(3, width - len(text) + 1, '+%s+' % ('-' * (text_len + 2)))
+
+
+def terminate_threads():
+    '''
+    stop threads gracefully 
+    '''
+    logging.debug("terminate threads gracefully and exit")
+    logging.debug('%d threads running' % len(threading.enumerate()))
+    for t in threading.enumerate():
+        if hasattr(t, '_terminate'):
+            logging.debug('terminating thread: %s' % t.getName())
+            t.terminate = True
+    sys.exit(0)
+    

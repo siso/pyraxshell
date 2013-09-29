@@ -22,6 +22,7 @@ import threading
 import uuid
 import time
 from plugin import Plugin 
+from globals import msg_queue
 
 name = 'test'
 
@@ -55,6 +56,9 @@ class TestPlugin(Plugin, cmd.Cmd):
     
     def do_run_test_thread(self, line):
         TestThread().start()
+    
+    def do_run_test_thread1(self, line):
+        TestThread1().start()
 
 
 class TestThread (threading.Thread):
@@ -74,3 +78,35 @@ class TestThread (threading.Thread):
             time.sleep(1)
         print_top_right('task completed')
 
+
+class TestThread1 (threading.Thread):
+    def __init__(self, threadID = uuid.uuid4()):
+        '''
+        test thread 1
+        '''
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        logging.debug('thread id:%s' % (threadID))
+        # 'terminate' causes the thread to stop
+        self._terminate = False
+#         threading.Thread.setName('TestThread1')
+        
+    def run(self):
+        logging.debug("Starting %s" % self.threadID)
+        max_rep = 5
+        for i in range(max_rep):  # @UnusedVariable
+            msg_queue.put("thread %d - %s" % (self.threadID,
+                                               time.strftime('%H:%M:%S')))
+            time.sleep(1)
+            if self._terminate == True:
+                logging.debug("terminating thread %s" % self.name)
+                return
+        msg_queue.put('TestThread1 - task completed')
+
+    @property
+    def terminate(self):
+        return self._terminate
+    
+    @terminate.setter
+    def terminate(self, value=True):
+        self._terminate = value

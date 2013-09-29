@@ -134,10 +134,10 @@ class Cmd_servers(Plugin, cmd.Cmd):
             logging.warn("image_id missing")
             return False
         try:
-#             self.libplugin.create_server(name, flavor_id, image_id)
             # create ServerCreatorTread
             sct = ServerCreatorThread(name, flavor_id, image_id, poll_time = 30)
             # start thread
+            sct.setName('server-%s' % name)
             sct.start()
         except:
             tb = traceback.format_exc()

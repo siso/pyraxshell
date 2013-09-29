@@ -16,8 +16,10 @@
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
 import os.path
+import Queue
 
 
+# home directory
 HOME_DIR = os.path.expanduser('~/.pyraxshell')
 
 # SQLite database, public ip addresses history
@@ -39,3 +41,7 @@ WARN = WARNING = 2
 ERROR = 3
 CRITICAL = 4
 log_levels = (DEBUG, INFO, WARN, ERROR, CRITICAL)
+
+
+# message queue
+msg_queue = Queue.Queue()
