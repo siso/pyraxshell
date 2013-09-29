@@ -20,14 +20,19 @@ import pyrax
 from prettytable import PrettyTable
 import time
 import threading
-from utility import print_top_right, get_ip_family, get_uuid
+from utility import get_ip_family, get_uuid
+from globals import msg_queue
 
 
 class ServerCreatorThread (threading.Thread):
+    '''
+    thread to create a CouldServers
+    '''
+    
     def __init__(self, name, flavor_id, image_id, poll_time,
                  threadID = get_uuid()):
         '''
-        thread to create a CouldServers
+        Constructor
         
         name        CloudServer name
         flavor_id   CloudServer flavour id
@@ -42,6 +47,8 @@ class ServerCreatorThread (threading.Thread):
         self.poll_time = poll_time
         logging.debug('thread id:%s, server name:%s, flavor_id:%s, image_id:%s'
                       % (threadID, name, flavor_id, image_id))
+        # 'terminate' causes the thread to stop
+        self._terminate = False
     
     def run(self):
         '''
@@ -56,14 +63,17 @@ class ServerCreatorThread (threading.Thread):
         server = cs.servers.create(self.name, self.image_id, self.flavor_id)
         logging.debug('polling server creation progress (%d)' % self.poll_time)
         while server.status not in statuses:
+            if self._terminate == True:
+                logging.debug("terminating thread %s" % self.name)
+                return
             time.sleep(1)
             if int(time.time()) % self.poll_time == 0:
                 # mitigate polling server creation progress 
                 server.get()
                 logging.debug('server \'%s\', status:%s, progress:%s' %
                           (server.name, server.status, server.progress))
-            print_top_right('server \'%s\': %s %s' %
-                            (server.name, server.status, server.progress))
+            msg_queue.put('server \'%s\': %s %s' %
+                          (server.name, server.status, server.progress))
         if server.status == 'ACTIVE':
             d = {
                 'name'      : server.name,
@@ -88,10 +98,18 @@ class ServerCreatorThread (threading.Thread):
             print
             # return info
         else:
-            logging.error(('cannot create server \'%s\' (status:%s)' %
+            msg_queue.put(('Error. Cannot create server \'%s\' (status:%s)' %
                            (server.name, server.status)))
             return None
         logging.debug("Exiting %s" % self.name)
+    
+    @property
+    def terminate(self):
+        return self._terminate
+    
+    @terminate.setter
+    def terminate(self, value=True):
+        self._terminate = value
 
 
 class LibServers(object):

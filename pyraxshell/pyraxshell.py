@@ -46,8 +46,10 @@ class Cmd_Pyraxshell(Plugin, cmd.Cmd):
         '''
         just press CTRL-D to quit this menu
         '''
+        terminate_threads()
         print
-        return True
+#         return True
+        sys.exit(0)
     
     def emptyline(self):
         """Called when an empty line is entered in response to the prompt.

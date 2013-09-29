@@ -21,10 +21,13 @@ import sys
 import pyrax
 from pyraxshell import Cmd_Pyraxshell
 from globals import CONFIG_FILE
-from utility import check_dir_home
+from utility import check_dir_home, terminate_threads
 from sessions import Sessions
 from db import DB
 import log
+import signal
+from notifier import Notifier
+
 
 def main():
     # check '~/.pyraxshell' and config files  exist, if not then create it
@@ -68,8 +71,23 @@ def main():
     if cfg.pyrax_no_verify_ssl == True:
         # see: https://github.com/rackspace/pyrax/issues/187
         pyrax.set_setting("verify_ssl", False)
+    # start notifier
+    Notifier().start()
     # main loop
     Cmd_Pyraxshell().cmdloop()
 
+
+def signal_handler(signal, frame):
+    '''
+    handle signals (i.e.: SIGINT, SIGTERM), and stop threads 
+    '''
+    terminate_threads()
+    sys.exit(0)
+
+
 if __name__ == '__main__':
+    # register SIGINT and SIGTERM handler
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    
     main()

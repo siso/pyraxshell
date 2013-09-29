@@ -21,6 +21,7 @@ from utility import kvstring_to_dict
 from plugins.libauth import LibAuth
 from plugins.plugin import Plugin
 from globals import INFO
+import traceback
 
 name = 'auth'
 

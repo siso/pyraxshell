@@ -1,6 +1,11 @@
 Release notes for pyraxshell
 =======
 
+## 2013.09.29 - Version 0.2.4
+  * Added SIGINT/SIGTERM handler to stop threads gracefully
+  * Added Notifier (a threaded message queue system)
+  * Implemented long lasting operation use Notifier 
+
 ## 2013.09.28 - Version 0.2.3
   * Fixed issue #11
   * Fixed issue #9
