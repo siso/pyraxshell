@@ -1,6 +1,10 @@
 Release notes for pyraxshell
 =======
 
+## 2013.XX.XX - Version 0.2.5
+  * Added logging to file/db feature
+  * Lib/Plugin_Auth logs to file/db
+
 ## 2013.09.29 - Version 0.2.4
   * Added SIGINT/SIGTERM handler to stop threads gracefully
   * Added Notifier (a threaded message queue system)

@@ -21,6 +21,8 @@ import logging  # @UnusedImport
 from globals import *  # @UnusedWildImport
 import uuid
 import threading
+import traceback
+from configuration import Configuration
 
 
 def check_dir_home():
@@ -45,6 +47,19 @@ def check_dir(directory):
             logging.warn("error creating directory '%s'")
             raise exc
 
+def get_ip_family(address):
+    '''
+    obtain the address family an IP belongs to
+    '''
+    if is_ipv4(address):
+        return 'ipv4'
+    elif is_ipv6(address):
+        return 'ipv6'
+    return None
+
+def get_uuid():
+    return uuid.uuid4()
+
 def kvstring_to_dict(kvs):
     '''
     transform a key-value-string to dictionary
@@ -62,7 +77,8 @@ def kvstring_to_dict(kvs):
             kv = token.split(':')
             d_out[kv[0]] = kv[1]
     except:
-        logging.error('cannot parse key-value-string')
+        tb = traceback.format_exc()
+        logging.error(tb)
     return d_out
 
 def is_ipv4(address):
@@ -87,18 +103,34 @@ def is_ipv6(address):
     except socket.error:
         return False
 
-def get_ip_family(address):
+def l(cmd, retcode, msg, log_level):
     '''
-    obtain the address family an IP belongs to
+    logging message facility which logs and returns log message
     '''
-    if is_ipv4(address):
-        return 'ipv4'
-    elif is_ipv6(address):
-        return 'ipv6'
-    return None
-
-def get_uuid():
-    return uuid.uuid4()
+    logging.debug("[IN] %s" % cmd)
+    logging.debug("[OUT] %s, log_level:%d" % (msg, log_level))
+    interactive = Configuration.Instance().interactive  # @UndefinedVariable
+    if log_level == DEBUG:
+        logging.debug(msg)
+        if not interactive:
+            msg += "0|%s" % msg
+    if log_level == INFO:
+        logging.info(msg)
+        if not interactive:
+            msg += "0|%s" % msg
+    if log_level == WARN:
+        logging.warn(msg)
+        if not interactive:
+            msg += "0|%s" % msg
+    if log_level == ERROR:
+        logging.error(msg)
+        if not interactive:
+            msg += "1|%s" % msg
+    if log_level == CRITICAL:  # @UndefinedVariable
+        logging.critical(msg)
+        if not interactive:
+            msg += "1|%s" % msg
+    return msg
 
 def print_dict(d, indent=0, indent_string="--"):
     '''recursively print nested dictionaries''' 
@@ -117,13 +149,13 @@ def print_top_right(text):
     '''
     print text to top right in terminal
     '''
+#TODO - display multi-line messages
     (width, heigth) = terminalsize.get_terminal_size()  # @UnusedVariable
     text_len = len(text)
     text = '| %s |' % text
     print_there(1, width - len(text) + 1, '+%s+' % ('-' * (text_len + 2)))
     print_there(2, width - len(text) + 1, text)
     print_there(3, width - len(text) + 1, '+%s+' % ('-' * (text_len + 2)))
-
 
 def terminate_threads():
     '''

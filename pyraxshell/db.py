@@ -16,9 +16,10 @@
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from globals import SQLITE_DB
+from globals import SQLITE_DB, ERROR
 import os.path
 import sqlite3
+import traceback
 
 
 class DB:
@@ -51,10 +52,15 @@ class DB:
         query db
         '''
         logging.debug('sql:%s' % sql)
-        cur = self.__con.cursor()
-        cur.execute(sql)
-        self.__con.commit()
-        return cur.fetchall()
+        try:
+            cur = self.__con.cursor()
+            cur.execute(sql)
+            self.__con.commit()
+            return cur.fetchall()
+        except:
+            tb = traceback.format_exc()
+            logging.error(tb)
+        return False
 
     def start_db(self):
         '''access db, create a new db if it is missing'''

@@ -20,6 +20,7 @@ import logging
 from configuration import Configuration
 from sessions import Sessions
 from globals import *  # @UnusedWildImport
+from utility import l
 
 name = 'none'
 
@@ -131,28 +132,6 @@ class Plugin(cmd.Cmd):
         record Session command input/output to 'commands' table, and
         logging message facility
         '''
-        logging.debug("[IN] %s" % self.cmd)
-        logging.debug("[OUT] %s, log_level:%d" % (msg, log_level))
-        interactive = Configuration.Instance().interactive  # @UndefinedVariable
-        if log_level == DEBUG:
-            logging.debug(msg)
-            if not interactive:
-                msg += "0|%s" % msg
-        if log_level == INFO:
-            logging.info(msg)
-            if not interactive:
-                msg += "0|%s" % msg
-        if log_level == WARN:
-            logging.warn(msg)
-            if not interactive:
-                msg += "0|%s" % msg
-        if log_level == ERROR:
-            logging.error(msg)
-            if not interactive:
-                msg += "1|%s" % msg
-        if log_level == CRITICAL:  # @UndefinedVariable
-            logging.critical(msg)
-            if not interactive:
-                msg += "1|%s" % msg
-        Sessions.Instance().insert_table_commands(self.cmd, msg, retcode, # @UndefinedVariable
-                                                  log_level)
+        l(self.cmd, retcode, msg, log_level)
+        Sessions.Instance().insert_table_commands(self.line # @UndefinedVariable
+                                                  , msg, retcode, log_level)

@@ -65,31 +65,31 @@ class Cmd_servers(Plugin, cmd.Cmd):
             _id = d_kv['id']
         if (id, name) == (None, None):
             cmd_out = "server id missing"
-            self.r(cmd_out, ERROR)
+            self.r(1, cmd_out, ERROR)
             return False
         if 'password' in d_kv.keys():
             password = d_kv['password']
         else:
             cmd_out = "new password missing"
-            self.r(cmd_out, ERROR)
+            self.r(1, cmd_out, ERROR)
             return False
         try:
             s = self.libplugin.get_by_id(_id)
         except IndexError:
             cmd_out = 'server id:%s not found' % _id
-            self.r(cmd_out, ERROR)
+            self.r(1, cmd_out, ERROR)
             return False
         try:
             if s.status == 'ACTIVE':
                 s.change_password(password)
                 cmd_out = 'changed root password on server id:%s, name:%s' % (_id, s.name)
-                self.r(cmd_out, INFO)
+                self.r(0, cmd_out, INFO)
             else:
                 cmd_out = 'cannot change root password on server id:%s, name:%s' % (_id, s.name)
-                self.r(cmd_out, ERROR)
+                self.r(1, cmd_out, ERROR)
         except:
             tb = traceback.format_exc()
-            logging.error(tb)
+            self.r(1, tb, ERROR)
     
     def complete_change_password(self, text, line, begidx, endidx):
         params = ['id:', 'password:']
