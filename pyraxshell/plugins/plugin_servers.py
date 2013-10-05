@@ -65,19 +65,19 @@ class Cmd_servers(Plugin, cmd.Cmd):
             _id = d_kv['id']
         if (id, name) == (None, None):
             cmd_out = "server id missing"
-            self.r(1, cmd_out, ERROR)
+            self.r(1, cmd_out, WARNING)
             return False
         if 'password' in d_kv.keys():
             password = d_kv['password']
         else:
             cmd_out = "new password missing"
-            self.r(1, cmd_out, ERROR)
+            self.r(1, cmd_out, WARNING)
             return False
         try:
             s = self.libplugin.get_by_id(_id)
         except IndexError:
             cmd_out = 'server id:%s not found' % _id
-            self.r(1, cmd_out, ERROR)
+            self.r(1, cmd_out, WARNING)
             return False
         try:
             if s.status == 'ACTIVE':
@@ -121,17 +121,20 @@ class Cmd_servers(Plugin, cmd.Cmd):
         if 'name' in d_kv.keys():
             name = d_kv['name']
         else:
-            logging.warn("name missing")
+            cmd_out = "name missing"
+            self.r(1, cmd_out, WARNING)
             return False
         if 'flavor_id' in d_kv.keys():
             flavor_id = d_kv['flavor_id']
         else:
-            logging.warn("flavor_id missing")
+            cmd_out = "flavor_id missing"
+            self.r(1, cmd_out, WARNING)
             return False
         if 'image_id' in d_kv.keys():
             image_id = d_kv['image_id']
         else:
-            logging.warn("image_id missing")
+            cmd_out = "image_id missing"
+            self.r(1, cmd_out, WARNING)
             return False
         try:
             # create ServerCreatorTread
@@ -139,9 +142,10 @@ class Cmd_servers(Plugin, cmd.Cmd):
             # start thread
             sct.setName('server-%s' % name)
             sct.start()
+            # completion message printed by thread in libservers
         except:
             tb = traceback.format_exc()
-            logging.error(tb)
+            self.r(1, tb, ERROR)
 
     def complete_create(self, text, line, begidx, endidx):
         params = ['flavor_id:', 'image_id:', 'name:']
@@ -182,10 +186,12 @@ class Cmd_servers(Plugin, cmd.Cmd):
         if 'id' in d_kv.keys():
             _id = d_kv['id']
         if _id == None:
-            logging.warn("server id is missing")
+            cmd_out = "server id is missing"
+            self.r(1, cmd_out, WARNING)
             return False
-        logging.info('deleting server id:%s' % _id)
         self.libplugin.delete_server(_id)
+        cmd_out = 'deleting server id:%s' % _id
+        self.r(0, cmd_out, INFO)
     
     def complete_delete(self, text, line, begidx, endidx):
         params = ['id:']
@@ -221,12 +227,16 @@ class Cmd_servers(Plugin, cmd.Cmd):
         if 'id' in d_kv.keys():
             _id = d_kv['id']
         if (_id, name) == (None, None):
-            logging.warn("server id and name missing, specify at least one")
+            cmd_out = "server id and name missing, specify at least one"
+            self.r(1, cmd_out, WARNING)
             return False         
         try:
+            # output in libservers
             self.libplugin.details_server(_id, name)
         except:
-            logging.error(traceback.format_exc())
+            tb = traceback.format_exc()
+            self.r(1, tb, ERROR)
+            return False
 
     def complete_details(self, text, line, begidx, endidx):
         params = ['id:', 'name:']
@@ -248,6 +258,7 @@ class Cmd_servers(Plugin, cmd.Cmd):
         '''
         logging.info("list my servers")
         logging.debug("line: %s" % line)
+        # output in libservers
         self.libplugin.print_pt_cloudservers()
     
     def do_list_flavors(self, line):
@@ -256,6 +267,7 @@ class Cmd_servers(Plugin, cmd.Cmd):
         '''
         logging.info("list servers")
         logging.debug("line: %s" % line)
+        # output in libservers
         self.libplugin.print_pt_cloudservers_flavors()
     
     def do_list_images(self, line):
@@ -264,6 +276,7 @@ class Cmd_servers(Plugin, cmd.Cmd):
         '''
         logging.info("list servers")
         logging.debug("line: %s" % line)
+        # output in libservers
         self.libplugin.print_pt_cloudservers_images()
     
     def do_reboot(self, line):
@@ -282,7 +295,8 @@ class Cmd_servers(Plugin, cmd.Cmd):
         if 'id' in d_kv.keys():
             _id = d_kv['id']
         if (id, name) == (None, None):
-            logging.warn("server id missing, cannot continue")
+            cmd_out = "server id missing, cannot continue"
+            self.r(1, cmd_out, WARNING)
             return False
         if 'type' in d_kv.keys():
             _type = d_kv['type']
@@ -290,23 +304,30 @@ class Cmd_servers(Plugin, cmd.Cmd):
             logging.warn("reboot type not specified, defaulting to 'cold'")
         _type = str.upper(_type)
         if _type != 'COLD' and _type != 'HARD':
-            logging.warn("reboot type can be: cold or hard, not \'%s\'" % _type)
+            cmd_out = "reboot type can be: cold or hard, not \'%s\'" % _type
+            self.r(1, cmd_out, WARNING)
             return False
         try:
             s = self.libplugin.get_by_id(_id)
+            self.r(0, cmd_out, INFO)
         except IndexError:
-            logging.warn('cannot find server identified by id:%s' % _id)
+            cmd_out = 'cannot find server identified with id:%s' % _id
+            self.r(1, cmd_out, ERROR)
             return False
         try:
             if s.status == 'ACTIVE':
-                logging.info('rebooting server id:%s' % _id)
                 s.reboot(_type)
+                cmd_out = '%s rebooted server id:%s' % (_type, _id)
+                self.r(0, cmd_out, INFO)
             else:
-                logging.error('cannot reboot server id:%s, status:%s' %
-                              (_id, s.status))
+                cmd_out = ('cannot reboot server id:%s, status:%s' %
+                           (_id, s.status))
+                self.r(1, cmd_out, ERROR)
+                return False
+                
         except:
             tb = traceback.format_exc()
-            logging.error(tb)
+            self.r(1, tb, ERROR)
     
     def complete_reboot(self, text, line, begidx, endidx):
         params = ['id:', 'type:']
@@ -344,24 +365,30 @@ class Cmd_servers(Plugin, cmd.Cmd):
         if 'id' in d_kv.keys():
             _id = d_kv['id']
         else:
-            logging.warn("server id missing, cannot continue")
+            cmd_out = "server id missing, cannot continue"
+            self.r(1, cmd_out, WARNING)
             return False
         if 'snapshot_name' in d_kv.keys():
             snapshot_name = d_kv['snapshot_name']
         else:
-            logging.warn("snapshot_name missing, cannot continue")
+            cmd_out = "snapshot_name missing, cannot continue"
+            self.r(1, cmd_out, WARNING)
             return False
         try:
             s = self.libplugin.get_by_id(_id)
         except IndexError:
-            logging.warn('cannot find server identified by id:%s' % _id)
+            cmd_out = 'cannot find server identified by id:%s' % _id
+            self.r(1, cmd_out, ERROR)
             return False
         try:
-            logging.info('taking snapshot name:%s of server id:%s' %
-                          (snapshot_name, _id))
             s.create_image(snapshot_name)
+            cmd_out = ('took snapshot name:%s of server id:%s' %
+                       (snapshot_name, _id))
+            self.r(0, cmd_out, INFO)
         except:
-            logging.error(traceback.format_exc())
+            tb = traceback.format_exc()
+            self.r(1, tb, ERROR)
+            return None
     
     def complete_take_snapshots(self, text, line, begidx, endidx):
         params = ['id:', 'snapshot_name:']
@@ -390,18 +417,23 @@ class Cmd_servers(Plugin, cmd.Cmd):
         if 'id' in d_kv.keys():
             _id = d_kv['id']
         if _id == None:
-            logging.warn("snapshot id is missing")
+            cmd_out = "snapshot id is missing"
+            self.r(1, cmd_out, WARNING)
             return False
         try:
             cs = pyrax.cloudservers
             snapshot = [ss for ss in cs.list_snapshots() if ss.id == _id][0]
-            logging.info('deleting snapshot id:%s' % snapshot.id)
             snapshot.delete()
+            cmd_out = 'deleted snapshot id:%s' % snapshot.id
+            self.r(0, cmd_out, INFO)
         except IndexError:
-            logging.warn('cannot find snapshot identified by id:%s' % _id)
+            cmd_out = 'cannot find snapshot identified by id:%s' % _id
+            self.r(1, cmd_out, ERROR)
             return False
         except:
-            logging.error(traceback.format_exc())
+            tb = traceback.format_exc()
+            self.r(1, tb, ERROR)
+            return None
     
     def complete_delete_snapshot(self, text, line, begidx, endidx):
         params = ['id:']
@@ -438,6 +470,8 @@ class Cmd_servers(Plugin, cmd.Cmd):
                             ])
             pt.align['id'] = 'l'
             pt.align['name'] = 'l'
-            print pt
+            self.r(0, pt, INFO)
         except:
-            logging.error(traceback.format_exc())
+            tb = traceback.format_exc()
+            self.r(1, tb, ERROR)
+            return None

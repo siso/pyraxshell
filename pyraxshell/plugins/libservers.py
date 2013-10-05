@@ -21,7 +21,8 @@ from prettytable import PrettyTable
 import time
 import threading
 from utility import get_ip_family, get_uuid
-from globals import msg_queue
+from globals import msg_queue, INFO, ERROR
+from plugins.lib import Lib
 
 
 class ServerCreatorThread (threading.Thread):
@@ -94,12 +95,14 @@ class ServerCreatorThread (threading.Thread):
                 pt.add_row(['network private (%s)' % get_ip_family(srv_net), srv_net])
             pt.align['key'] = 'l'
             pt.align['value'] = 'l'
-            print pt
+            self.r(0, pt, INFO)
             print
             # return info
         else:
-            msg_queue.put(('Error. Cannot create server \'%s\' (status:%s)' %
-                           (server.name, server.status)))
+            cmd_out = ('Error. Cannot create server \'%s\' (status:%s)' %
+                       (server.name, server.status))
+            msg_queue.put(cmd_out)
+            self.r(1, cmd_out, ERROR)
             return None
         logging.debug("Exiting %s" % self.name)
     
@@ -112,7 +115,7 @@ class ServerCreatorThread (threading.Thread):
         self._terminate = value
 
 
-class LibServers(object):
+class LibServers(Lib):
     '''
     pyraxshell servers library
     '''
@@ -166,7 +169,7 @@ class LibServers(object):
                 for srv_net in server.networks['private']:
                     pt.add_row(['network private (%s)' % get_ip_family(srv_net), srv_net])				
                 pt.add_row(['created on', server.created])
-                print pt
+                self.r(0, pt, INFO)
     
     def get_cloudserver_flavor(self, _id):
         csf = self.list_cloudservers_flavors()
@@ -205,7 +208,7 @@ class LibServers(object):
                             self.get_cloudserver_flavor(csf.flavor['id']).name
                             ])
         pt.get_string(sortby='name')
-        print pt
+        self.r(0, pt, INFO)
     
     def print_pt_cloudservers_flavors(self):
         '''print cloud servers flavors with PrettyTable'''
@@ -213,7 +216,7 @@ class LibServers(object):
         pt = PrettyTable(['id', 'name', 'ram', 'swap', 'vcpus'])
         for csf in csflavors:
             pt.add_row([csf.id, csf.name, csf.ram, csf.swap, csf.vcpus])
-        print pt
+        self.r(0, pt, INFO)
 
     def print_pt_cloudservers_images(self, sortby='name'):
         '''print cloud servers images with PrettyTable
@@ -226,6 +229,6 @@ class LibServers(object):
             pt.add_row([csf.id, csf.name, csf.minDisk, csf.minRam])
         pt.align['name'] = 'l'
         if sortby != None:
-            print pt.get_string(sortby=sortby)
+            self.r(0, pt.get_string(sortby=sortby), INFO)
         else:
-            print pt
+            self.r(0, pt, INFO)
