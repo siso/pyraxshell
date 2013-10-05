@@ -3,10 +3,11 @@ Release notes for pyraxshell
 
 ## 2013.XX.XX - Version 0.2.5
   * Added logging to file/db feature
-  * Lib/Plugin_Auth logs to file/db
+  * Lib/Plugin_Auth logs to file/db (Plugin.r())
   * Added non verbose logging in non-interactive mode
   * Added authentication with token
-  * Lib/Plugin_Databases logs to file/db
+  * Lib/Plugin_Databases logs to file/db (Plugin.r())
+  * Lib/Plugin_Dns logs to file/db (Plugin.r())
 
 ## 2013.09.29 - Version 0.2.4
   * Added SIGINT/SIGTERM handler to stop threads gracefully
