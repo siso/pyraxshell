@@ -21,7 +21,7 @@ import os.path  # @UnusedImport
 from utility import *  # @UnusedWildImport
 import imp
 # import plugins  # @UnusedImport
-from configuration import Configuration
+# from configuration import Configuration
 from plugins.plugin import Plugin
 
 class Cmd_Pyraxshell(Plugin, cmd.Cmd):
@@ -41,6 +41,12 @@ class Cmd_Pyraxshell(Plugin, cmd.Cmd):
         self.load_plugins()
         # cmd as singleton
         self.cfg = Configuration.Instance()  # @UndefinedVariable
+        
+        # no 'Cmd' output in non-interactive mode
+        interactive = os.isatty(0)
+        if not interactive:
+            f = open(os.devnull, 'w')
+            sys.stdout = f
 
     def do_EOF(self, line):
         '''

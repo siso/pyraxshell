@@ -21,6 +21,7 @@ from configuration import Configuration
 from sessions import Sessions
 from globals import *  # @UnusedWildImport
 from utility import l
+import sys
 
 name = 'none'
 
@@ -42,6 +43,12 @@ class Plugin(cmd.Cmd):
         self.cmd = None
         self.arg = None
         self.line = None
+        
+        # no 'Cmd' output in non-interactive mode
+        interactive = os.isatty(0)
+        if not interactive:
+            f = open(os.devnull, 'w')
+            sys.stdout = f
     
     def emptyline(self):
         """Called when an empty line is entered in response to the prompt.
@@ -133,5 +140,5 @@ class Plugin(cmd.Cmd):
         logging message facility
         '''
         l(self.cmd, retcode, msg, log_level)
-        Sessions.Instance().insert_table_commands(self.line # @UndefinedVariable
-                                                  , msg, retcode, log_level)
+        Sessions.Instance().insert_table_commands(self.line ,   # @UndefinedVariable
+                                                  msg, retcode, log_level)

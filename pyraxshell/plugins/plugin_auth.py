@@ -83,6 +83,7 @@ class Cmd_auth(Plugin, cmd.Cmd):
         '''
         authentication with credentials file
         '''
+# TODO -- accept path to file with credentials 
         logging.debug("authentication with credentials file")
         if self.libplugin.authenticate_credentials_file():
             logging.info("token: %s" % self.libplugin.get_token())

@@ -30,9 +30,7 @@ if __name__ == '__main__':
     if len(sys.argv) == 1:
         show_usage()
         sys.exit(0)
-    print "pyraxcli starting"
     args =  " ".join([a for a in sys.argv[1:]])
-    print args
     commands = args.split(',')
     process = subprocess.Popen(['python', 'pyraxshell'],
                                stdin=subprocess.PIPE,
@@ -45,4 +43,4 @@ if __name__ == '__main__':
     errcode = process.wait()
     for line in process.stdout:
         print line.rstrip()
-    print "pyraxcli -- subprocess error code: %s" % errcode
+    sys.exit(errcode)

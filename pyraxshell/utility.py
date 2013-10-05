@@ -106,30 +106,35 @@ def is_ipv6(address):
 def l(cmd, retcode, msg, log_level):
     '''
     logging message facility which logs and returns log message
+    
+    cmd        command-line with params
+    retcode    command return-code
+    msg        informative message
+    log_level  log level of the message
     '''
     logging.debug("[IN] %s" % cmd)
     logging.debug("[OUT] %s, log_level:%d" % (msg, log_level))
     interactive = Configuration.Instance().interactive  # @UndefinedVariable
     if log_level == DEBUG:
+        if not interactive:
+            msg = "0|%s" % msg
         logging.debug(msg)
-        if not interactive:
-            msg += "0|%s" % msg
     if log_level == INFO:
+        if not interactive:
+            msg = "0|%s" % msg
         logging.info(msg)
-        if not interactive:
-            msg += "0|%s" % msg
     if log_level == WARN:
+        if not interactive:
+            msg = "0|%s" % msg
         logging.warn(msg)
-        if not interactive:
-            msg += "0|%s" % msg
     if log_level == ERROR:
+        if not interactive:
+            msg = "1|%s" % msg
         logging.error(msg)
-        if not interactive:
-            msg += "1|%s" % msg
     if log_level == CRITICAL:  # @UndefinedVariable
-        logging.critical(msg)
         if not interactive:
-            msg += "1|%s" % msg
+            msg = "1|%s" % msg
+        logging.critical(msg)
     return msg
 
 def print_dict(d, indent=0, indent_string="--"):
@@ -168,4 +173,3 @@ def terminate_threads():
             logging.debug('terminating thread: %s' % t.getName())
             t.terminate = True
     sys.exit(0)
-    
