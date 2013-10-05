@@ -19,7 +19,7 @@ import pyrax
 import logging
 import threading
 import time
-from globals import msg_queue
+from globals import msg_queue, INFO
 
 
 class InstanceCreatorThread (threading.Thread):
@@ -70,6 +70,9 @@ class InstanceCreatorThread (threading.Thread):
                 logging.debug('server \'%s\', status:%s' % (cdbi.name,
                                                             cdbi.status))
             msg_queue.put('db instance \'%s\': %s' % (cdbi.name, cdbi.status))
+        cdbi.get()
+        msg = 'server \'%s\', status:%s' % (cdbi.name, cdbi.status)
+        self.r(0, msg, INFO)
 
 
 class LibDatabases(object):

@@ -103,11 +103,12 @@ no_verify_ssl = False
                             choices=['DFW', 'ORD', 'LON', 'SYD'],
 #                             default=pyrax.default_region
                             default='LON')
+        parser.add_argument('--tenant-id', help='Authentication tenant id')
+        parser.add_argument('-t', '--token', help='Authentication token')
         parser.add_argument('-u', '--username', help='Authentication username')
         parser.add_argument("-v", "--verbose", nargs='?', const=True,
                             help="verbose output (default: False)")
         self.args = parser.parse_args()
-        logging.debug('username: %s', self.args.username)
 
     
     # ########################################
@@ -153,6 +154,16 @@ no_verify_ssl = False
     def region(self):
         return self.args.region
     
+    # --tenant-id
+    @property
+    def tenant_id(self):
+        return self.args.tenant_id
+    
+    # -t, --token
+    @property
+    def token(self):
+        return self.args.token
+    
     # -u, --username
     @property
     def username(self):
@@ -179,6 +190,7 @@ no_verify_ssl = False
                              'pyrax-http-debug:%s' % self.pyrax_http_debug,
                              'pyrax_no_verify_ssl:%s' % self.pyrax_no_verify_ssl,
                              'region:%s' % self.region,
+                             'token:%s' % self.token,
                              'username:%s' % self.username,
                              'verbose:%s' % self.verbose,
                              ])))

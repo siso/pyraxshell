@@ -127,7 +127,18 @@ using the same *pyraxshell syntax*, and commands separated by *commas*.
 
 ### Using pyraxshell non-interactively
 
-Running *pyraxshell* **non-teractively** is pretty easy, and it is the best way to automate tasks. Just create a text file with the commands you want to run:
+Running *pyraxshell* **non-teractively** is pretty easy, and it is the best way to automate tasks, i.e.:
+
+```
+$ cat | python pyraxshell << EOF
+auth
+is_authenticated
+EOF
+
+0|authenticated (INFO)
+```
+
+or you could use a text file with commands to run:
 
 ```
 $ cat > commands.txt << EOF

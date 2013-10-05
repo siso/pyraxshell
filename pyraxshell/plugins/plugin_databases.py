@@ -23,6 +23,7 @@ from plugins.libdatabases import LibDatabases, InstanceCreatorThread
 from utility import kvstring_to_dict
 from plugin import Plugin
 import traceback
+from globals import WARNING, INFO, ERROR, WARN
 
 name = 'databases'
 
@@ -67,20 +68,23 @@ class Cmd_databases(Plugin, cmd.Cmd):
         if 'name' in d_kv.keys():
             name = d_kv['name']
         else:
-            logging.warn("name missing")
+            cmd_out = "name missing"
+            self.r(1, cmd_out, WARNING)
             return False
         if 'flavor_id' in d_kv.keys():
             flavor_id = d_kv['flavor_id']
         else:
-            logging.warn("flavor_id missing")
+            cmd_out = "flavor_id missing"
+            self.r(1, cmd_out, WARNING)
             return False
         if 'volume' in d_kv.keys():
             volume = d_kv['volume']
         else:
-            logging.warn("volume missing")
+            cmd_out = "volume missing"
+            self.r(1, cmd_out, WARNING)
             return False
         try:
-            logging.debug('create database instance - name:%s, flavor_id:%s, '
+            logging.debug('creating database instance - name:%s, flavor_id:%s, '
                           'volume=%s' % (name, flavor_id, volume))
             cdbit = InstanceCreatorThread(name, flavor_id, volume)
             cdbit.setName('CloudDBInstance-%s' % name)
@@ -117,14 +121,17 @@ class Cmd_databases(Plugin, cmd.Cmd):
         if 'id' in d_kv.keys():
             _id = d_kv['id']
         else:
-            logging.warn("id missing")
+            cmd_out = "id missing"
+            self.r(1, cmd_out, WARNING)
             return False
         try:
             db_instance = self.libplugin.get_instance_by_id(_id)
             db_instance.delete()
+            cmd_out = 'Cloud Databases instance id:%s deleted' % _id
+            self.r(0, cmd_out, INFO)
         except:
             tb = traceback.format_exc()
-            logging.error(tb)
+            self.r(1, tb, ERROR)
     
     def complete_delete_instance(self, text, line, begidx, endidx):
         params = ['id:']
@@ -156,7 +163,7 @@ class Cmd_databases(Plugin, cmd.Cmd):
                         '\n'.join([l['href'] for l in db.links])])
         pt.align['name'] = 'l'
         pt.align['links'] = 'l'
-        print pt
+        self.r(0, pt, INFO)
     
     def do_list_instance_flavors(self, line):
         '''
@@ -170,7 +177,7 @@ class Cmd_databases(Plugin, cmd.Cmd):
         for dbf in cdbf:
             pt.add_row([dbf.id, dbf.name, dbf.ram, dbf.loaded])
         pt.align['name'] = 'l'
-        print pt
+        self.r(0, pt, INFO)
     
     def do_list(self, line):
         '''
@@ -199,26 +206,27 @@ class Cmd_databases(Plugin, cmd.Cmd):
         if 'id' in d_kv.keys():
             _id = d_kv['id']
         else:
-            logging.error("instance id missing")
+            cmd_out = "instance id missing"
+            self.r(1, cmd_out, ERROR)
             return False
         if 'ram' in d_kv.keys():
             ram = d_kv['ram']
         if 'volume' in d_kv.keys():
             volume = d_kv['volume']
         if (ram == None and volume == None) or (ram != None and volume != None):
-            logging.warn('specify ram or volume')
+            cmd_out = 'specify ram or volume'
+            self.r(1, cmd_out, WARN)
             return False
         try:
-            logging.debug('resize database instance - id:%s, ram:%s, volume:%s'
-                          % (_id, ram, volume))
             db_instance = self.libplugin.get_instance_by_id(_id)
             if ram != None:
                 db_instance.resize(int(ram))
             if volume != None:
                 db_instance.resize_volume(volume)
+            cmd_out = 'Cloud Databases instance id:%s resized' %_id
         except:
             tb = traceback.format_exc()
-            logging.error(tb)
+            self.r(1, tb, ERROR)
     
     def complete_resize_instance(self, text, line, begidx, endidx):
         params = ['id:', 'ram:', 'volume:']
@@ -252,22 +260,25 @@ class Cmd_databases(Plugin, cmd.Cmd):
         if 'instance_id' in d_kv.keys():
             instance_id = d_kv['instance_id']
         else:
-            logging.error("instance_id missing")
+            cmd_out = "instance_id missing"
+            self.r(1, cmd_out, WARN)
             return False
         if 'database_name' in d_kv.keys():
             database_name = d_kv['database_name']
         else:
-            logging.error("database_name missing")
+            cmd_out = "database_name missing"
+            self.r(1, cmd_out, WARN)
             return False
         try:
-            logging.debug('create database instance - instance_id:%s,'
-                          'database_name:%s'
-                          % (instance_id, database_name))
             db_instance = self.libplugin.get_instance_by_id(instance_id)
             db_instance.create_database(database_name)
+            cmd_out = ('created database_name:%s in '
+                       'Cloud Databases instance id:%s,'
+                        % (database_name, instance_id))
+            self.r(0, cmd_out, INFO)
         except:
             tb = traceback.format_exc()
-            logging.error(tb)
+            self.r(1, tb, ERROR)
     
     def complete_create_database(self, text, line, begidx, endidx):
         params = ['instance_id:', 'database_name:']
@@ -298,26 +309,29 @@ class Cmd_databases(Plugin, cmd.Cmd):
         if 'instance_id' in d_kv.keys():
             instance_id = d_kv['instance_id']
         else:
-            logging.error("instance_id missing")
+            cmd_out = "instance_id missing"
+            self.r(1, cmd_out, WARN)
             return False
         if 'database_name' in d_kv.keys():
             database_name = d_kv['database_name']
         else:
-            logging.error("database_name missing")
+            cmd_out = "database_name missing"
+            self.r(1, cmd_out, WARN)
             return False
         try:
-            logging.debug('delete database instance - instance_id:%s,'
-                          'database_name:%s'
-                          % (instance_id, database_name))
             database = self.libplugin.get_database(instance_id, database_name)
             if database == None:
-                logging.error('cannot find database name:%s in instance_id:%s' %
-                              (database_name, instance_id))
+                cmd_out = ('cannot find database name:%s in instance_id:%s' %
+                           (database_name, instance_id))
+                self.r(1, cmd_out, ERROR)
             else:
                 database.delete()
+                cmd_out = ('delete database instance - instance_id:%s,'
+                           'database_name:%s' % (instance_id, database_name))
+                self.r(1, cmd_out, ERROR)
         except:
             tb = traceback.format_exc()
-            logging.error(tb)
+            self.r(1, tb, ERROR)
     
     def complete_delete_database(self, text, line, begidx, endidx):
         params = ['instance_id:', 'database_name:']
@@ -347,10 +361,11 @@ class Cmd_databases(Plugin, cmd.Cmd):
         if 'instance_id' in d_kv.keys():
             instance_id = d_kv['instance_id']
         else:
-            logging.error("instance_id missing")
+            cmd_out = "instance_id missing"
+            self.r(1, cmd_out, WARN)
             return False
         try:
-            logging.info('listing databases in instance name:%s, id:%s,'
+            logging.debug('listing databases in instance name:%s, id:%s,'
                           % (self.libplugin.get_instance_by_id(instance_id).name,
                              instance_id))
             db_instance = self.libplugin.get_instance_by_id(instance_id)
@@ -358,10 +373,10 @@ class Cmd_databases(Plugin, cmd.Cmd):
             for db in db_instance.list_databases():
                 logging.debug("%s" % db.name)
                 pt.add_row([db.name])
-            print pt
+            self.r(0, pt, INFO)
         except:
             tb = traceback.format_exc()
-            logging.error(tb)
+            self.r(1, tb, ERROR)
     
     def complete_list_databases(self, text, line, begidx, endidx):
         params = ['instance_id:']
@@ -398,33 +413,38 @@ class Cmd_databases(Plugin, cmd.Cmd):
         if 'instance_id' in d_kv.keys():
             instance_id = d_kv['instance_id']
         else:
-            logging.error("instance_id missing")
+            cmd_out = "instance_id missing"
+            self.r(1, cmd_out, WARN)
             return False
         if 'database_name' in d_kv.keys():
             database_name = d_kv['database_name']
         else:
-            logging.error("database_name missing")
+            cmd_out = "database_name missing"
+            self.r(1, cmd_out, WARN)
             return False
         if 'username' in d_kv.keys():
             username = d_kv['username']
         else:
-            logging.error("username missing")
+            cmd_out = "username missing"
+            self.r(1, cmd_out, WARN)
             return False
         if 'password' in d_kv.keys():
             password = d_kv['password']
         else:
-            logging.error("password missing")
+            cmd_out = "password missing"
+            self.r(1, cmd_out, WARN)
             return False
         try:
-            logging.debug('creating username:%s, password:%s to instance_id:%s,'
-                          'database_name:%s'
-                          % (username, password, instance_id, database_name))
             db_instance = self.libplugin.get_instance_by_id(instance_id)
             db_instance.create_user(username, password,
                                     database_names = database_name)
+            cmd = ('created username:%s, password:%s to instance_id:%s,'
+                   'database_name:%s' % (username, password, instance_id,
+                                         database_name))
+            self.r(0, cmd_out, INFO)
         except:
             tb = traceback.format_exc()
-            logging.error(tb)
+            self.r(1, tb, ERROR)
     
     def complete_create_user(self, text, line, begidx, endidx):
         params = ['instance_id:', 'database_name:', 'username:', 'password:']
@@ -455,21 +475,24 @@ class Cmd_databases(Plugin, cmd.Cmd):
         if 'instance_id' in d_kv.keys():
             instance_id = d_kv['instance_id']
         else:
-            logging.error("instance_id missing")
+            cmd_out = "instance_id missing"
+            self.r(1, cmd_out, WARN)
             return False
         if 'username' in d_kv.keys():
             username = d_kv['username']
         else:
-            logging.error("username missing")
+            cmd_out = "username missing"
+            self.r(1, cmd_out, WARN)
             return False
         try:
-            logging.debug('deleting username:%s from instance_id:%s'
-                          % (username, instance_id))
             db_instance = self.libplugin.get_instance_by_id(instance_id)
             db_instance.delete_user(username)
+            cmd_out = ('deleted username:%s from instance_id:%s' %
+                       (username, instance_id))
+            self.r(0, cmd_out, INFO)
         except:
             tb = traceback.format_exc()
-            logging.error(tb)
+            self.r(1, tb, ERROR)
     
     def complete_delete_user(self, text, line, begidx, endidx):
         params = ['instance_id:', 'username:']
@@ -513,10 +536,10 @@ class Cmd_databases(Plugin, cmd.Cmd):
                             user.host,
                             user.name
                             ])
-            print pt
+            self.r(0, pt, INFO)
         except:
             tb = traceback.format_exc()
-            logging.error(tb)
+            self.r(1, tb, ERROR)
     
     def complete_list_users(self, text, line, begidx, endidx):
         params = ['instance_id:']

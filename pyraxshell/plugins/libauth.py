@@ -46,10 +46,10 @@ class LibAuth(Lib):
             for f in file_locations:
                 if os.path.exists(os.path.expanduser(f)):
                     self.credentials_file = f
-                    logging.info("found credentials file: %s" % f)
+                    logging.debug("found credentials file: %s" % f)
                     break
                 else:
-                    logging.info("cannot find credentials file: %s" %
+                    logging.debug("cannot find credentials file: %s" %
                                  os.path.expanduser(f))
             if self.credentials_file == None:
                 cmd_out = ('cannot find pyrax config file '
@@ -113,7 +113,7 @@ class LibAuth(Lib):
             pyrax.auth_with_token(token, tenantId, region=region)
         except:
             tb = traceback.format_exc()
-            logging.error(tb)
+            self.r(1, tb, ERROR)
     
     def is_authenticated(self):
         '''whether or not the user is authenticated'''
@@ -148,15 +148,16 @@ class LibAuth(Lib):
             pt.add_row(['authenticated', pyrax.identity.authenticated])
             pt.add_row(['region', pyrax.identity.region])
             pt.add_row(['regions', ','.join(r for r in pyrax.identity.regions)])
+            pt.add_row(['username', pyrax.identity.username])
             pt.add_row(['tenant id', pyrax.identity.tenant_id])
             pt.add_row(['tenant name', pyrax.identity.tenant_name])
-            pt.add_row(['username', pyrax.identity.username])
             pt.align['key'] = 'l'
             pt.align['value'] = 'l'
             pt.get_string(sortby='key')
             print pt
         else:
-            logging.warn('cannot print identity information, authenticate first')
+            cmd_out = 'No info. Are you authenticated?'
+            self.r(1, cmd_out, WARN)
     
     # ########################################
     # ENDPOINTS
@@ -187,7 +188,6 @@ class LibAuth(Lib):
             return pyrax.identity.region
         except:
             tb = traceback.format_exc()
-            logging.error(tb)
             self.r(1, tb, ERROR)
             return None
     
@@ -203,6 +203,5 @@ class LibAuth(Lib):
             self.r(0, cmd_out, INFO)
         except:
             tb = traceback.format_exc()
-            logging.error(tb)
             self.r(1, tb, ERROR)
             return None

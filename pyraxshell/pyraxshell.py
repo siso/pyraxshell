@@ -205,7 +205,7 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
         import plugins.libauth
         pyrax_default_config_file = os.path.expanduser('~/.pyrax.cfg')
         if self.cfg.username != None and self.cfg.api_key != None:
-# TODO --
+            # authenticating with login
             logging.debug("authenticating with login username:%s, apikey:%s" %
                           (self.cfg.username, self.cfg.api_key))
             try:
@@ -213,13 +213,23 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
                  (self.cfg.identity_type, self.cfg.username,
                   self.cfg.api_key, self.cfg.region))
             except:
-                logging.warn('cannot login with %s' %
-                             pyrax_default_config_file)
+                cmd_out = 'cannot login with %s' % pyrax_default_config_file
+                self.r(1, cmd_out, ERROR)
             logging.debug('authenticated as \'%s@%s\' in \'%s\'' %
                          (self.cfg.username, self.cfg.identity_type,
                           self.cfg.region))
-        # try to authenticate automatically if '~/.pyrax.cfg' exists
+        elif self.cfg.token != None:
+            # authenticating with token
+            logging.debug("authenticating with token:%s" % self.cfg.token)
+            try:
+                (plugins.libauth.LibAuth().authenticate_token
+                 (self.cfg.token, self.cfg.tenant_id, self.cfg.region,
+                  self.cfg.identity_type))
+            except:
+                tb = traceback.format_exc()
+                self.r(1, tb, ERROR)
         elif os.path.isfile(pyrax_default_config_file):
+            # try to authenticate automatically if '~/.pyrax.cfg' exists
             try:
                 plugins.libauth.LibAuth().authenticate_credentials_file(pyrax_default_config_file)
             except:

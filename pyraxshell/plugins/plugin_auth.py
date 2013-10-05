@@ -20,7 +20,7 @@ import logging
 from utility import kvstring_to_dict
 from plugins.libauth import LibAuth
 from plugins.plugin import Plugin
-from globals import INFO
+from globals import INFO, ERROR
 import traceback
 
 name = 'auth'
@@ -84,11 +84,13 @@ class Cmd_auth(Plugin, cmd.Cmd):
         authentication with credentials file
         '''
 # TODO -- accept path to file with credentials 
-        logging.debug("authentication with credentials file")
+        logging.debug("authenticating with credentials file")
         if self.libplugin.authenticate_credentials_file():
-            logging.info("token: %s" % self.libplugin.get_token())
+            cmd_out = "token: %s" % self.libplugin.get_token()
+            self.r(0, cmd_out, INFO)
         else:
-            logging.warn("cannot authenticate using pyrax credentials file")
+            cmd_out = "cannot authenticate using pyrax credentials file"
+            self.r(1, cmd_out, ERROR)
 
     def do_exit(self,*args):
         return True
@@ -125,31 +127,33 @@ class Cmd_auth(Plugin, cmd.Cmd):
         if 'identity_type' in d_kv.keys():
             _identity_type = d_kv['identity_type']
         else:
-            logging.info("identity_type: %s (default)" % _identity_type)
+            logging.debug("identity_type: %s (default)" % _identity_type)
         if 'username' in d_kv.keys():
             _username = d_kv['username']
         else:
-            logging.error("missing username")
+            cmd_out = "missing username"
+            self.r(1, cmd_out, ERROR)
             return False
         if 'apikey' in d_kv.keys():
             _apikey = d_kv['apikey']
         else:
-            logging.error("missing apikey")
+            cmd_out = "missing apikey"
+            self.r(1, cmd_out, ERROR)
             return False
         if 'region' in d_kv.keys():
             _region = d_kv['region']
-        
-        logging.info('login - indentity_type:%s, username=%s, apikey=%s, '
-                     'region=%s' %
-                     (_identity_type, _username, _apikey, _region))
         try:
             self.libplugin.authenticate_login(identity_type = _identity_type,
                                                   username = _username,
                                                   apikey = _apikey,
                                                   region = _region)
+            cmd_out  = ('login - indentity_type:%s, username=%s, apikey=%s, '
+                        'region=%s' %
+                        (_identity_type, _username, _apikey, _region))
+            self.r(0, cmd_out, INFO)
         except:
             tb = traceback.format_exc()
-            logging.error(tb)
+            self.r(1, tb, ERROR)
     
     def complete_login(self, text, line, begidx, endidx):
         params = ['identity_type:', 'username:', 'apikey:', 'region:']
@@ -173,7 +177,8 @@ class Cmd_auth(Plugin, cmd.Cmd):
         print token for current session
         '''
         if self.libplugin.is_authenticated():
-            logging.info("token: %s" % self.libplugin.get_token())
+            cmd_out = "token: %s" % self.libplugin.get_token()
+            self.r(0, cmd_out, INFO)
     
     def do_token(self, line):
         '''
@@ -197,36 +202,40 @@ class Cmd_auth(Plugin, cmd.Cmd):
         if 'identity_type' in d_kv.keys():
             _identity_type = d_kv['identity_type']
         else:
-            logging.error("missing identity_type")
+            cmd_out = "missing identity_type"
+            self.r(1, cmd_out, ERROR)
             return False
         if 'region' in d_kv.keys():
             _region = d_kv['region']
         else:
-            logging.error("missing region")
+            cmd_out = "missing region"
+            self.r(1, cmd_out, ERROR)
             return False
         # parsing parameters
         if 'tenantId' in d_kv.keys():
             _tenantId = d_kv['tenantId']
         else:
-            logging.error("missing tenantId")
+            cmd_out = "missing tenantId"
+            self.r(1, cmd_out, ERROR)
             return False
         if 'token' in d_kv.keys():
             _token = d_kv['token']
         else:
-            logging.error("missing token")
+            cmd_out = "missing token"
+            self.r(1, cmd_out, ERROR)
             return False
         #
         print "-" * 10
         print _tenantId, _token
-        logging.info('login - tenantId=%s, token=%s' %
-                     (_tenantId, _token))
         try:
             self.libplugin.authenticate_token(token=_token, tenantId=_tenantId,
                                               region=_region,
                                               identity_type=_identity_type)
+            cmd_out = 'login - tenantId=%s, token=%s' % (_tenantId, _token)
+            self.r(0, cmd_out, INFO)
         except:
             tb = traceback.format_exc()
-            logging.error(tb)
+            self.r(1, tb, ERROR)
     
     def complete_token(self, text, line, begidx, endidx):
         params = ['identity_type', 'region', 'tenantId', 'token']
