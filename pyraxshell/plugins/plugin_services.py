@@ -25,6 +25,7 @@ from prettytable import PrettyTable
 
 from plugin import Plugin
 from plugins.libservices import LibServices
+from globals import INFO
 
 name = 'services'
 
@@ -84,9 +85,10 @@ class Cmd_services(Plugin, cmd.Cmd):
             pt.align['service'] = 'l'
             pt.align['name'] = 'l'
             pt.align['endpoints'] = 'l'
-            print pt
+            self.r(0, pt, INFO)
         else:
-            pprint.pprint(pyrax.identity.services)
+            cmd_out = pprint.pformat(pyrax.identity.services)
+            self.r(0, cmd_out, INFO)
     
     def complete_endpoints(self, text, line, begidx, endidx):
         params = ['raw:']
