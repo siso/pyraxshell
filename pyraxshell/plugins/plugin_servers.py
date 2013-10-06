@@ -17,13 +17,14 @@
 
 import cmd
 import logging
-from utility import kvstring_to_dict
-from plugins.libservers import LibServers, ServerCreatorThread
-import traceback
-import pyrax
 from prettytable import PrettyTable
-from plugin import Plugin
+import pyrax
+import traceback
+
 from globals import *  # @UnusedWildImport
+from plugin import Plugin
+from plugins.libservers import LibServers, ServerCreatorThread
+from utility import kvstring_to_dict
 
 name = 'servers'
 

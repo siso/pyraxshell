@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 import subprocess
+import sys
 
 
 def show_usage():

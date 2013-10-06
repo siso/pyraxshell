@@ -16,13 +16,14 @@
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import pyrax
 from prettytable import PrettyTable
-import time
+import pyrax
 import threading
-from utility import get_ip_family, get_uuid
+import time
+
 from globals import msg_queue, INFO, ERROR
 from plugins.lib import Lib
+from utility import get_ip_family, get_uuid
 
 
 class ServerCreatorThread (threading.Thread):

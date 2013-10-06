@@ -19,11 +19,12 @@ import cmd
 import logging
 import pyrax
 from prettytable import PrettyTable
+import traceback
+
+from globals import WARNING, INFO, ERROR, WARN
+from plugin import Plugin
 from plugins.libdatabases import LibDatabases, InstanceCreatorThread
 from utility import kvstring_to_dict
-from plugin import Plugin
-import traceback
-from globals import WARNING, INFO, ERROR, WARN
 
 name = 'databases'
 

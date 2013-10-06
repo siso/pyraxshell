@@ -16,10 +16,11 @@
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from globals import SQLITE_DB, ERROR
 import os.path
 import sqlite3
 import traceback
+
+from globals import SQLITE_DB, ERROR
 
 
 class DB:

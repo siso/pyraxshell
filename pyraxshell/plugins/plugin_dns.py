@@ -17,15 +17,16 @@
 
 import cmd
 import logging
-from utility import kvstring_to_dict, is_ipv4
-from plugins.libdns import LibDNS
+import pprint
 import pyrax
 import pyrax.exceptions as exc
 from prettytable import PrettyTable
-import pprint
-from plugin import Plugin
 import traceback
+
 from globals import ERROR, WARN, INFO
+from plugin import Plugin
+from plugins.libdns import LibDNS
+from utility import kvstring_to_dict, is_ipv4
 
 name = 'dns'
 

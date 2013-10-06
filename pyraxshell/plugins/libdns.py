@@ -20,6 +20,7 @@ import pyrax
 import pyrax.exceptions as exc
 import traceback
 
+
 class LibDNS(object):
     '''
     pyraxshell DNS library

@@ -17,8 +17,9 @@
 
 import logging  # @UnusedImport
 import logging.config
-import traceback
 import os.path
+import traceback
+
 from globals import LOG_CONF_FILE
 
 

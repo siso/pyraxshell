@@ -16,13 +16,13 @@
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
 import cmd
+import imp
 import logging  # @UnusedImport
 import os.path  # @UnusedImport
-from utility import *  # @UnusedWildImport
-import imp
-# import plugins  # @UnusedImport
-# from configuration import Configuration
+
 from plugins.plugin import Plugin
+from utility import *  # @UnusedWildImport
+
 
 class Cmd_Pyraxshell(Plugin, cmd.Cmd):
     """

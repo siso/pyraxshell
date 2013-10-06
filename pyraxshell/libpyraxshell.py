@@ -15,13 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
-'''
-Created on 8 Jul 2013
 
-@author: soldasimo
-'''
-
-class Libpyraxshell(object):
+class Libpyraxshell:
     '''
     pyraxshell library
     '''

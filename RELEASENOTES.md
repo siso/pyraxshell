@@ -13,7 +13,8 @@ Release notes for pyraxshell
   * Lib/Plugin_Services log to file/db (Plugin.r())
   * Added 'argparse' and 'kvargcheck' to 'Plugin' class
   * Enhanced 'Plugin.kvargcheck()', now can default missing params
-  * Plugin_Auth uses 'Plugin.kvargcheck()' 
+  * Plugin_Auth uses 'Plugin.kvargcheck()'
+  * Re-ordered imports in *.py files
 
 ## 2013.09.29 - Version 0.2.4
   * Added SIGINT/SIGTERM handler to stop threads gracefully

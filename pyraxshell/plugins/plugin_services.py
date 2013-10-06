@@ -17,15 +17,14 @@
 
 import cmd
 import logging
-from utility import kvstring_to_dict
-
 import pprint
-import pyrax
 from prettytable import PrettyTable
+import pyrax
 
+from globals import INFO
 from plugin import Plugin
 from plugins.libservices import LibServices
-from globals import INFO
+from utility import kvstring_to_dict
 
 name = 'services'
 

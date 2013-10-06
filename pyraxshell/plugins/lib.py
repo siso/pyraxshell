@@ -16,7 +16,6 @@
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
 from utility import l
-# from sessions import Sessions
 
 
 class Lib():

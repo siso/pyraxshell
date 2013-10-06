@@ -17,14 +17,15 @@
 
 import cmd
 import logging
-from configuration import Configuration
-from sessions import Sessions
-from globals import *  # @UnusedWildImport
-from utility import l
+import pprint
+import re
 import sys
 import traceback
-import re
-import pprint
+
+from configuration import Configuration
+from globals import *  # @UnusedWildImport
+from sessions import Sessions
+from utility import l
 
 name = 'none'
 

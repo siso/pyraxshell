@@ -15,18 +15,19 @@
 # You should have received a copy of the GNU General Public License
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
-import logging
-from configuration import Configuration
-import sys
-import pyrax
-from pyraxshell import Cmd_Pyraxshell
-from globals import CONFIG_FILE
-from utility import check_dir_home, terminate_threads
-from sessions import Sessions
-from db import DB
 import log
+import logging
+import pyrax
 import signal
+import sys
+
+from db import DB
+from configuration import Configuration
+from globals import CONFIG_FILE
 from notifier import Notifier
+from pyraxshell import Cmd_Pyraxshell
+from sessions import Sessions
+from utility import check_dir_home, terminate_threads
 
 
 def main():

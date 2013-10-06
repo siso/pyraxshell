@@ -16,13 +16,15 @@
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import pyrax
 import os.path
-from prettytable import PrettyTable
 import pprint
+from prettytable import PrettyTable
+import pyrax
 import traceback
+
 from globals import ERROR, INFO, WARN, DEBUG
 from plugins.lib import Lib
+
 
 class LibAuth(Lib):
     '''

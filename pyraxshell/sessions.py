@@ -15,12 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
-from db import DB
 import logging
+
+from db import DB
 from configuration import Configuration
-from utility import get_uuid
-from singleton import Singleton
 from globals import log_levels  # @UnresolvedImport
+from singleton import Singleton
+from utility import get_uuid
+
 
 @Singleton
 class Sessions(DB):

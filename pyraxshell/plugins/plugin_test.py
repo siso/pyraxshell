@@ -17,13 +17,14 @@
 
 import cmd
 import logging
-from utility import print_top_right
-import threading
-import uuid
-import time
-from plugin import Plugin 
-from globals import msg_queue, WARNING, INFO, ERROR
 import pprint
+import threading
+import time
+import uuid
+
+from globals import msg_queue, WARNING, INFO, ERROR
+from plugin import Plugin 
+from utility import print_top_right
 
 name = 'test'
 

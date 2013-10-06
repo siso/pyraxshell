@@ -15,14 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
+import logging  # @UnusedImport
 import sys
 import terminalsize
-import logging  # @UnusedImport
-from globals import *  # @UnusedWildImport
-import uuid
 import threading
 import traceback
+import uuid
+
 from configuration import Configuration
+from globals import *  # @UnusedWildImport
 
 
 def check_dir_home():

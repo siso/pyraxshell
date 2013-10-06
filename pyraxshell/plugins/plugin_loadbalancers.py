@@ -17,14 +17,15 @@
 
 import cmd
 import logging
-from utility import kvstring_to_dict, is_ipv4
-import pyrax
-import pyrax.exceptions as exc
 from prettytable import PrettyTable
 import pprint
+import pyrax
+import pyrax.exceptions as exc
 import traceback
-import plugins
+
 from globals import INFO, ERROR, WARN
+import plugins
+from utility import kvstring_to_dict, is_ipv4
 
 name = 'loadbalancers'
 
