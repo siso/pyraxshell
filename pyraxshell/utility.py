@@ -62,6 +62,8 @@ def get_uuid():
 
 def kvstring_to_dict(kvs):
     '''
+    DEPRECATED - use 'plugins.Plugin._kvarg' instead
+    
     transform a key-value-string to dictionary
     key-value separator can be ':' or '=', even mixed!
     

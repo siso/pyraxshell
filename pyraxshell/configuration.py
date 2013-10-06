@@ -17,10 +17,11 @@
 
 import argparse
 import logging
+import os.path
+
 from singleton import Singleton
 import ConfigParser
 from globals import CONFIG_FILE
-import os.path
 
 
 @Singleton

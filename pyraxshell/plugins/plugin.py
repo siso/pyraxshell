@@ -22,6 +22,9 @@ from sessions import Sessions
 from globals import *  # @UnusedWildImport
 from utility import l
 import sys
+import traceback
+import re
+import pprint
 
 name = 'none'
 
@@ -50,6 +53,90 @@ class Plugin(cmd.Cmd):
             f = open(os.devnull, 'w')
             sys.stdout = f
     
+    def kvargcheck(self, *args):
+        '''
+        check 'self.kvarg' against '*args'
+        
+        Args:
+            *args should be dictionaries as thefollowing:
+        
+                {'name':'key-name', 'default|required':value}
+        
+        Returns:
+            (bool, msg). The return code::
+            
+                True    -- Success!
+                False   -- No good.
+            and 'msg' is an informative message
+        '''
+        try:
+            for d in args:
+                if type(d) is type({}):
+                    logging.debug('required param \'%s\'' % d['name'])
+                    if 'required' in d.keys():
+                        if not d['name'] in self.kvarg.keys():
+                            return (False, "missing '%s'" % d['name'])
+                else:
+                    logging.debug('skipping: %s' % pprint.pformat(d))
+            return True, "ok"
+        except:
+            return False, 'unknown problem occurred'
+    
+    def argparse(self):
+        '''
+        parse 'self.arg' and extract 'kvarg' and 'varg'
+        
+        self.arg can be the following:
+        
+        * a:b    --> added to 'self.kvarg'
+        * x:$y   --> added to 'self.kvarg'
+        * c      --> added to 'self.varg'
+        
+        transform a key-value-args string to kvargs dictionary
+        key-value separator can be ':' or '=', even mixed, i.e.:
+        
+        "k0:v0 k1=v1 ... ki:vi" ==> {'k0':'v0','k1':'v1','ki':'vi'}
+        
+        This method is automatically called by 'self.parseline()'.    
+        
+        Returns:
+        
+        True  -- parsed correctly
+        False -- No good
+        '''
+        self.kvarg, self.varg = {}, []
+        if self.arg == None or len(self.arg) == 0:
+            return None
+        try:
+            arg = self.arg
+            arg = arg.replace('=', ':')
+            for token in arg.split():
+                # determine token type
+                p1 = re.compile('^[a-zA-Z0-9_]+:[a-zA-Z0-9_]+$')
+                p2 = re.compile('^[a-zA-Z0-9_]+$')
+                p3 = re.compile('^[a-zA-Z0-9_]+:\$[a-zA-Z0-9_]+$')
+                if p1.match(token) or p3.match(token):
+                    # 'a:b' or 'x:$y'
+                    kv = token.split(':')
+                    self.kvarg[kv[0]] = kv[1]
+                elif p2.match(token):
+                    # 'c'
+                    self.varg.append(token)
+                else:
+                    logging.warn('cannot parse: \'%s\'' % token)
+        except:
+            tb = traceback.format_exc()
+            logging.debug(tb)
+            self.kvarg = None
+        try:
+            logging.debug("self.kvarg: %s" %
+                          ', '.join('%s:%s' % (k,v)
+                                    for k,v in self.kvarg.items()))
+            logging.debug("self.varg: %s" %
+                          ', '.join('%s' % v for v in self.varg))
+        except:
+            return None
+
     def emptyline(self):
         """Called when an empty line is entered in response to the prompt.
 
@@ -65,7 +152,10 @@ class Plugin(cmd.Cmd):
         '''
         override 'cmd.Cmd.parseline' to store cmd, arg and line
         '''
+        # call superclass method
         self.cmd, self.arg, self.line = cmd.Cmd.parseline(self, line)
+        # extract key:value pairs from args
+        self.argparse()
         return self.cmd, self.arg, self.line
 
     def precmd(self, line):

@@ -109,7 +109,10 @@ identity_type  TEXT NOT NULL
                       (cmd_in, cmd_out, retcode, log_level))
         sql = '''
 INSERT INTO commands (sid, cmd_in, cmd_out, retcode, log_level)
-VALUES ('%s', '%s', '%s', %d, '%s')''' % (self.sid, cmd_in, cmd_out, retcode,
+VALUES ('%s', '%s', '%s', %d, '%s')''' % (self.sid,
+                                          cmd_in.replace("'", "''"),
+                                          cmd_out.replace("'", "''"),
+                                          retcode,
                                           log_levels[log_level])
         logging.debug('sql: \'%s\'' % sql)
         self.query(sql)

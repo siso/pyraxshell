@@ -22,7 +22,7 @@ import threading
 import uuid
 import time
 from plugin import Plugin 
-from globals import msg_queue
+from globals import msg_queue, WARNING
 
 name = 'test'
 
@@ -47,18 +47,37 @@ class TestPlugin(Plugin, cmd.Cmd):
     """
     prompt = "RS %s>" % name    # default prompt
 
+    def do_run_test_thread(self, line):
+        TestThread().start()
+    
+    def do_run_test_thread1(self, line):
+        TestThread1().start()
+    
     def do_test(self, line):
         '''
         provide credentials and authenticate
         '''
         logging.debug("line: %s" % line)
         logging.info("TEST PLUGIN -- do_test")
-    
-    def do_run_test_thread(self, line):
-        TestThread().start()
-    
-    def do_run_test_thread1(self, line):
-        TestThread1().start()
+
+    def do_argcheck(self, line):
+        '''
+        test 'argparse' and 'argcheck' from 'Plugin' class
+        '''
+        logging.info("TEST PLUGIN -- do_argcheck")
+        # default values
+        _identity_type = 'rackspace'
+        _username = None
+        _apikey = None
+        _region = 'LON'
+        # parsing parameters
+        retcode, retmsg = self.kvargcheck({'name':'identity_type', 'default':_identity_type},
+              {'name':'username', 'required':True},
+              {'name':'apikey', 'required':True},
+              {'name':'region', 'default':'LON'})
+        logging.debug("retcode:%s, retmsg: %s" % (retcode, retmsg))
+        if not retcode:
+            self.r(1, retmsg, WARNING)
 
 
 class TestThread (threading.Thread):
