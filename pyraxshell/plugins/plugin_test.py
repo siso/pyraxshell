@@ -17,12 +17,13 @@
 
 import cmd
 import logging
-from utility import kvstring_to_dict, print_top_right
+from utility import print_top_right
 import threading
 import uuid
 import time
 from plugin import Plugin 
-from globals import msg_queue, WARNING
+from globals import msg_queue, WARNING, INFO
+import pprint
 
 name = 'test'
 
@@ -65,19 +66,18 @@ class TestPlugin(Plugin, cmd.Cmd):
         test 'argparse' and 'argcheck' from 'Plugin' class
         '''
         logging.info("TEST PLUGIN -- do_argcheck")
-        # default values
-        _identity_type = 'rackspace'
-        _username = None
-        _apikey = None
-        _region = 'LON'
-        # parsing parameters
-        retcode, retmsg = self.kvargcheck({'name':'identity_type', 'default':_identity_type},
+        # set default and parse 'self.kvarg' parameters
+        logging.debug('kvarg before: %s' % pprint.pformat(self.kvarg))
+        retcode, retmsg = self.kvargcheck(
+              {'name':'identity_type', 'default':'rackspace'},
               {'name':'username', 'required':True},
               {'name':'apikey', 'required':True},
               {'name':'region', 'default':'LON'})
         logging.debug("retcode:%s, retmsg: %s" % (retcode, retmsg))
         if not retcode:
             self.r(1, retmsg, WARNING)
+        logging.debug('kvarg after: %s' % pprint.pformat(self.kvarg))
+        self.r(0, retmsg, INFO)
 
 
 class TestThread (threading.Thread):

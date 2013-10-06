@@ -68,18 +68,48 @@ class Plugin(cmd.Cmd):
                 True    -- Success!
                 False   -- No good.
             and 'msg' is an informative message
+        
+        Example:
+        
+        The following code will ensure that 'self.kvarg' contains required
+        parameters 'username' and 'apikey', and will default missing parameters
+        to those provided.
+        Additional parameters will be wiped out:
+        
+            retcode, retmsg = self.kvargcheck(
+                  {'name':'identity_type', 'default':'rackspace'},
+                  {'name':'username', 'required':True},
+                  {'name':'apikey', 'required':True},
+                  {'name':'region', 'default':'LON'}
+            )
+        
+        So, to recap:
+        
+            IN: username:foo apikey:aa identity_type:openstack xx:yy TRUE
+            OUT: username:foo apikey:aa identity_type:openstack region:LON
+            
+            IN: username:foo apikey:aa 
+            OUT: username:foo apikey:aa identity_type:rackspace region:LON
         '''
         try:
             for d in args:
                 if type(d) is type({}):
                     logging.debug('required param \'%s\'' % d['name'])
-                    if 'required' in d.keys():
-                        if not d['name'] in self.kvarg.keys():
+                    if not d['name'] in self.kvarg.keys():
+                        if 'required' in d.keys():
+                            logging.debug("retcode:False, missing '%s'" %
+                                          d['name'])
                             return (False, "missing '%s'" % d['name'])
+                        else:
+                            self.kvarg[d['name']] = d['default']
+                            logging.debug('added self.kvarg[\'%s\']:%s' %
+                                          (d['name'], d['default']))
                 else:
                     logging.debug('skipping: %s' % pprint.pformat(d))
+            logging.debug("retcode:True, retmsg:ok")
             return True, "ok"
         except:
+            logging.debug("retcode:False, retmsg:unknown problem occurred")
             return False, 'unknown problem occurred'
     
     def argparse(self):
