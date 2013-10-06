@@ -22,7 +22,7 @@ import threading
 import uuid
 import time
 from plugin import Plugin 
-from globals import msg_queue, WARNING, INFO
+from globals import msg_queue, WARNING, INFO, ERROR
 import pprint
 
 name = 'test'
@@ -72,11 +72,11 @@ class TestPlugin(Plugin, cmd.Cmd):
               {'name':'identity_type', 'default':'rackspace'},
               {'name':'username', 'required':True},
               {'name':'apikey', 'required':True},
-              {'name':'region', 'default':'LON'})
-        logging.debug("retcode:%s, retmsg: %s" % (retcode, retmsg))
+              {'name':'region', 'default':'LON'}
+        )
         if not retcode:
-            self.r(1, retmsg, WARNING)
-        logging.debug('kvarg after: %s' % pprint.pformat(self.kvarg))
+            self.r(1, retmsg, ERROR)
+            return False
         self.r(0, retmsg, INFO)
 
 

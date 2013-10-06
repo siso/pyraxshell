@@ -11,6 +11,9 @@ Release notes for pyraxshell
   * Lib/Plugin_Loadbalancers log to file/db (Plugin.r())
   * Lib/Plugin_Servers log to file/db (Plugin.r())
   * Lib/Plugin_Services log to file/db (Plugin.r())
+  * Added 'argparse' and 'kvargcheck' to 'Plugin' class
+  * Enhanced 'Plugin.kvargcheck()', now can default missing params
+  * Plugin_Auth uses 'Plugin.kvargcheck()' 
 
 ## 2013.09.29 - Version 0.2.4
   * Added SIGINT/SIGTERM handler to stop threads gracefully
