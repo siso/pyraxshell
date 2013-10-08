@@ -19,6 +19,7 @@ Release notes for pyraxshell
   * Plugin_DNS uses 'Plugin.kvargcheck()'
   * Plugin_Loadbalancers uses 'Plugin.kvargcheck()'
   * Plugin_Servers uses 'Plugin.kvargcheck()'
+  * Plugin_Services uses 'Plugin.kvargcheck()'
 
 ## 2013.09.29 - Version 0.2.4
   * Added SIGINT/SIGTERM handler to stop threads gracefully
