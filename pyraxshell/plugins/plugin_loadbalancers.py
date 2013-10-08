@@ -86,47 +86,34 @@ class Cmd_loadbalancers(Plugin, cmd.Cmd):
         port             load-balancer port (default: 80)
         protocol         load-balancer protocol (default: HTTP)
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (name, virtual_ip_type, port, protocol) = (None, 'PUBLIC', 80, 'HTTP')
-        # parsing parameters
-        if 'name' in d_kv.keys():
-            name = d_kv['name']
-        else:
-            cmd_out = "name missing"
-            self.r(1, cmd_out, WARN)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'name', 'required':True},
+            {'name':'virtual_ip_type', 'default':'PUBLIC'},
+            {'name':'port', 'default':80},
+            {'name':'protocol', 'default':'HTTP'},
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        if 'virtual_ip_type' in d_kv.keys():
-            virtual_ip_type = d_kv['virtual_ip_type']
-        else:
-            logging.warn("portvirtual_ip_type missing, using default value "
-                         "'%s'" % virtual_ip_type)
-        if 'port' in d_kv.keys():
-            port = d_kv['port']
-        else:
-            logging.warn("port missing, using default value '%s'" % port)
-        if 'protocol' in d_kv.keys():
-            protocol = d_kv['protocol']
-        else:
-            cmd_out = "protocol missing"
-            self.r(1, cmd_out, WARN)
-            return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         clb = pyrax.cloud_loadbalancers
-        if protocol not in clb.protocols:
+        if self.kvarg['protocol'] not in clb.protocols:
             cmd_out = ("protocol '%s' not allowed possible values: " 
                        ', '.join([p for p in clb.protocols]))
             self.r(1, cmd_out, WARN)
             return False
         try:
-            vip = clb.VirtualIP(type = virtual_ip_type)
-            clb.create(name, port = port, protocol = protocol,
+            vip = clb.VirtualIP(type = self.kvarg['virtual_ip_type'])
+            clb.create(name, port = self.kvarg['port'],
+                       protocol = self.kvarg['protocol'],
                        nodes = self.declared_nodes,
                        virtual_ips = [vip])
             cmd_out = ('created load-balancer name:%s, virtual_ip:%s, port:%s,'
                       ' protocol:%s, nodes:[%s]' %
-                      (name, virtual_ip_type, port, protocol,
+                      (self.kvarg['name'], self.kvarg['virtual_ip_type'],
+                       self.kvarg['port'], self.kvarg['protocol'],
                        ",".join(["%s" % n for n in self.declared_nodes])))
             self.r(0, cmd_out, INFO)
         except Exception:
@@ -150,23 +137,20 @@ class Cmd_loadbalancers(Plugin, cmd.Cmd):
         
         id             load-balancer id
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (_id) = (None)
-        # parsing parameters
-        if 'id' in d_kv.keys():
-            _id = d_kv['id']
-        else:
-            cmd_out = "id missing"
-            self.r(1, cmd_out, WARN)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'id', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         try:
             clb = pyrax.cloud_loadbalancers
-            lb = clb.get(_id)
+            lb = clb.get(self.kvarg['id'])
             lb.delete()
-            cmd_out = 'deleted load-balancer id:%s' % _id
+            cmd_out = 'deleted load-balancer id:%s' % self.kvarg['id']
             self.r(0, cmd_out, INFO)
         except Exception:
             tb = traceback.format_exc()
@@ -189,27 +173,24 @@ class Cmd_loadbalancers(Plugin, cmd.Cmd):
         
         id            load-balancer id
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (_id) = (None)
-        # parsing parameters
-        if 'id' in d_kv.keys():
-            _id = d_kv['id']
-        else:
-            cmd_out = "id missing"
-            self.r(1, cmd_out, WARN)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'id', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         try:
             pt = PrettyTable(['key', 'value'])
 # TODO --   #
             # if I do 'lb = clb.get(_id)' then lb does not have 'nodeCount'
             # attribute. Why?
             #clb = pyrax.cloud_loadbalancers
-            lb = self.libplugin.get_loadbalancer_by_id(_id)
+            lb = self.libplugin.get_loadbalancer_by_id(self.kvarg['id'])
             #
-            pt.add_row(['id', _id])
+            pt.add_row(['id', self.kvarg['id']])
             pt.add_row(['node count', lb.nodeCount])
             pt.align['key'] = 'l'
             pt.align['value'] = 'l'
@@ -238,19 +219,18 @@ class Cmd_loadbalancers(Plugin, cmd.Cmd):
         
         id    load-balancer id
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (_id) = (None)
-        # parsing parameters
-        if 'id' in d_kv.keys():
-            _id = d_kv['id']
-        else:
-            cmd_out = "id missing"
-            self.r(1, cmd_out, WARN)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'flavor_id', 'required':True},
+            {'name':'name', 'required':True},
+            {'name':'volume', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        lb = self.libplugin.get_loadbalancer_by_id(_id)
+        self.r(0, retmsg, INFO)     # everything's ok
+        
+        lb = self.libplugin.get_loadbalancer_by_id(self.kvarg['id'])
         try:
             d_usage = lb.get_usage()['loadBalancerUsageRecords']
 #             print d_usage
@@ -339,24 +319,20 @@ class Cmd_loadbalancers(Plugin, cmd.Cmd):
         
         id            load-balancer id
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (_id) = (None)
-        # parsing parameters
-        if 'id' in d_kv.keys():
-            _id = d_kv['id']
-        else:
-            cmd_out = "id missing"
-            self.r(1, cmd_out, WARN)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'id', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        logging.debug("listing cloud load-balancer id:%s nodes" % _id)
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         clb = pyrax.cloud_loadbalancers
         pt = PrettyTable(['index', 'type', 'condition', 'id', 'address', 'port',
                           'weight'])
         try:
-            lb = clb.get(_id)
+            lb = clb.get(self.kvarg['id'])
             ctr = 0
             for n in lb.nodes:
                 pt.add_row([
@@ -368,7 +344,7 @@ class Cmd_loadbalancers(Plugin, cmd.Cmd):
             self.r(0, str(pt), INFO)
         except Exception:
             tb = traceback.format_exc()
-            self.r(1, pt, ERROR)
+            self.r(1, tb, ERROR)
     
     def complete_list_nodes(self, text, line, begidx, endidx):
         params = ['id:']
@@ -400,22 +376,18 @@ class Cmd_loadbalancers(Plugin, cmd.Cmd):
         
         id    load-balancer id
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (_id) = (None)
-        # parsing parameters
-        if 'id' in d_kv.keys():
-            _id = d_kv['id']
-        else:
-            cmd_out = "id missing"
-            self.r(1, cmd_out, WARN)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'id', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        logging.debug("listing cloud load balancer virtual IPs")
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         try:
             clb = pyrax.cloud_loadbalancers
-            lb = clb.get(_id)
+            lb = clb.get(self.kvarg['id'])
             pprint.pprint(lb)
             pt = PrettyTable(['id', 'type', 'address', 'ip_version'])
             for vip in lb.virtual_ips:
@@ -425,7 +397,7 @@ class Cmd_loadbalancers(Plugin, cmd.Cmd):
             self.r(0, str(pt), INFO)
         except Exception:
             tb = traceback.format_exc()
-            self.r(1, pt, ERROR)
+            self.r(1, tb, ERROR)
     
     def complete_list_virtual_ips(self, text, line, begidx, endidx):
         params = ['id:']
@@ -444,22 +416,16 @@ class Cmd_loadbalancers(Plugin, cmd.Cmd):
         
         id    load-balancer id
         '''
-        logging.info("currently does not work")
-        return False
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (_id) = (None)
-        # parsing parameters
-        if 'id' in d_kv.keys():
-            _id = d_kv['id']
-        else:
-            cmd_out = "id missing"
-            self.r(1, cmd_out, WARN)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'id', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        logging.debug("listing cloud load balancers stats")
-        lb = self.libplugin.get_loadbalancer_by_id(_id)
+        self.r(0, retmsg, INFO)     # everything's ok
+        
+        lb = self.libplugin.get_loadbalancer_by_id(self.kvarg['id'])
         pt = PrettyTable(['key', 'value'])
         for k, v in lb.get_stats().items():
             pt.add_row([k, v])
@@ -490,37 +456,24 @@ class Cmd_loadbalancers(Plugin, cmd.Cmd):
         port
         timeout
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (_id, name, algorithm, protocol, halfClosed, port, timeout) = (
-         (None, None, None, None, None, None, None))
-        # parsing parameters
-        if 'id' in d_kv.keys():
-            _id = d_kv['id']
-        else:
-            logging.warn("id missing")
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'id', 'required':True},
+            {'name':'name', 'required':True},
+            {'name':'algorithm', 'required':True},
+            {'name':'protocol', 'required':True},
+            {'name':'halfClose', 'required':True},
+            {'name':'port', 'required':True},
+            {'name':'timeout', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        if 'name' in d_kv.keys():
-            name = d_kv['name']
-            logging.debug("name: %s" % name)
-        if 'algorithm' in d_kv.keys():
-            algorithm = d_kv['algorithm']
-            logging.debug("algorithm: %s" % algorithm)
-        if 'protocol' in d_kv.keys():
-            protocol = d_kv['protocol']
-            logging.debug("protocol: %s" % protocol)
-        if 'halfClosed' in d_kv.keys():
-            halfClosed = d_kv['halfClosed']
-            logging.debug("halfClosed: %s" % halfClosed)
-        if 'port' in d_kv.keys():
-            port = d_kv['port']
-            logging.debug("port: %s" % port)
-        if 'timeout' in d_kv.keys():
-            timeout = d_kv['timeout']
-            logging.debug("timeout: %s" % timeout)
-        lb = self.libplugin.get_loadbalancer_by_id(_id)
+        self.r(0, retmsg, INFO)     # everything's ok
+        
+        lb = self.libplugin.get_loadbalancer_by_id(self.kvarg['id'])
+        d_kv = self.kvarg
+        _id = self.kvarg['id']
         del d_kv['id']  # remove 'id' and use d_kv as kargs
         # check params
         k_domain = ['name', 'algorithm', 'protocol', 'halfClosed', 'port',
@@ -565,38 +518,31 @@ class Cmd_loadbalancers(Plugin, cmd.Cmd):
         condition        ENABLED, DISABLED, DRAINING (default: ENABLED)
         port             port (default: 80)
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (address, port, condition) = (None, 80, 'ENABLED')
-        # parsing parameters
-        if 'address' in d_kv.keys():
-            address = d_kv['address']
-        else:
-            logging.warn("address missing")
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'address', 'required':True},
+            {'name':'condition', 'required':True},
+            {'name':'port', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        if 'port' in d_kv.keys():
-            port = d_kv['port']
-        else:
-            logging.warn("port missing, using default value '%s'" % port)
-        if 'condition' in d_kv.keys():
-            condition = d_kv['condition']
-        else:
-            logging.warn("condition missing, using default value '%s'" % 
-                         condition)
-        if condition not in ('ENABLED', 'DISABLED', 'DRAINING'):
+        self.r(0, retmsg, INFO)     # everything's ok
+        # additional checks
+        if self.kvarg['condition'] not in ('ENABLED', 'DISABLED', 'DRAINING'):
             cmd_out = ("condition value '%s' not allowed"
                          "possible values: ENABLED, DISABLED, DRAINING" % 
-                         condition)
+                         self.kvarg['condition'])
             self.r(1, cmd_out, WARN)
             return False
         try:
             clb = pyrax.cloud_loadbalancers
-            self.declared_nodes.append(clb.Node(address = address, port = port,
-                                                condition = condition))
+            self.declared_nodes.append(clb.Node(address = self.kvarg['address'],
+                                        port = self.kvarg['port'],
+                                        condition = self.kvarg['condition']))
             cmd_out = ('declared node address:%s, port:%s, condition:%s' % 
-                       (address, port, condition))
+                       (self.kvarg['address'], self.kvarg['port'],
+                        self.kvarg['condition']))
             self.r(0, cmd_out, INFO)
         except Exception:
             tb = traceback.format_exc()
@@ -620,34 +566,28 @@ class Cmd_loadbalancers(Plugin, cmd.Cmd):
         id            load-balancer id
         node_id       id of node to delete 
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (_id, node_id) = (None, None)
-        # parsing parameters
-        if 'id' in d_kv.keys():
-            _id = d_kv['id']
-        else:
-            cmd_out = "id missing"
-            self.r(1, cmd_out, WARN)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'id', 'required':True},
+            {'name':'node_id', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        if 'node_id' in d_kv.keys():
-            node_id = d_kv['node_id']
-        else:
-            cmd_out = "node_id missing"
-            self.r(1, cmd_out, WARN)
-            return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         try:
-            node = self.libplugin.get_node_by_id(_id, node_id)
+            node = self.libplugin.get_node_by_id(self.kvarg['id'],
+                                                 self.kvarg['node_id'])
 #TODO -- print node details
             node.delete()
             cmd_out = ("node id:%s from Cloud load-balancer id:%s deleted" %
-                       (_id, node_id))
+                       (self.kvarg['id'], self.kvarg['node_id']))
             self.r(0, cmd_out, INFO)
         except Exception:
             logging.error("error deleting node id:%s from Cloud load-balancer "
-                         "id:%s deleted" % (_id, node_id))
+                         "id:%s deleted" % (self.kvarg['id'],
+                                            self.kvarg['node_id']))
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
     
@@ -668,25 +608,22 @@ class Cmd_loadbalancers(Plugin, cmd.Cmd):
         
         index        node index in declared_nodes list
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (index) = (None)
-        # parsing parameters
-        if 'index' in d_kv.keys():
-            index = int(d_kv['index'])
-        else:
-            cmd_out = "index missing"
-            self.r(1, cmd_out, WARN)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'index', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         try:
-            removed_node = self.declared_nodes.pop(index) 
+            removed_node = self.declared_nodes.pop(self.kvarg['index']) 
             logging.info('deleting node index: %d, address:%s, port:%s, condition:%s' % 
-                     (index, removed_node.address, removed_node.port,
-                      removed_node.condition))
+                     (self.kvarg['index'], removed_node.address,
+                      removed_node.port, removed_node.condition))
         except IndexError:
-            cmd_out = 'no declared node with index:%d' % index
+            cmd_out = 'no declared node with index:%d' % self.kvarg['index']
             self.r(1, cmd_out, ERROR)
         except Exception:
             tb = traceback.format_exc()
@@ -723,48 +660,38 @@ class Cmd_loadbalancers(Plugin, cmd.Cmd):
         node_id       id of node to delete
         condition    can be in one of 3 "conditions": ENABLED, DISABLED, and DRAINING
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (_id, node_id, condition) = (None, None, None)
-        # parsing parameters
-        if 'id' in d_kv.keys():
-            _id = d_kv['id']
-        else:
-            cmd_out = "id missing"
-            self.r(1, cmd_out, WARN)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'id', 'required':True},
+            {'name':'node_id', 'required':True},
+            {'name':'condition', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        if 'node_id' in d_kv.keys():
-            node_id = d_kv['node_id']
-        else:
-            cmd_out = "node_id missing"
-            self.r(1, cmd_out, WARN)
-            return False
-        logging.info("deleting node id:%s from Cloud load-balancer id:%s" %
-                     (_id, node_id))
-        if 'condition' in d_kv.keys():
-            condition = d_kv['condition']
-        else:
-            cmd_out = "condition missing"
-            self.r(1, cmd_out, WARN)
-            return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        # additional checks
         condition_domain = ['ENABLED', 'DISABLED', 'DRAINING']
-        if condition not in condition_domain:
+        if self.kvarg['condition'] not in condition_domain:
             cmd_out = ('condition can be: \'%s\', not \'%s\'' %
-                       (', '.join([c for c in condition_domain]), condition))
+                       (', '.join([c for c in condition_domain]),
+                        self.kvarg['condition']))
             self.r(1, cmd_out, WARN)
             return False
         try:
-            node = self.libplugin.get_node_by_id(_id, node_id)
-            node.condition = condition
+            node = self.libplugin.get_node_by_id(self.kvarg['id'],
+                                                 self.kvarg['node_id'])
+            node.condition = self.kvarg['condition']
             node.update()
             cmd_out = ("set node id:%s condition:%s in Cloud Load-balancer "
-                       "id:%s" % (_id, condition, node_id))
+                       "id:%s" % (self.kvarg['id'], self.kvarg['condition'],
+                                  self.kvarg['node_id']))
             self.r(0, cmd_out, INFO)
         except Exception:
             logging.info("error setting node id:%s condition:%s in Cloud"
-                         "load-balancer id:%s" % (_id, condition, node_id))
+                         "load-balancer id:%s" % (self.kvarg['id'],
+                                                  self.kvarg['condition'],
+                                                  self.kvarg['node_id']))
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
     

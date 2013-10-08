@@ -20,7 +20,7 @@ import pyrax
 import threading
 import time
 
-from globals import msg_queue, INFO
+from globals import msg_queue, INFO, POLL_TIME
 
 
 class InstanceCreatorThread (threading.Thread):
@@ -28,7 +28,7 @@ class InstanceCreatorThread (threading.Thread):
     thread to create a Cloud Databases instance
     '''
     
-    def __init__(self, _name, flavor_id, volume, poll_time=30):
+    def __init__(self, _name, flavor_id, volume, poll_time=POLL_TIME):
         '''
         Constructor
         

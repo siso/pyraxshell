@@ -21,7 +21,7 @@ import pprint
 from prettytable import PrettyTable
 import pyrax
 
-from globals import INFO
+from globals import INFO, ERROR
 from plugin import Plugin
 from plugins.libservices import LibServices
 from utility import kvstring_to_dict
@@ -57,14 +57,18 @@ class Cmd_services(Plugin, cmd.Cmd):
         
         raw            True to print raw JSON response (default: False)
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (raw) = (None)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'raw', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
+            return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         # parsing parameters
-        if 'raw' in d_kv.keys():
-            raw = d_kv['raw']
+        if 'raw' in self.kvarg.keys():
+            raw = self.kvarg['raw']
             if str.lower(raw) == 'true':
                 raw = True
             else:

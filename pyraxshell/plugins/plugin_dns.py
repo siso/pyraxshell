@@ -61,44 +61,29 @@ class Cmd_dns(Plugin, cmd.Cmd):
         data    i.e.: 1.2.3.4name
         ttl     TTL (optional, default:900)
         '''
-        dns = pyrax.cloud_dns
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (_type, name, data, ttl) = (None, None, None, 900)
-        # parsing parameters
-        if 'type' in d_kv.keys():
-            _type = d_kv['type']
-            if _type != 'A':
-                logging.warn("type not supported")
-                return False
-        else:
-            logging.warn("type missing")
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'type', 'required':True},
+            {'name':'name', 'required':True},
+            {'name':'data', 'required':True},
+            {'name':'ttl', 'default':900}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        if 'name' in d_kv.keys():
-            name = d_kv['name']
-        else:
-            logging.warn("name missing")
-            return False
-        if 'data' in d_kv.keys():
-            data = d_kv['data']
-            if not is_ipv4(data):
-                cmd_out = '\'%s\' is not a valid IP v4 address' % data
-                self.r(1, cmd_out, WARN)
-                return False
-        else:
-            cmd_out = "data missing"
+        self.r(0, retmsg, INFO)     # everything's ok
+        # additional checks
+        if not is_ipv4(self.kvarg['data']):
+            cmd_out = '\'%s\' is not a valid IP v4 address' % self.kvarg['data']
             self.r(1, cmd_out, WARN)
             return False
-        if 'ttl' in d_kv.keys():
-            ttl = d_kv['ttl']
-        else:
-            logging.warn("ttl missing, using default")
-        rec = { "type": _type,
-                "name": name,
-                "data": data,
-                "ttl": ttl}
+        
+        dns = pyrax.cloud_dns
+        
+        rec = { "type": self.kvarg['type'],
+                "name": self.kvarg['name'],
+                "data": self.kvarg['data'],
+                "ttl": self.kvarg['ttl']}
         # create missing subdomains
         domains = self.libplugin.list_domain_names()
         nearest_domain = self.libplugin.nearest_domain(name, domains)
@@ -124,7 +109,8 @@ class Cmd_dns(Plugin, cmd.Cmd):
             try:
                 dom.add_record(rec)
                 cmd_out = ("adding dns record name:%s, type:%s, data:%s, ttl:%s" %
-                           (name, _type, data, ttl))
+                           (self.kvarg['name'], self.kvarg['type'],
+                            self.kvarg['data'], self.kvarg['ttl']))
                 self.r(0, cmd_out, INFO)
             except pyrax.exceptions.DomainRecordAdditionFailed:
                 cmd_out = "duplicate dns record '%s'" % name
@@ -155,33 +141,21 @@ class Cmd_dns(Plugin, cmd.Cmd):
         ttl                TTL (optional, default:900)
         comment            (optional, default:void)
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (name, email_address, ttl, comment) = (None, None, 900, None)
-        # parsing parameters
-        if 'name' in d_kv.keys():
-            name = d_kv['name']
-        else:
-            cmd_out = "name missing"
-            self.r(1, cmd_out, WARN)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'name', 'required':True},
+            {'name':'email_address', 'required':True},
+            {'name':'ttl', 'default':900},
+            {'name':'comment', 'default':''}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        if 'email_address' in d_kv.keys():
-            email_address = d_kv['email_address']
-        else:
-            cmd_out = "email_address missing"
-            self.r(1, cmd_out, WARN)
-            return False
-        if 'ttl' in d_kv.keys():
-            ttl = d_kv['ttl']
-        else:
-            logging.warn("ttl missing, using default value:%d" % ttl)
-        if 'comment' in d_kv.keys():
-            comment = d_kv['comment']
-        else:
-            logging.warn("comment missing, using default value")
-        self.libplugin.create_domain(name, email_address, ttl, comment)
+        self.r(0, retmsg, INFO)     # everything's ok
+        
+        self.libplugin.create_domain(self.kvarg['name'],
+                                     self.kvarg['email_address'],
+                                     self.kvarg['ttl'], self.kvarg['comment'])
         cmd_out = "domain added"
         self.r(0, cmd_out, INFO)
     
@@ -212,39 +186,28 @@ class Cmd_dns(Plugin, cmd.Cmd):
         ttl                TTL (optional, default:900)
         comment            (optional, default:void)
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (name, email_address, ttl, comment) = (None, None, 900, None)
-        # parsing parameters
-        if 'name' in d_kv.keys():
-            name = d_kv['name']
-        else:
-            cmd_out = "name missing"
-            self.r(1, cmd_out, WARN)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'name', 'required':True},
+            {'name':'email_address', 'required':True},
+            {'name':'ttl', 'default':900},
+            {'name':'comment', 'default':''}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        if 'email_address' in d_kv.keys():
-            email_address = d_kv['email_address']
-        else:
-            cmd_out = "email_address missing"
-            self.r(1, cmd_out, WARN)
-            return False
-        if 'ttl' in d_kv.keys():
-            ttl = d_kv['ttl']
-        else:
-            logging.warn("ttl missing, using default value: %d" % ttl)
-        if 'comment' in d_kv.keys():
-            comment = d_kv['comment']
-        else:
-            logging.warn("comment missing, using default value")
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         try:
             subdomain_name = name
             domain_name = subdomain_name.split('.', 1)[1]
             dns = pyrax.cloud_dns
             dns.find(name=domain_name)
             try:
-                self.libplugin.create_domain(name, email_address, ttl, comment)
+                self.libplugin.create_domain(self.kvarg['name'],
+                                             self.kvarg['email_address'],
+                                             self.kvarg['ttl'],
+                                             self.kvarg['comment'])
                 cmd_out = ("created subdomain '%s' in domain '%s'" %
                            (subdomain_name, domain_name))
                 self.r(0, cmd_out, INFO)
@@ -274,44 +237,34 @@ class Cmd_dns(Plugin, cmd.Cmd):
         name    domain name
         data    i.e.: 1.2.3.4
         '''
-        dns = pyrax.cloud_dns
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (_type, name, data) = (None, None, None)
-        # parsing parameters
-        if 'type' in d_kv.keys():
-            _type = d_kv['type']
-            if _type != 'A' and _type != 'MX':
-                logging.warn("type not supported")
-                return False
-        else:
-            cmd_out = "type missing"
-            self.r(1, cmd_out, WARN)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'type', 'required':True},
+            {'name':'name', 'required':True},
+            {'name':'data', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        if 'name' in d_kv.keys():
-            name = d_kv['name']
-        else:
-            cmd_out = "name missing"
-            self.r(1, cmd_out, WARN)
-            return False
-        if 'data' in d_kv.keys():
-            data = d_kv['data']
-            if not is_ipv4(data):
-                cmd_out = '\'%s\' is not a valid IP v4 address' % data
-                self.r(1, cmd_out, ERROR)
-                return False
-        else:
-            cmd_out = "data missing"
-            self.r(1, cmd_out, WARN)
+        self.r(0, retmsg, INFO)     # everything's ok
+        # additional checks
+        if self.kvarg['type'] != 'A' and self.kvarg['type'] != 'MX':
+            cmd_out = "type not supported"
+            self.r(1, retmsg, ERROR)
+            return False        
+        if not is_ipv4(self.kvarg['data']):
+            cmd_out = '\'%s\' is not a valid IP v4 address' % self.kvarg['data']
+            self.r(1, cmd_out, ERROR)
             return False
         try:
+            dns = pyrax.cloud_dns
             (del_rec_data, domain_name) = name.split('.', 1)
             dom = dns.find(name=domain_name)
             try:
                 for r in dom.list_records():
-                    if r.name == name and r.type == _type and r.data == data:
+                    if (r.name == self.kvarg['name'] and
+                        r.type == self.kvarg['type'] and
+                        r.data == self.kvarg['data']):
                         r.delete()
                 cmd_out = ("delete '%s' in domain '%s'" % (del_rec_data,
                                                            domain_name))
@@ -340,23 +293,20 @@ class Cmd_dns(Plugin, cmd.Cmd):
         
         domain_name       name of the domain
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (domain_name) = (None)
-        # parsing parameters
-        if 'domain_name' in d_kv.keys():
-            domain_name = d_kv['domain_name']
-        else:
-            cmd_out = "domain_name missing"
-            self.r(1, cmd_out, WARN)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'domain_name', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         dns = pyrax.cloud_dns
         try:
-            dom = dns.find(name=domain_name)
+            dom = dns.find(name=self.kvarg['domain_name'])
         except exc.NotFound:
-            cmd_out = "domain '%s' does not exist" % domain_name
+            cmd_out = "domain '%s' does not exist" % self.kvarg['domain_name']
             self.r(1, cmd_out, ERROR)
             return False
         
@@ -382,33 +332,30 @@ class Cmd_dns(Plugin, cmd.Cmd):
          
         domain_name       name of the domain to create
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (domain_name) = (None)
-        # parsing parameters
-        if 'domain_name' in d_kv.keys():
-            domain_name = d_kv['domain_name']
-        else:
-            cmd_out = "domain_name missing"
-            self.r(1, cmd_out, WARN)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'domain_name', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         dns = pyrax.cloud_dns
         try:
-            dom = dns.find(name=domain_name)
+            dom = dns.find(name=self.kvarg['domain_name'])
             try:
                 dom.delete()
                 cmd_out = ("The domain '%s' was successfully deleted." %
-                           domain_name)
+                           self.kvarg['domain_name'])
                 self.r(0, cmd_out, INFO)
             except:
                 cmd_out = ("it was not possible to delete '%s' domain " %
-                           domain_name)
+                           self.kvarg['domain_name'])
                 self.r(1, cmd_out, ERROR)
         except exc.NotFound:
             cmd_out = ("There is no DNS information for the domain '%s'." %
-                       domain_name)
+                       self.kvarg['domain_name'])
             self.r(0, cmd_out, INFO)
     
     def complete_delete_domain(self, text, line, begidx, endidx):
@@ -450,23 +397,20 @@ class Cmd_dns(Plugin, cmd.Cmd):
          
         domain_name       name of the domain to create
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (domain_name) = (None)
-        # parsing parameters
-        if 'domain_name' in d_kv.keys():
-            domain_name = d_kv['domain_name']
-        else:
-            cmd_out = "domain_name missing"
-            self.r(1, cmd_out, WARN)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'domain_name', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         dns = pyrax.cloud_dns
         try:
             import time
             time.sleep(2)
-            dom = dns.find(name=domain_name)
+            dom = dns.find(name=self.kvarg['domain_name'])
             pt = PrettyTable(['domain name', 'type', 'ttl', 'data'])
             for r in dom.list_records():
                 logging.debug(pprint.pformat(r))
@@ -478,7 +422,7 @@ class Cmd_dns(Plugin, cmd.Cmd):
             self.r(0, str(pt), INFO)
         except exc.NotFound:
             cmd_out = ("no DNS information for the domain '%s'" %
-                       domain_name)
+                       self.kvarg['domain_name'])
             self.r(1, cmd_out, ERROR)
         except:
             tb = traceback.format_exc()
@@ -537,21 +481,18 @@ class Cmd_dns(Plugin, cmd.Cmd):
         
         domain_name    name of the domain for which to list sub-domains
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (domain_name) = (None)
-        # parsing parameters
-        if 'domain_name' in d_kv.keys():
-            domain_name = d_kv['domain_name']
-        else:
-            cmd_out = "domain_name missing"
-            self.r(1, cmd_out, WARN)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'domain_name', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        logging.debug('listing \'%s\' sub-domains' % domain_name)
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         try:
-            domain = self.libplugin.get_domain_by_name(domain_name)
+            domain = (self.libplugin.get_domain_by_name(
+                        self.kvarg['domain_name']))
             subdomains = domain.list_subdomains()
             header = ['id', 'name', 'email address']
             pt = PrettyTable(header)
@@ -563,7 +504,8 @@ class Cmd_dns(Plugin, cmd.Cmd):
             pt.get_string(sortby='name')
             self.r(0, str(pt), INFO)
         except:
-            logging.debug('cannot list \'%s\' sub-domains' % domain_name)
+            logging.debug('cannot list \'%s\' sub-domains' %
+                          self.kvarg['domain_name'])
             tb = traceback.format_exc()
             logging.error(tb)
 

@@ -57,36 +57,31 @@ class Cmd_servers(Plugin, cmd.Cmd):
         password  new password
         '''
 #         cmd_in = "%s %s" % (inspect.stack()[0][3][3:], line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (_id, password) = (None, None)
-        # parsing parameters
-        if 'id' in d_kv.keys():
-            _id = d_kv['id']
-        if (id, name) == (None, None):
-            cmd_out = "server id missing"
-            self.r(1, cmd_out, WARNING)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'id', 'required':True},
+            {'name':'password', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        if 'password' in d_kv.keys():
-            password = d_kv['password']
-        else:
-            cmd_out = "new password missing"
-            self.r(1, cmd_out, WARNING)
-            return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         try:
-            s = self.libplugin.get_by_id(_id)
+            s = self.libplugin.get_by_id(self.kvarg['id'])
         except IndexError:
-            cmd_out = 'server id:%s not found' % _id
+            cmd_out = 'server id:%s not found' % self.kvarg['id']
             self.r(1, cmd_out, WARNING)
             return False
         try:
             if s.status == 'ACTIVE':
-                s.change_password(password)
-                cmd_out = 'changed root password on server id:%s, name:%s' % (_id, s.name)
+                s.change_password(self.kvarg['password'])
+                cmd_out = ('changed root password on server id:%s, name:%s' %
+                           (self.kvarg['id'], s.name))
                 self.r(0, cmd_out, INFO)
             else:
-                cmd_out = 'cannot change root password on server id:%s, name:%s' % (_id, s.name)
+                cmd_out = ('cannot change root password on server id:%s, '
+                           'name:%s' % (self.kvarg['id'], s.name))
                 self.r(1, cmd_out, ERROR)
         except:
             tb = traceback.format_exc()
@@ -113,35 +108,25 @@ class Cmd_servers(Plugin, cmd.Cmd):
         image_id         see: list_images
         name
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (name, flavor_id, image_id) = (None, None, None)
-        # parsing parameters
-        if 'name' in d_kv.keys():
-            name = d_kv['name']
-        else:
-            cmd_out = "name missing"
-            self.r(1, cmd_out, WARNING)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'flavor_id', 'required':True},
+            {'name':'image_id', 'required':True},
+            {'name':'name', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        if 'flavor_id' in d_kv.keys():
-            flavor_id = d_kv['flavor_id']
-        else:
-            cmd_out = "flavor_id missing"
-            self.r(1, cmd_out, WARNING)
-            return False
-        if 'image_id' in d_kv.keys():
-            image_id = d_kv['image_id']
-        else:
-            cmd_out = "image_id missing"
-            self.r(1, cmd_out, WARNING)
-            return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         try:
             # create ServerCreatorTread
-            sct = ServerCreatorThread(name, flavor_id, image_id, poll_time = 30)
+            sct = ServerCreatorThread(self.kvarg['name'],
+                                      self.kvarg['flavor_id'],
+                                      self.kvarg['image_id'],
+                                      poll_time = POLL_TIME)
             # start thread
-            sct.setName('server-%s' % name)
+            sct.setName('server-%s' % self.kvarg['name'])
             sct.start()
             # completion message printed by thread in libservers
         except:
@@ -178,20 +163,17 @@ class Cmd_servers(Plugin, cmd.Cmd):
         Parameters:
         id     server id
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        _id = None
-        # parsing parameters
-        if 'id' in d_kv.keys():
-            _id = d_kv['id']
-        if _id == None:
-            cmd_out = "server id is missing"
-            self.r(1, cmd_out, WARNING)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'id', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        self.libplugin.delete_server(_id)
-        cmd_out = 'deleting server id:%s' % _id
+        self.r(0, retmsg, INFO)     # everything's ok
+        
+        self.libplugin.delete_server(self.kvarg['id'])
+        cmd_out = 'deleting server id:%s' % self.kvarg['id']
         self.r(0, cmd_out, INFO)
     
     def complete_delete(self, text, line, begidx, endidx):
@@ -216,24 +198,20 @@ class Cmd_servers(Plugin, cmd.Cmd):
         name      server name
         
         i.e.: H servers> details name:foo
-        ''' 
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (_id, name) = (None, None)
-        # parsing parameters
-        if 'name' in d_kv.keys():
-            name = d_kv['name']
-        if 'id' in d_kv.keys():
-            _id = d_kv['id']
-        if (_id, name) == (None, None):
-            cmd_out = "server id and name missing, specify at least one"
-            self.r(1, cmd_out, WARNING)
-            return False         
+        '''
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'id', 'required':True},
+            {'name':'name', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
+            return False
+        self.r(0, retmsg, INFO)     # everything's ok
+                 
         try:
             # output in libservers
-            self.libplugin.details_server(_id, name)
+            self.libplugin.details_server(self.kvarg['id'], self.kvarg['name'])
         except:
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
@@ -287,42 +265,37 @@ class Cmd_servers(Plugin, cmd.Cmd):
         id        server id to reboot
         type      'cold' or 'hard' reboot
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (_id, _type) = (None, 'cold')
-        # parsing parameters
-        if 'id' in d_kv.keys():
-            _id = d_kv['id']
-        if (id, name) == (None, None):
-            cmd_out = "server id missing, cannot continue"
-            self.r(1, cmd_out, WARNING)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'id', 'required':True},
+            {'name':'type', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        if 'type' in d_kv.keys():
-            _type = d_kv['type']
-        else:
-            logging.warn("reboot type not specified, defaulting to 'cold'")
-        _type = str.upper(_type)
+        self.r(0, retmsg, INFO)     # everything's ok
+        
+        _type = str.upper(self.kvarg['type'])
         if _type != 'COLD' and _type != 'HARD':
             cmd_out = "reboot type can be: cold or hard, not \'%s\'" % _type
             self.r(1, cmd_out, WARNING)
             return False
         try:
-            s = self.libplugin.get_by_id(_id)
+            s = self.libplugin.get_by_id(self.kvarg['id'])
             self.r(0, cmd_out, INFO)
         except IndexError:
-            cmd_out = 'cannot find server identified with id:%s' % _id
+            cmd_out = ('cannot find server identified with id:%s' %
+                       self.kvarg['id'])
             self.r(1, cmd_out, ERROR)
             return False
         try:
             if s.status == 'ACTIVE':
                 s.reboot(_type)
-                cmd_out = '%s rebooted server id:%s' % (_type, _id)
+                cmd_out = '%s rebooted server id:%s' % (_type, self.kvarg['id'])
                 self.r(0, cmd_out, INFO)
             else:
                 cmd_out = ('cannot reboot server id:%s, status:%s' %
-                           (_id, s.status))
+                           (self.kvarg['id'], s.status))
                 self.r(1, cmd_out, ERROR)
                 return False
                 
@@ -357,34 +330,27 @@ class Cmd_servers(Plugin, cmd.Cmd):
         snapshot_name    name of the snapshot to be taken
 #TODO   metadata         key-value pairs metadata
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (_id, snapshot_name) = (None, None)
-        # parsing parameters
-        if 'id' in d_kv.keys():
-            _id = d_kv['id']
-        else:
-            cmd_out = "server id missing, cannot continue"
-            self.r(1, cmd_out, WARNING)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'id', 'required':True},
+            {'name':'snapshot_name', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        if 'snapshot_name' in d_kv.keys():
-            snapshot_name = d_kv['snapshot_name']
-        else:
-            cmd_out = "snapshot_name missing, cannot continue"
-            self.r(1, cmd_out, WARNING)
-            return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         try:
-            s = self.libplugin.get_by_id(_id)
+            s = self.libplugin.get_by_id(self.kvarg['id'])
         except IndexError:
-            cmd_out = 'cannot find server identified by id:%s' % _id
+            cmd_out = ('cannot find server identified by id:%s' %
+                       self.kvarg['id'])
             self.r(1, cmd_out, ERROR)
             return False
         try:
-            s.create_image(snapshot_name)
+            s.create_image(self.kvarg['snapshot_name'])
             cmd_out = ('took snapshot name:%s of server id:%s' %
-                       (snapshot_name, _id))
+                       (self.kvarg['snapshot_name'], self.kvarg['id']))
             self.r(0, cmd_out, INFO)
         except:
             tb = traceback.format_exc()
@@ -409,26 +375,25 @@ class Cmd_servers(Plugin, cmd.Cmd):
         Parameters:
         id     snapshot id
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        _id = None
-        # parsing parameters
-        if 'id' in d_kv.keys():
-            _id = d_kv['id']
-        if _id == None:
-            cmd_out = "snapshot id is missing"
-            self.r(1, cmd_out, WARNING)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'id', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         try:
             cs = pyrax.cloudservers
-            snapshot = [ss for ss in cs.list_snapshots() if ss.id == _id][0]
+            snapshot = [ss for ss in cs.list_snapshots() if ss.id ==
+                        self.kvarg['id']][0]
             snapshot.delete()
             cmd_out = 'deleted snapshot id:%s' % snapshot.id
             self.r(0, cmd_out, INFO)
         except IndexError:
-            cmd_out = 'cannot find snapshot identified by id:%s' % _id
+            cmd_out = ('cannot find snapshot identified by id:%s' %
+                       self.kvarg['id'])
             self.r(1, cmd_out, ERROR)
             return False
         except:

@@ -46,3 +46,6 @@ log_levels = (DEBUG, INFO, WARN, ERROR, CRITICAL)
 
 # message queue
 msg_queue = Queue.Queue()
+
+# polling time in seconds
+POLL_TIME = 30
