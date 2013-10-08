@@ -213,7 +213,7 @@ class Cmd_loadbalancers(Plugin, cmd.Cmd):
             pt.add_row(['node count', lb.nodeCount])
             pt.align['key'] = 'l'
             pt.align['value'] = 'l'
-            self.r(0, pt, INFO)
+            self.r(0, str(pt), INFO)
         except Exception:
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
@@ -284,7 +284,7 @@ class Cmd_loadbalancers(Plugin, cmd.Cmd):
                             record['startTime'],
                             record['vipType']
                             ])
-            self.r(0, pt, INFO)
+            self.r(0, str(pt), INFO)
         except:
             tb = traceback.format_exc()
             logging.error(tb)
@@ -318,7 +318,7 @@ class Cmd_loadbalancers(Plugin, cmd.Cmd):
                         lb.port, lb.status, lb.algorithm, lb.timeout
                         ])
         pt.align['virtual_ips'] = 'l'
-        self.r(0, pt, INFO)
+        self.r(0, str(pt), INFO)
     
     def do_list_algorithms(self, line):
         '''
@@ -331,7 +331,7 @@ class Cmd_loadbalancers(Plugin, cmd.Cmd):
         for alg in clb.algorithms:
             pt.add_row([alg])
         pt.align['name'] = 'l'
-        self.r(0, pt, INFO)
+        self.r(0, str(pt), INFO)
     
     def do_list_nodes(self, line):
         '''
@@ -365,7 +365,7 @@ class Cmd_loadbalancers(Plugin, cmd.Cmd):
                             ])
                 ctr += 1
             pt.align['virtual_ips'] = 'l'
-            self.r(0, pt, INFO)
+            self.r(0, str(pt), INFO)
         except Exception:
             tb = traceback.format_exc()
             self.r(1, pt, ERROR)
@@ -422,7 +422,7 @@ class Cmd_loadbalancers(Plugin, cmd.Cmd):
                 pt.add_row([vip.id, vip.type, vip.address, vip.ip_version])
             pt.align['id'] = 'l'
             pt.align['address'] = 'l'
-            self.r(0, pt, INFO)
+            self.r(0, str(pt), INFO)
         except Exception:
             tb = traceback.format_exc()
             self.r(1, pt, ERROR)
@@ -713,7 +713,7 @@ class Cmd_loadbalancers(Plugin, cmd.Cmd):
             pprint.pprint(n)
             pt.add_row([ctr, n.address, n.port, n.condition])
             ctr += 1
-        self.r(0, pt, INFO)
+        self.r(0, str(pt), INFO)
     
     def do_set_node_condition(self, line):
         '''

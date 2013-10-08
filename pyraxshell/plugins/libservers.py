@@ -96,7 +96,7 @@ class ServerCreatorThread (threading.Thread):
                 pt.add_row(['network private (%s)' % get_ip_family(srv_net), srv_net])
             pt.align['key'] = 'l'
             pt.align['value'] = 'l'
-            self.r(0, pt, INFO)
+            self.r(0, str(pt), INFO)
             print
             # return info
         else:
@@ -170,7 +170,7 @@ class LibServers(Lib):
                 for srv_net in server.networks['private']:
                     pt.add_row(['network private (%s)' % get_ip_family(srv_net), srv_net])				
                 pt.add_row(['created on', server.created])
-                self.r(0, pt, INFO)
+                self.r(0, str(pt), INFO)
     
     def get_cloudserver_flavor(self, _id):
         csf = self.list_cloudservers_flavors()
@@ -209,7 +209,7 @@ class LibServers(Lib):
                             self.get_cloudserver_flavor(csf.flavor['id']).name
                             ])
         pt.get_string(sortby='name')
-        self.r(0, pt, INFO)
+        self.r(0, str(pt), INFO)
     
     def print_pt_cloudservers_flavors(self):
         '''print cloud servers flavors with PrettyTable'''
@@ -217,7 +217,7 @@ class LibServers(Lib):
         pt = PrettyTable(['id', 'name', 'ram', 'swap', 'vcpus'])
         for csf in csflavors:
             pt.add_row([csf.id, csf.name, csf.ram, csf.swap, csf.vcpus])
-        self.r(0, pt, INFO)
+        self.r(0, str(pt), INFO)
 
     def print_pt_cloudservers_images(self, sortby='name'):
         '''print cloud servers images with PrettyTable
@@ -232,4 +232,4 @@ class LibServers(Lib):
         if sortby != None:
             self.r(0, pt.get_string(sortby=sortby), INFO)
         else:
-            self.r(0, pt, INFO)
+            self.r(0, str(pt), INFO)

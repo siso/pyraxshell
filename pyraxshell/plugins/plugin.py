@@ -56,7 +56,7 @@ class Plugin(cmd.Cmd):
     
     def kvargcheck(self, *args):
         '''
-        check 'self.kvarg' against '*args'
+        check 'self.kvarg' against passed check rules ('*args')
         
         Args:
             *args should be dictionaries as thefollowing:

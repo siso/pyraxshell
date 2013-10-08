@@ -21,10 +21,9 @@ import pyrax
 from prettytable import PrettyTable
 import traceback
 
-from globals import WARNING, INFO, ERROR, WARN
+from globals import INFO, ERROR, WARN
 from plugin import Plugin
 from plugins.libdatabases import LibDatabases, InstanceCreatorThread
-from utility import kvstring_to_dict
 
 name = 'databases'
 
@@ -59,36 +58,27 @@ class Cmd_databases(Plugin, cmd.Cmd):
         flavor_id    see: list_flavors
         name
         volume       volume size (GiB)
-        ''' 
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (name, flavor_id, volume) = (None, None, None)
-        # parsing parameters
-        if 'name' in d_kv.keys():
-            name = d_kv['name']
-        else:
-            cmd_out = "name missing"
-            self.r(1, cmd_out, WARNING)
+        '''
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'flavor_id', 'required':True},
+            {'name':'name', 'required':True},
+            {'name':'volume', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        if 'flavor_id' in d_kv.keys():
-            flavor_id = d_kv['flavor_id']
-        else:
-            cmd_out = "flavor_id missing"
-            self.r(1, cmd_out, WARNING)
-            return False
-        if 'volume' in d_kv.keys():
-            volume = d_kv['volume']
-        else:
-            cmd_out = "volume missing"
-            self.r(1, cmd_out, WARNING)
-            return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         try:
             logging.debug('creating database instance - name:%s, flavor_id:%s, '
-                          'volume=%s' % (name, flavor_id, volume))
-            cdbit = InstanceCreatorThread(name, flavor_id, volume)
-            cdbit.setName('CloudDBInstance-%s' % name)
+                          'volume=%s' % (self.kvarg['name'],
+                                         self.kvarg['flavor_id'],
+                                         self.kvarg['volume']))
+            cdbit = InstanceCreatorThread(self.kvarg['name'],
+                                          self.kvarg['flavor_id'],
+                                          self.kvarg['volume'])
+            cdbit.setName('CloudDBInstance-%s' % self.kvarg['name'])
             cdbit.start()
         except:
             tb = traceback.format_exc()
@@ -111,24 +101,20 @@ class Cmd_databases(Plugin, cmd.Cmd):
         
         Parameters:
         
-        flavor_id    see: list_flavors
+        id        Cloud Databases instance id
         ''' 
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (_id) = (None)
-        # parsing parameters
-        if 'id' in d_kv.keys():
-            _id = d_kv['id']
-        else:
-            cmd_out = "id missing"
-            self.r(1, cmd_out, WARNING)
+        retcode, retmsg = self.kvargcheck(
+            {'name':'id', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
+        self.r(0, retmsg, INFO)     # everything's ok
         try:
-            db_instance = self.libplugin.get_instance_by_id(_id)
+            db_instance = self.libplugin.get_instance_by_id(self.kvarg['id'])
             db_instance.delete()
-            cmd_out = 'Cloud Databases instance id:%s deleted' % _id
+            cmd_out = ('Cloud Databases instance id:%s deleted' %
+                       self.kvarg['id'])
             self.r(0, cmd_out, INFO)
         except:
             tb = traceback.format_exc()
@@ -149,8 +135,6 @@ class Cmd_databases(Plugin, cmd.Cmd):
         '''
         list _my_ cloud databases instances
         '''
-        logging.info("list my database instances")
-        logging.debug("line: %s" % line)
         cdb = pyrax.cloud_databases
         pt = PrettyTable(['id', 'name', 'status', 'hostname', 'created',
                           'ram', 'links'])
@@ -164,7 +148,7 @@ class Cmd_databases(Plugin, cmd.Cmd):
                         '\n'.join([l['href'] for l in db.links])])
         pt.align['name'] = 'l'
         pt.align['links'] = 'l'
-        self.r(0, pt, INFO)
+        self.r(0, str(pt), INFO)
     
     def do_list_instance_flavors(self, line):
         '''
@@ -178,7 +162,7 @@ class Cmd_databases(Plugin, cmd.Cmd):
         for dbf in cdbf:
             pt.add_row([dbf.id, dbf.name, dbf.ram, dbf.loaded])
         pt.align['name'] = 'l'
-        self.r(0, pt, INFO)
+        self.r(0, str(pt), INFO)
     
     def do_list(self, line):
         '''
@@ -197,34 +181,30 @@ class Cmd_databases(Plugin, cmd.Cmd):
         id         instance id
         ram        ram size (MiB)
         volume     volume size (GiB)
-        ''' 
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (_id, ram, volume) = (None, None, None)
-        # parsing parameters
-        if 'id' in d_kv.keys():
-            _id = d_kv['id']
-        else:
-            cmd_out = "instance id missing"
-            self.r(1, cmd_out, ERROR)
+        '''
+        retcode, retmsg = self.kvargcheck(
+            {'name':'id', 'required':True},
+            {'name':'ram', 'required':True},
+            {'name':'volume', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        if 'ram' in d_kv.keys():
-            ram = d_kv['ram']
-        if 'volume' in d_kv.keys():
-            volume = d_kv['volume']
-        if (ram == None and volume == None) or (ram != None and volume != None):
+        self.r(0, retmsg, INFO)     # everything's ok
+        
+        if ((self.kvarg['ram'] == None and self.kvarg['volume'] == None) or
+            (self.kvarg['ram'] != None and self.kvarg['volume'] != None)):
             cmd_out = 'specify ram or volume'
             self.r(1, cmd_out, WARN)
             return False
         try:
-            db_instance = self.libplugin.get_instance_by_id(_id)
-            if ram != None:
-                db_instance.resize(int(ram))
-            if volume != None:
-                db_instance.resize_volume(volume)
-            cmd_out = 'Cloud Databases instance id:%s resized' %_id
+            db_instance = self.libplugin.get_instance_by_id(self.kvarg['id'])
+            if self.kvarg['ram'] != None:
+                db_instance.resize(int(self.kvarg['ram']))
+            if self.kvarg['volume'] != None:
+                db_instance.resize_volume(self.kvarg['volume'])
+            cmd_out = 'instance id:%s resized' % self.kvarg['id']
+            self.r(0, cmd_out, INFO)
         except:
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
@@ -251,31 +231,25 @@ class Cmd_databases(Plugin, cmd.Cmd):
         
         instance_id          id of instance
         database_name        name of database
-        ''' 
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (instance_id, database_name) = (None, None)
-        # parsing parameters
-        if 'instance_id' in d_kv.keys():
-            instance_id = d_kv['instance_id']
-        else:
-            cmd_out = "instance_id missing"
-            self.r(1, cmd_out, WARN)
+        '''
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'instance_id', 'required':True},
+            {'name':'database_name', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        if 'database_name' in d_kv.keys():
-            database_name = d_kv['database_name']
-        else:
-            cmd_out = "database_name missing"
-            self.r(1, cmd_out, WARN)
-            return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         try:
-            db_instance = self.libplugin.get_instance_by_id(instance_id)
-            db_instance.create_database(database_name)
+            db_instance = (
+                self.libplugin.get_instance_by_id(self.kvarg['instance_id']))
+            db_instance.create_database(self.kvarg['database_name'])
             cmd_out = ('created database_name:%s in '
                        'Cloud Databases instance id:%s,'
-                        % (database_name, instance_id))
+                        % (self.kvarg['database_name'],
+                           self.kvarg['instance_id']))
             self.r(0, cmd_out, INFO)
         except:
             tb = traceback.format_exc()
@@ -300,35 +274,31 @@ class Cmd_databases(Plugin, cmd.Cmd):
         
         instance_id          id of instance
         database_name        name of database
-        ''' 
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (instance_id, database_name) = (None, None)
-        # parsing parameters
-        if 'instance_id' in d_kv.keys():
-            instance_id = d_kv['instance_id']
-        else:
-            cmd_out = "instance_id missing"
-            self.r(1, cmd_out, WARN)
+        '''
+        retcode, retmsg = self.kvargcheck(
+            {'name':'instance_id', 'required':True},
+            {'name':'database_name', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        if 'database_name' in d_kv.keys():
-            database_name = d_kv['database_name']
-        else:
-            cmd_out = "database_name missing"
-            self.r(1, cmd_out, WARN)
-            return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         try:
-            database = self.libplugin.get_database(instance_id, database_name)
+            database = (
+                self.libplugin.get_database(self.kvarg['instance_id'],
+                                            self.kvarg['database_name']))
             if database == None:
                 cmd_out = ('cannot find database name:%s in instance_id:%s' %
-                           (database_name, instance_id))
+                           (self.kvarg['database_name'],
+                            self.kvarg['instance_id']))
                 self.r(1, cmd_out, ERROR)
             else:
                 database.delete()
                 cmd_out = ('delete database instance - instance_id:%s,'
-                           'database_name:%s' % (instance_id, database_name))
+                           'database_name:%s' %
+                           (self.kvarg['instance_id'],
+                            self.kvarg['database_name']))
                 self.r(1, cmd_out, ERROR)
         except:
             tb = traceback.format_exc()
@@ -352,29 +322,27 @@ class Cmd_databases(Plugin, cmd.Cmd):
         Parameters:
         
         instance_id          id of instance
-        ''' 
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (instance_id) = (None)
-        # parsing parameters
-        if 'instance_id' in d_kv.keys():
-            instance_id = d_kv['instance_id']
-        else:
-            cmd_out = "instance_id missing"
-            self.r(1, cmd_out, WARN)
+        '''
+        retcode, retmsg = self.kvargcheck(
+            {'name':'instance_id', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         try:
             logging.debug('listing databases in instance name:%s, id:%s,'
-                          % (self.libplugin.get_instance_by_id(instance_id).name,
-                             instance_id))
-            db_instance = self.libplugin.get_instance_by_id(instance_id)
+                          % (self.libplugin.get_instance_by_id(
+                                self.kvarg['instance_id']).name,
+                             self.kvarg['instance_id']))
+            db_instance = (
+                self.libplugin.get_instance_by_id(self.kvarg['instance_id']))
             pt = PrettyTable(['name'])
             for db in db_instance.list_databases():
                 logging.debug("%s" % db.name)
                 pt.add_row([db.name])
-            self.r(0, pt, INFO)
+            self.r(0, str(pt), INFO)
         except:
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
@@ -403,45 +371,29 @@ class Cmd_databases(Plugin, cmd.Cmd):
         database_name        name of database
         username
         password
-        ''' 
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (instance_id, database_name, username, password) = (None, None, None,
-                                                            None)
-        # parsing parameters
-        if 'instance_id' in d_kv.keys():
-            instance_id = d_kv['instance_id']
-        else:
-            cmd_out = "instance_id missing"
-            self.r(1, cmd_out, WARN)
+        '''
+        retcode, retmsg = self.kvargcheck(
+            {'name':'instance_id', 'required':True},
+            {'name':'database_name', 'required':True},
+            {'name':'username', 'required':True},
+            {'name':'password', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        if 'database_name' in d_kv.keys():
-            database_name = d_kv['database_name']
-        else:
-            cmd_out = "database_name missing"
-            self.r(1, cmd_out, WARN)
-            return False
-        if 'username' in d_kv.keys():
-            username = d_kv['username']
-        else:
-            cmd_out = "username missing"
-            self.r(1, cmd_out, WARN)
-            return False
-        if 'password' in d_kv.keys():
-            password = d_kv['password']
-        else:
-            cmd_out = "password missing"
-            self.r(1, cmd_out, WARN)
-            return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         try:
-            db_instance = self.libplugin.get_instance_by_id(instance_id)
-            db_instance.create_user(username, password,
-                                    database_names = database_name)
-            cmd = ('created username:%s, password:%s to instance_id:%s,'
-                   'database_name:%s' % (username, password, instance_id,
-                                         database_name))
+            db_instance = (
+                self.libplugin.get_instance_by_id(self.kvarg['instance_id']))
+            db_instance.create_user(self.kvarg['username'],
+                                    self.kvarg['password'],
+                                database_names = self.kvarg['database_name'])
+            cmd_out = ('created username:%s, password:%s to instance_id:%s,'
+                       'database_name:%s' % (self.kvarg['username'],
+                                             self.kvarg['password'],
+                                             self.kvarg['instance_id'],
+                                             self.kvarg['database_name']))
             self.r(0, cmd_out, INFO)
         except:
             tb = traceback.format_exc()
@@ -466,30 +418,22 @@ class Cmd_databases(Plugin, cmd.Cmd):
         
         instance_id          id of instance
         username
-        ''' 
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (instance_id, username) = (None, None)
-        # parsing parameters
-        if 'instance_id' in d_kv.keys():
-            instance_id = d_kv['instance_id']
-        else:
-            cmd_out = "instance_id missing"
-            self.r(1, cmd_out, WARN)
+        '''
+        retcode, retmsg = self.kvargcheck(
+            {'name':'instance_id', 'required':True},
+            {'name':'username', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        if 'username' in d_kv.keys():
-            username = d_kv['username']
-        else:
-            cmd_out = "username missing"
-            self.r(1, cmd_out, WARN)
-            return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         try:
-            db_instance = self.libplugin.get_instance_by_id(instance_id)
-            db_instance.delete_user(username)
+            db_instance = (
+                self.libplugin.get_instance_by_id(self.kvarg['instance_id']))
+            db_instance.delete_user(self.kvarg['username'])
             cmd_out = ('deleted username:%s from instance_id:%s' %
-                       (username, instance_id))
+                       (self.kvarg['username'], self.kvarg['instance_id']))
             self.r(0, cmd_out, INFO)
         except:
             tb = traceback.format_exc()
@@ -513,23 +457,22 @@ class Cmd_databases(Plugin, cmd.Cmd):
         Parameters:
         
         instance_id          id of instance
-        ''' 
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        (instance_id) = (None)
-        # parsing parameters
-        if 'instance_id' in d_kv.keys():
-            instance_id = d_kv['instance_id']
-        else:
-            logging.error("instance_id missing")
+        '''
+        retcode, retmsg = self.kvargcheck(
+            {'name':'instance_id', 'required':True}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        
         try:
             logging.info('listing users for instance name:%s, id:%s,'
-                          % (self.libplugin.get_instance_by_id(instance_id).name,
-                             instance_id))
-            db_instance = self.libplugin.get_instance_by_id(instance_id)
+                         % (self.libplugin.get_instance_by_id(
+                                self.kvarg['instance_id']).name,
+                                self.kvarg['instance_id']))
+            db_instance = (self.libplugin.get_instance_by_id(
+                            self.kvarg['instance_id']))
             pt = PrettyTable(['databases', 'host', 'name'])
             for user in db_instance.list_users():
                 pt.add_row([
@@ -537,7 +480,7 @@ class Cmd_databases(Plugin, cmd.Cmd):
                             user.host,
                             user.name
                             ])
-            self.r(0, pt, INFO)
+            self.r(0, str(pt), INFO)
         except:
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)

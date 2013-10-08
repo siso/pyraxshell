@@ -475,7 +475,7 @@ class Cmd_dns(Plugin, cmd.Cmd):
             pt.get_string(sortby='type')
             pt.align['domain name'] = 'l'
             pt.align['data'] = 'l'
-            self.r(0, pt, INFO)
+            self.r(0, str(pt), INFO)
         except exc.NotFound:
             cmd_out = ("no DNS information for the domain '%s'" %
                        domain_name)
@@ -518,7 +518,7 @@ class Cmd_dns(Plugin, cmd.Cmd):
             pt.align['name'] = 'l'
             pt.align['email address'] = 'l'
             pt.get_string(sortby='name')
-            self.r(0, pt, INFO)
+            self.r(0, str(pt), INFO)
         except:
             logging.error('cannot list dns domains')
             tb = traceback.format_exc()
@@ -561,7 +561,7 @@ class Cmd_dns(Plugin, cmd.Cmd):
             pt.align['name'] = 'l'
             pt.align['email address'] = 'l'
             pt.get_string(sortby='name')
-            self.r(0, pt, INFO)
+            self.r(0, str(pt), INFO)
         except:
             logging.debug('cannot list \'%s\' sub-domains' % domain_name)
             tb = traceback.format_exc()

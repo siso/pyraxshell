@@ -471,7 +471,7 @@ class Cmd_servers(Plugin, cmd.Cmd):
                             ])
             pt.align['id'] = 'l'
             pt.align['name'] = 'l'
-            self.r(0, pt, INFO)
+            self.r(0, str(pt), INFO)
         except:
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
