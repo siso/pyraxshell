@@ -143,7 +143,7 @@ class Plugin(cmd.Cmd):
             arg = arg.replace('=', ':')
             for token in arg.split():
                 # determine token type
-                p1 = re.compile('^[a-zA-Z0-9_]+:[a-zA-Z0-9_]+$')
+                p1 = re.compile('^[a-zA-Z0-9_]+:[a-zA-Z0-9_~/\.]+$')
                 p2 = re.compile('^[a-zA-Z0-9_]+$')
                 p3 = re.compile('^[a-zA-Z0-9_]+:\$[a-zA-Z0-9_]+$')
                 if p1.match(token) or p3.match(token):
@@ -260,6 +260,6 @@ class Plugin(cmd.Cmd):
         record Session command input/output to 'commands' table, and
         logging message facility
         '''
-        l(self.cmd, retcode, msg, log_level)
+        l(self.line, retcode, msg, log_level)
         Sessions.Instance().insert_table_commands(self.line ,   # @UndefinedVariable
                                                   msg, retcode, log_level)

@@ -20,6 +20,7 @@ Release notes for pyraxshell
   * Plugin_Loadbalancers uses 'Plugin.kvargcheck()'
   * Plugin_Servers uses 'Plugin.kvargcheck()'
   * Plugin_Services uses 'Plugin.kvargcheck()'
+  * Added support for custom path to credential file
 
 ## 2013.09.29 - Version 0.2.4
   * Added SIGINT/SIGTERM handler to stop threads gracefully

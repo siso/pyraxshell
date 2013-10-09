@@ -22,6 +22,7 @@ import traceback
 from globals import ERROR, INFO
 from plugins.libauth import LibAuth
 from plugins.plugin import Plugin
+import os.path
 
 name = 'auth'
 
@@ -82,15 +83,50 @@ class Cmd_auth(Plugin, cmd.Cmd):
     def do_credentials(self, line):
         '''
         authentication with credentials file
+        
+        @param file    credential file (pyrax format)
+        
+        i.e.: credentials file:~/.pyrax
         '''
-# TODO -- accept path to file with credentials 
-        logging.debug("authenticating with credentials file")
-        if self.libplugin.authenticate_credentials_file():
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'file', 'default':''}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
+            return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        # additional checks
+        _file = self.kvarg['file']
+        if _file.find('~') == 0:
+            _file = os.path.expanduser(_file)
+        if _file != '' and not os.path.isfile(_file):
+            cmd_out = 'cannot find file \'%s\'' % _file
+            self.r(1, cmd_out, ERROR)
+            return False
+        # authenticating with credentials file
+        if _file != None and _file != '':
+            errcode = (self.libplugin.authenticate_credentials_file(_file))
+        else:
+            errcode = self.libplugin.authenticate_credentials_file()
+        if errcode:
             cmd_out = "token: %s" % self.libplugin.get_token()
             self.r(0, cmd_out, INFO)
         else:
-            cmd_out = "cannot authenticate using pyrax credentials file"
+            cmd_out = ("cannot authenticate using credentials file")
             self.r(1, cmd_out, ERROR)
+            return False
+    
+    def complete_credentials(self, text, line, begidx, endidx):
+        params = ['file:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
 
     def do_exit(self,*args):
         return True

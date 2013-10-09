@@ -62,8 +62,7 @@ class Configuration:
         config_file = CONFIG_FILE
         if not os.path.isfile(config_file):
             logging.debug('creating default config file \'%s\'' % config_file)
-            cfg = '''
-[main]
+            cfg = '''[main]
 verbose = false
 
 [pyrax]

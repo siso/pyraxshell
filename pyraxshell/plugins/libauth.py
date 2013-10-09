@@ -35,9 +35,12 @@ class LibAuth(Lib):
     # AUTHENTICATE
     
     def authenticate_credentials_file(self, credentials_file=None):
-        '''authenticate with Rackspace Cloud
+        '''
+        authenticate with Rackspace Cloud
         
-        using credentials file'''
+        @param credentials_file    credential file (pyrax format)
+        @return    True if successful, False otherwise
+        '''
         logging.debug('authenticating with credentials file \'%s\'' %
                       credentials_file)
         self.credentials_file = credentials_file
