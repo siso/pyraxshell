@@ -40,9 +40,9 @@ nosetests.xml
 db/*
 
 # eclipse
-#.settings
-#.project
-#.pydevproject
+.settings
+.project
+.pydevproject
 
 # docs
 docs

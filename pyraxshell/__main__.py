@@ -28,10 +28,13 @@ from notifier import Notifier
 from pyraxshell import Cmd_Pyraxshell
 from sessions import Sessions
 from utility import check_dir_home, terminate_threads
+from globals import VERSION_FILE
+import version
+from globals import HOME_DIR
 
 
 def main():
-    # check '~/.pyraxshell' and config files  exist, if not then create it
+    # check '~/.pyraxshell' and config files exist, create them if missing
     if not check_dir_home():
         print ("This is the first time 'pyraxshell' runs, please, configure "
                "'%s' according to your needs" % CONFIG_FILE)
@@ -44,6 +47,11 @@ def main():
         # create default configuration file
         Configuration.Instance()  # @UndefinedVariable
         sys.exit(0)
+    
+    # ########################################
+    # VERSION CHECK
+    if not version.check_version_file():
+        sys.exit(1)
     
     # ########################################
     # LOGGING

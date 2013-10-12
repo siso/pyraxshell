@@ -41,8 +41,9 @@ class Test(unittest.TestCase):
         _out = {}
         self.assertItemsEqual(_in, _out)
         
-        _in = "k0!v0"
-        self.assertRaises(TypeError, kvstring_to_dict(_in))
+#   get rid of this as pyraxshell.utility.kvstring_to_dict() is deprecated
+#        _in = "k0!v0"
+#        self.assertRaises(TypeError, kvstring_to_dict(_in))
         
         _in = "k0:"
         self.assertRaises(TypeError, kvstring_to_dict(_in))
