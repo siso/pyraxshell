@@ -17,12 +17,14 @@
 
 import cmd
 import logging
-from utility import kvstring_to_dict, print_top_right
+import pprint
 import threading
-import uuid
 import time
+import uuid
+
+from globals import msg_queue, DEBUG, INFO, WARNING, ERROR, CRITICAL
 from plugin import Plugin 
-from globals import msg_queue
+from utility import print_top_right
 
 name = 'test'
 
@@ -47,18 +49,46 @@ class TestPlugin(Plugin, cmd.Cmd):
     """
     prompt = "RS %s>" % name    # default prompt
 
+    def do_run_test_thread(self, line):
+        TestThread().start()
+    
+    def do_run_test_thread1(self, line):
+        TestThread1().start()
+    
     def do_test(self, line):
         '''
         provide credentials and authenticate
         '''
         logging.debug("line: %s" % line)
         logging.info("TEST PLUGIN -- do_test")
+
+    def do_argcheck(self, line):
+        '''
+        test 'argparse' and 'argcheck' from 'Plugin' class
+        '''
+        logging.info("TEST PLUGIN -- do_argcheck")
+        # set default and parse 'self.kvarg' parameters
+        logging.debug('kvarg before: %s' % pprint.pformat(self.kvarg))
+        retcode, retmsg = self.kvargcheck(
+              {'name':'identity_type', 'default':'rackspace'},
+              {'name':'username', 'required':True},
+              {'name':'apikey', 'required':True},
+              {'name':'region', 'default':'LON'}
+        )
+        if not retcode:
+            self.r(1, retmsg, ERROR)
+            return False
+        self.r(0, retmsg, INFO)
     
-    def do_run_test_thread(self, line):
-        TestThread().start()
-    
-    def do_run_test_thread1(self, line):
-        TestThread1().start()
+    def do_log(self, line):
+        '''
+        test logging system
+        '''
+        self.r(0, 'debug', DEBUG)
+        self.r(0, 'info', INFO)
+        self.r(0, 'warn', WARNING)
+        self.r(0, 'error', ERROR)
+        self.r(0, 'critical', CRITICAL)
 
 
 class TestThread (threading.Thread):

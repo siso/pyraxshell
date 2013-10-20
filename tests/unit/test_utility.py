@@ -16,12 +16,38 @@
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
-from pyraxshell.utility import is_ipv4, is_ipv6  # @UnresolvedImport
-from pyraxshell.utility import get_ip_family  # @UnresolvedImport
+from pyraxshell.utility import is_ipv4, is_ipv6     # @UnresolvedImport
+from pyraxshell.utility import get_ip_family        # @UnresolvedImport
+from pyraxshell.utility import kvstring_to_dict     # @UnresolvedImport
 
 
 class Test(unittest.TestCase):
 
+
+    def test_kvstring_to_dict(self):
+        _in = kvstring_to_dict("k0:v0 k1:v1 ki:vi")
+        _out = {'k0':'v0','k1':'v1','ki':'vi'}
+        self.assertItemsEqual(_in, _out)
+        
+        _in = kvstring_to_dict("k0:v0             k1:v1 ki:vi")
+        _out = {'k0':'v0','k1':'v1','ki':'vi'}
+        self.assertItemsEqual(_in, _out)
+        
+        _in = kvstring_to_dict("k0=v0             k1=v1 ki:vi")
+        _out = {'k0':'v0','k1':'v1','ki':'vi'}
+        self.assertItemsEqual(_in, _out)
+        
+        _in = kvstring_to_dict("")
+        _out = {}
+        self.assertItemsEqual(_in, _out)
+        
+#   get rid of this as pyraxshell.utility.kvstring_to_dict() is deprecated
+#        _in = "k0!v0"
+#        self.assertRaises(TypeError, kvstring_to_dict(_in))
+        
+        _in = "k0:"
+        self.assertRaises(TypeError, kvstring_to_dict(_in))
+        
 
     def test_is_ipv4(self):
         self.assertTrue(is_ipv4('0.0.0.0'))

@@ -16,13 +16,17 @@
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import pyrax
 import os.path
-from prettytable import PrettyTable
-from libpyraxshell import Libpyraxshell
 import pprint
+from prettytable import PrettyTable
+import pyrax
+import traceback
 
-class LibAuth(object):
+from globals import ERROR, INFO, WARN, DEBUG
+from plugins.lib import Lib
+
+
+class LibAuth(Lib):
     '''
     pyraxshell authenticate library
     '''
@@ -31,9 +35,12 @@ class LibAuth(object):
     # AUTHENTICATE
     
     def authenticate_credentials_file(self, credentials_file=None):
-        '''authenticate with Rackspace Cloud
+        '''
+        authenticate with Rackspace Cloud
         
-        using credentials file'''
+        @param credentials_file    credential file (pyrax format)
+        @return    True if successful, False otherwise
+        '''
         logging.debug('authenticating with credentials file \'%s\'' %
                       credentials_file)
         self.credentials_file = credentials_file
@@ -44,30 +51,33 @@ class LibAuth(object):
             for f in file_locations:
                 if os.path.exists(os.path.expanduser(f)):
                     self.credentials_file = f
-                    logging.info("found credentials file: %s" % f)
+                    logging.debug("found credentials file: %s" % f)
                     break
                 else:
-                    logging.info("cannot find credentials file: %s" %
+                    logging.debug("cannot find credentials file: %s" %
                                  os.path.expanduser(f))
             if self.credentials_file == None:
-                logging.warn('cannot find pyrax config file '
-                             '(default locations: \'%s\')'
-                             % file_locations)
+                cmd_out = ('cannot find pyrax config file '
+                           '(default locations: \'%s\')'
+                           % file_locations)
+                self.r(1, cmd_out, WARN)
                 return False
         try:
             pyrax.set_credential_file(self.credentials_file)
+            self.r(0, "authenticated", DEBUG)
             return self.is_authenticated()
         except pyrax.exceptions.AuthenticationFailed:
-            logging.warn('authentication failed: wrong credentials')
-            logging.warning('failed authenticating with credentials file')
+            cmd_out = 'authentication with credentials file failed'
+            self.r(cmd_out)
             return False
         except pyrax.exceptions.IdentityClassNotDefined:
-            logging.warn('authentication failed: IdentityClassNotDefined. '
-                         'Please, check credentials file')
-            logging.warning('failed authenticating with credentials file')
+            cmd_out = ('authentication failed: IdentityClassNotDefined. '
+                       'Please, check credentials file')
+            self.r(1, cmd_out, WARN)
             return False
         except Exception as e:
-            logging.error('%s' % pprint.pprint(e))
+            cmd_out = '%s' % pprint.pprint(e)
+            self.r(1, cmd_out, WARN)
         return True
     
     def authenticate_login(self,
@@ -84,8 +94,12 @@ class LibAuth(object):
         try:
             pyrax.set_setting("identity_type", identity_type)
             pyrax.set_credentials(username, apikey, region = region)
+            cmd_out = "authentication with login successful"
+            self.r(0, cmd_out, INFO)
             return self.is_authenticated()
         except pyrax.exceptions.AuthenticationFailed:
+            cmd_out = "authentication with login failed"
+            self.r(1, cmd_out, WARN)
             return False
     
     def authenticate_token(self, token, tenantId, region,
@@ -100,16 +114,26 @@ class LibAuth(object):
         pyrax.set_setting("identity_type", identity_type)
         logging.debug('authenticating with token:%s, tenantId:%s, region:%s ' %
                       (token, tenantId, region))
-        pyrax.auth_with_token(token, tenantId, region=region)
+        try:
+            pyrax.auth_with_token(token, tenantId, region=region)
+        except:
+            tb = traceback.format_exc()
+            self.r(1, tb, ERROR)
     
     def is_authenticated(self):
         '''whether or not the user is authenticated'''
         try:
-            return pyrax.identity.authenticated
-        except Exception as inst:
-            logging.debug('authentication test failed, not authenticated')
+            if pyrax.identity.authenticated:
+                cmd_out = "user is authenticated"
+                self.r(0, cmd_out, DEBUG)
+                return True
+            else:
+                cmd_out = "user is not authenticated"
+                self.r(0, cmd_out, DEBUG)
+                return False
+        except:
             tb = traceback.format_exc()
-            logging.error(tb)
+            self.r(1, tb, ERROR)
             return False
     
     def get_token(self):
@@ -120,21 +144,25 @@ class LibAuth(object):
         '''
         print identity information of current authenticated user
         '''
+#TODO -- implement a function to build PrettyTable on the fly from JSON
+#        interactively: print pt
+#        non-interactively: print JSON
         if self.is_authenticated():
             pt = PrettyTable(['key', 'value'])
             pt.add_row(['auth token', pyrax.identity.auth_token])
             pt.add_row(['authenticated', pyrax.identity.authenticated])
             pt.add_row(['region', pyrax.identity.region])
             pt.add_row(['regions', ','.join(r for r in pyrax.identity.regions)])
+            pt.add_row(['username', pyrax.identity.username])
             pt.add_row(['tenant id', pyrax.identity.tenant_id])
             pt.add_row(['tenant name', pyrax.identity.tenant_name])
-            pt.add_row(['username', pyrax.identity.username])
             pt.align['key'] = 'l'
             pt.align['value'] = 'l'
             pt.get_string(sortby='key')
             print pt
         else:
-            logging.warn('cannot print identity information, authenticate first')
+            cmd_out = 'No info. Are you authenticated?'
+            self.r(1, cmd_out, WARN)
     
     # ########################################
     # ENDPOINTS
@@ -160,9 +188,12 @@ class LibAuth(object):
         return the region for which user is currently authenticated
         '''
         try:
+            cmd_out = "region: %s" % pyrax.identity.region
+            self.r(0, cmd_out, INFO)
             return pyrax.identity.region
         except:
-            logging.warn('unable to fetch region, are you authenticated?')
+            tb = traceback.format_exc()
+            self.r(1, tb, ERROR)
             return None
     
     # ########################################
@@ -173,5 +204,9 @@ class LibAuth(object):
         '''
         try:
             pyrax.set_http_debug(value)
+            cmd_out = "http_debu: %s" % value
+            self.r(0, cmd_out, INFO)
         except:
-            logging.warn('cannot set_output_verbosity(%s)' % value)
+            tb = traceback.format_exc()
+            self.r(1, tb, ERROR)
+            return None

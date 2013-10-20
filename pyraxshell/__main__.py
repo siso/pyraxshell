@@ -16,21 +16,23 @@
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from configuration import Configuration
-import sys
 import pyrax
-from pyraxshell import Cmd_Pyraxshell
-from globals import CONFIG_FILE
-from utility import check_dir_home, terminate_threads
-from sessions import Sessions
-from db import DB
-import log
 import signal
+import sys
+
+import version
+from db import DB
+from configuration import Configuration
+from globals import CONFIG_FILE, HOME_DIR, VERSION_FILE  # @UnusedImport
+from log import start_logging
 from notifier import Notifier
+from pyraxshell import Cmd_Pyraxshell
+from sessions import Sessions
+from utility import check_dir_home, terminate_threads
 
 
 def main():
-    # check '~/.pyraxshell' and config files  exist, if not then create it
+    # check '~/.pyraxshell' and config files exist, create them if missing
     if not check_dir_home():
         print ("This is the first time 'pyraxshell' runs, please, configure "
                "'%s' according to your needs" % CONFIG_FILE)
@@ -38,15 +40,18 @@ def main():
         DB()
         Sessions.Instance().create_table_sessions()  # @UndefinedVariable
         Sessions.Instance().create_table_commands()  # @UndefinedVariable
-        # create default logging configuration file 
-        log.Log()
         # create default configuration file
         Configuration.Instance()  # @UndefinedVariable
         sys.exit(0)
     
     # ########################################
+    # VERSION CHECK
+    if not version.check_version_file():
+        sys.exit(1)
+    
+    # ########################################
     # LOGGING
-    log.Log().start()
+    start_logging()
     logging.debug('starting')
     
     # ########################################
@@ -57,6 +62,12 @@ def main():
     # override settings with CLI params
     cfg.parse_cli(sys.argv)
     logging.debug("configuration: %s" % cfg)
+    
+    # set user's log level if specified 
+    if not Configuration.Instance().log_level == None:  # @UndefinedVariable
+        l = logging.getLogger()
+        for h in l.handlers:
+            h.setLevel(cfg.log_level)
     
     # ########################################
     # START SESSION

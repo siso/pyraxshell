@@ -17,11 +17,12 @@
 
 import cmd
 import logging
-from utility import kvstring_to_dict
+import traceback
+
+from globals import ERROR, INFO
 from plugins.libauth import LibAuth
 from plugins.plugin import Plugin
-from globals import INFO
-import traceback
+import os.path
 
 name = 'auth'
 
@@ -82,12 +83,50 @@ class Cmd_auth(Plugin, cmd.Cmd):
     def do_credentials(self, line):
         '''
         authentication with credentials file
+        
+        @param file    credential file (pyrax format)
+        
+        i.e.: credentials file:~/.pyrax
         '''
-        logging.debug("authentication with credentials file")
-        if self.libplugin.authenticate_credentials_file():
-            logging.info("token: %s" % self.libplugin.get_token())
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'file', 'default':''}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
+            return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        # additional checks
+        _file = self.kvarg['file']
+        if _file.find('~') == 0:
+            _file = os.path.expanduser(_file)
+        if _file != '' and not os.path.isfile(_file):
+            cmd_out = 'cannot find file \'%s\'' % _file
+            self.r(1, cmd_out, ERROR)
+            return False
+        # authenticating with credentials file
+        if _file != None and _file != '':
+            errcode = (self.libplugin.authenticate_credentials_file(_file))
         else:
-            logging.warn("cannot authenticate using pyrax credentials file")
+            errcode = self.libplugin.authenticate_credentials_file()
+        if errcode:
+            cmd_out = "token: %s" % self.libplugin.get_token()
+            self.r(0, cmd_out, INFO)
+        else:
+            cmd_out = ("cannot authenticate using credentials file")
+            self.r(1, cmd_out, ERROR)
+            return False
+    
+    def complete_credentials(self, text, line, begidx, endidx):
+        params = ['file:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
 
     def do_exit(self,*args):
         return True
@@ -107,48 +146,38 @@ class Cmd_auth(Plugin, cmd.Cmd):
         
         Parameters:
         
-        identity_type = 'rackspace'    (default)
-        username
         apikey
-        region                         (default: pyrax.default_region)
+        username
+        identity_type    (default: rackspace)
+        region           (default: pyrax.default_region)
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        _identity_type = 'rackspace'
-        _username = None
-        _apikey = None
-        _region = self.libplugin.default_region()
-        # parsing parameters
-        if 'identity_type' in d_kv.keys():
-            _identity_type = d_kv['identity_type']
-        else:
-            logging.info("identity_type: %s (default)" % _identity_type)
-        if 'username' in d_kv.keys():
-            _username = d_kv['username']
-        else:
-            logging.error("missing username")
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'apikey', 'required':True},
+            {'name':'username', 'required':True},
+            {'name':'identity_type', 'default':'rackspace'},
+            {'name':'region', 'default':self.libplugin.default_region()}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        if 'apikey' in d_kv.keys():
-            _apikey = d_kv['apikey']
-        else:
-            logging.error("missing apikey")
-            return False
-        if 'region' in d_kv.keys():
-            _region = d_kv['region']
+        self.r(0, retmsg, INFO)     # everything's ok
         
-        logging.info('login - indentity_type:%s, username=%s, apikey=%s, '
-                     'region=%s' %
-                     (_identity_type, _username, _apikey, _region))
         try:
-            self.libplugin.authenticate_login(identity_type = _identity_type,
-                                                  username = _username,
-                                                  apikey = _apikey,
-                                                  region = _region)
+            self.libplugin.authenticate_login(
+                apikey = self.kvarg['apikey'],
+                username = self.kvarg['username'],
+                identity_type = self.kvarg['identity_type'],
+                region = self.kvarg['region'],
+            )
+            cmd_out  = ('login - indentity_type:%s, username=%s, apikey=%s, '
+                        'region=%s' % 
+                        (self.kvarg['identity_type'], self.kvarg['username'],
+                         self.kvarg['apikey'], self.kvarg['region']))
+            self.r(0, cmd_out, INFO)
         except:
             tb = traceback.format_exc()
-            logging.error(tb)
+            self.r(1, tb, ERROR)
     
     def complete_login(self, text, line, begidx, endidx):
         params = ['identity_type:', 'username:', 'apikey:', 'region:']
@@ -172,7 +201,8 @@ class Cmd_auth(Plugin, cmd.Cmd):
         print token for current session
         '''
         if self.libplugin.is_authenticated():
-            logging.info("token: %s" % self.libplugin.get_token())
+            cmd_out = "token: %s" % self.libplugin.get_token()
+            self.r(0, cmd_out, INFO)
     
     def do_token(self, line):
         '''
@@ -180,52 +210,34 @@ class Cmd_auth(Plugin, cmd.Cmd):
         
         Parameters:
         
-        identity_type
-        region
+        identity_type    (default: rackspace)
+        region           (default: LON)
         tenantId
         token
         '''
-        logging.debug("line: %s" % line)
-        d_kv = kvstring_to_dict(line)
-        logging.debug("kvs: %s" % d_kv)
-        # default values
-        _identity_type = None
-        _region = None
-        _tenantId = None
-        _token = None
-        if 'identity_type' in d_kv.keys():
-            _identity_type = d_kv['identity_type']
-        else:
-            logging.error("missing identity_type")
+        retcode, retmsg = self.kvargcheck(
+              {'name':'identity_type', 'default':'rackspace'},
+              {'name':'region', 'default':'LON'},
+              {'name':'tenantId', 'required':True},
+              {'name':'token', 'required':True}
+        )
+        if not retcode:
+            self.r(1, retmsg, ERROR)
             return False
-        if 'region' in d_kv.keys():
-            _region = d_kv['region']
-        else:
-            logging.error("missing region")
-            return False
-        # parsing parameters
-        if 'tenantId' in d_kv.keys():
-            _tenantId = d_kv['tenantId']
-        else:
-            logging.error("missing tenantId")
-            return False
-        if 'token' in d_kv.keys():
-            _token = d_kv['token']
-        else:
-            logging.error("missing token")
-            return False
-        #
-        print "-" * 10
-        print _tenantId, _token
-        logging.info('login - tenantId=%s, token=%s' %
-                     (_tenantId, _token))
+        self.r(0, retmsg, INFO)
         try:
-            self.libplugin.authenticate_token(token=_token, tenantId=_tenantId,
-                                              region=_region,
-                                              identity_type=_identity_type)
+            self.libplugin.authenticate_token(
+                identity_type=self.kvarg['identity_type'],
+                region=self.kvarg['region'],
+                tenantId=self.kvarg['tenantId'],
+                token=self.kvarg['token'],
+            )
+            cmd_out = ('login - tenantId=%s, token=%s' %
+                       (self.kvarg['tenantId'], self.kvarg['token']))
+            self.r(0, cmd_out, INFO)
         except:
             tb = traceback.format_exc()
-            logging.error(tb)
+            self.r(1, tb, ERROR)
     
     def complete_token(self, text, line, begidx, endidx):
         params = ['identity_type', 'region', 'tenantId', 'token']

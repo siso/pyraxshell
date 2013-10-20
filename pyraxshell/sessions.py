@@ -15,12 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
-from db import DB
 import logging
+
+from db import DB
 from configuration import Configuration
-from utility import get_uuid
-from singleton import Singleton
 from globals import log_levels  # @UnresolvedImport
+from singleton import Singleton
+from utility import get_uuid
+
 
 @Singleton
 class Sessions(DB):
@@ -109,7 +111,10 @@ identity_type  TEXT NOT NULL
                       (cmd_in, cmd_out, retcode, log_level))
         sql = '''
 INSERT INTO commands (sid, cmd_in, cmd_out, retcode, log_level)
-VALUES ('%s', '%s', '%s', %d, '%s')''' % (self.sid, cmd_in, cmd_out, retcode,
+VALUES ('%s', '%s', '%s', %d, '%s')''' % (self.sid,
+                                          cmd_in.replace("'", "''"),
+                                          cmd_out.replace("'", "''"),
+                                          retcode,
                                           log_levels[log_level])
         logging.debug('sql: \'%s\'' % sql)
         self.query(sql)

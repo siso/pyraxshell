@@ -16,17 +16,18 @@
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
 import os.path
+
 import Queue
 
 
-# home directory
-HOME_DIR = os.path.expanduser('~/.pyraxshell')
-
-# SQLite database, public ip addresses history
-SQLITE_DB = os.path.expanduser('~/.pyraxshell/db.sqlite3')
+# ########################################
+# FILES and DIRS
 
 # main configuration file
 CONFIG_FILE = os.path.expanduser('~/.pyraxshell/pyraxshell.conf')
+
+# home directory
+HOME_DIR = os.path.expanduser('~/.pyraxshell')
 
 # logging configuration file
 LOG_CONF_FILE = os.path.expanduser('~/.pyraxshell/logging.conf')
@@ -34,7 +35,14 @@ LOG_CONF_FILE = os.path.expanduser('~/.pyraxshell/logging.conf')
 # log file
 LOG_FILE = os.path.expanduser('~/.pyraxshell/pyraxshell.log')
 
-# log levels
+# SQLite database, public ip addresses history
+SQLITE_DB = os.path.expanduser('~/.pyraxshell/db.sqlite3')
+
+# files which contains pyraxshell version of configuration
+VERSION_FILE = os.path.expanduser('~/.pyraxshell/version')
+
+# ########################################
+# LOG LEVELS
 DEBUG = 0
 INFO = INFORMATION = 1
 WARN = WARNING = 2
@@ -42,6 +50,9 @@ ERROR = 3
 CRITICAL = 4
 log_levels = (DEBUG, INFO, WARN, ERROR, CRITICAL)
 
-
-# message queue
+# ########################################
+# MESSAGE QUEUE
 msg_queue = Queue.Queue()
+
+# polling time in seconds
+POLL_TIME = 30

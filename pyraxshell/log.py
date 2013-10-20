@@ -17,30 +17,18 @@
 
 import logging  # @UnusedImport
 import logging.config
-import traceback
 import os.path
+import traceback
+
 from globals import LOG_CONF_FILE
 
-
-class Log:
+def check_config_file():
     '''
-    Logging facility
+    search logging configuration file, write it if missing
     '''
-
-
-    def __init__(self):
-        '''
-        Constructor
-        '''
-        self.check_config_file()
-
-    def check_config_file(self):
-        '''
-        search logging configuration file, write it if missing
-        '''
-        if not os.path.isfile(LOG_CONF_FILE):
-            with open(LOG_CONF_FILE, 'w') as f:
-                log_cfg = '''
+    if not os.path.isfile(LOG_CONF_FILE):
+        with open(LOG_CONF_FILE, 'w') as f:
+            log_cfg = '''
 [loggers]
 keys=root
 
@@ -74,23 +62,28 @@ datefmt=
 format=%(message)s (%(levelname)s)
 datefmt=
 '''
-                f.write(log_cfg)
-                f.flush()
+            f.write(log_cfg)
+            f.flush()
 
-    def start(self):
-        try:
-            this_dir, this_filename = os.path.split(__file__)  # @UnusedVariable
-            log_config_file_locations = [LOG_CONF_FILE]
-            log_config_file = None    
-            for f in log_config_file_locations:
-                if os.path.exists(os.path.expanduser(f)):
-                    logging.debug("found log config file: %s" %
-                                  os.path.expanduser(f))
-                    log_config_file = os.path.expanduser(f)
-                    logging.config.fileConfig(log_config_file)
-            if log_config_file == None:
-                logging.warn('could not find log config file (default locations: \'%s\')'
-                             % log_config_file_locations)
-        except:
-            print traceback.format_exc()
-        
+def start_logging():
+    '''
+    start logging facility, write default configuration file if missing 
+    '''
+    check_config_file()
+    try:
+        this_dir, this_filename = os.path.split(__file__)  # @UnusedVariable
+        log_config_file_locations = [LOG_CONF_FILE]
+        log_config_file = None    
+        for f in log_config_file_locations:
+            if os.path.exists(os.path.expanduser(f)):
+                logging.debug("found log config file: %s" %
+                              os.path.expanduser(f))
+                log_config_file = os.path.expanduser(f)
+                logging.config.fileConfig(log_config_file)
+        if log_config_file == None:
+            logging.warn('could not find log config file (default locations: \'%s\')'
+                         % log_config_file_locations)
+            return False
+        return True
+    except:
+        print traceback.format_exc()

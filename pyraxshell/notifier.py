@@ -15,10 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
-import time
 import threading
-from utility import print_top_right
+import time
+
 from globals import msg_queue
+from utility import print_top_right
+
 
 class Notifier(threading.Thread):
     '''

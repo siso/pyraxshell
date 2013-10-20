@@ -15,14 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
+from utility import l
 
-class Libpyraxshell:
-    '''
-    pyraxshell library
-    '''
 
-    def __init__(self):
+class Lib():
+    
+    def r(self, retcode, msg, log_level):
         '''
-        Constructor
+        record Session command input/output to 'commands' table, and
+        logging message facility
         '''
-        pass
+        l('', retcode, msg, log_level)
+#         Sessions.Instance().insert_table_commands('' # @UndefinedVariable
+#                                                   , msg, retcode, log_level)

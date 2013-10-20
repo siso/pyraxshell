@@ -16,13 +16,13 @@
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
 import cmd
+import imp
 import logging  # @UnusedImport
 import os.path  # @UnusedImport
-from utility import *  # @UnusedWildImport
-import imp
-# import plugins  # @UnusedImport
-from configuration import Configuration
+
 from plugins.plugin import Plugin
+from utility import *  # @UnusedWildImport
+
 
 class Cmd_Pyraxshell(Plugin, cmd.Cmd):
     """
@@ -41,6 +41,12 @@ class Cmd_Pyraxshell(Plugin, cmd.Cmd):
         self.load_plugins()
         # cmd as singleton
         self.cfg = Configuration.Instance()  # @UndefinedVariable
+        
+        # no 'Cmd' output in non-interactive mode
+        interactive = os.isatty(0)
+        if not interactive:
+            f = open(os.devnull, 'w')
+            sys.stdout = f
 
     def do_EOF(self, line):
         '''
@@ -123,6 +129,31 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
         l = sorted(self.plugin_names)
         logging.info("loaded plugins: %s" % ', '.join([p for p in l]))
     
+    def do_log_level(self, line):
+        '''
+        set log level
+        '''
+        log_levels = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+        if self.arg.upper() in log_levels:
+            l = logging.getLogger()
+            for h in l.handlers:
+                h.setLevel(self.arg.upper())
+        else:
+            cmd_out = 'log level can only be: %s' % ', '.join([l for l in
+                                                               log_levels])
+            self.r(0, cmd_out, WARN)
+    
+    def complete_log_level(self, text, line, begidx, endidx):
+        params = ['debug', 'info', 'warning', 'error', 'critical']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
+    
     def do_reload_plugins(self, line):
         '''
         manually load plugins
@@ -199,7 +230,7 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
         import plugins.libauth
         pyrax_default_config_file = os.path.expanduser('~/.pyrax.cfg')
         if self.cfg.username != None and self.cfg.api_key != None:
-# TODO --
+            # authenticating with login
             logging.debug("authenticating with login username:%s, apikey:%s" %
                           (self.cfg.username, self.cfg.api_key))
             try:
@@ -207,13 +238,23 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
                  (self.cfg.identity_type, self.cfg.username,
                   self.cfg.api_key, self.cfg.region))
             except:
-                logging.warn('cannot login with %s' %
-                             pyrax_default_config_file)
+                cmd_out = 'cannot login with %s' % pyrax_default_config_file
+                self.r(1, cmd_out, ERROR)
             logging.debug('authenticated as \'%s@%s\' in \'%s\'' %
                          (self.cfg.username, self.cfg.identity_type,
                           self.cfg.region))
-        # try to authenticate automatically if '~/.pyrax.cfg' exists
+        elif self.cfg.token != None:
+            # authenticating with token
+            logging.debug("authenticating with token:%s" % self.cfg.token)
+            try:
+                (plugins.libauth.LibAuth().authenticate_token
+                 (self.cfg.token, self.cfg.tenant_id, self.cfg.region,
+                  self.cfg.identity_type))
+            except:
+                tb = traceback.format_exc()
+                self.r(1, tb, ERROR)
         elif os.path.isfile(pyrax_default_config_file):
+            # try to authenticate automatically if '~/.pyrax.cfg' exists
             try:
                 plugins.libauth.LibAuth().authenticate_credentials_file(pyrax_default_config_file)
             except:

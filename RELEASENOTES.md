@@ -1,6 +1,31 @@
 Release notes for pyraxshell
 =======
 
+## 2013.10.20 - Version 0.2.5
+  * Added logging to file/db feature
+  * Lib/Plugin_Auth log to file/db (Plugin.r())
+  * Added non verbose logging in non-interactive mode
+  * Added authentication with token
+  * Lib/Plugin_Databases log to file/db (Plugin.r())
+  * Lib/Plugin_Dns log to file/db (Plugin.r())
+  * Lib/Plugin_Loadbalancers log to file/db (Plugin.r())
+  * Lib/Plugin_Servers log to file/db (Plugin.r())
+  * Lib/Plugin_Services log to file/db (Plugin.r())
+  * Added 'argparse' and 'kvargcheck' to 'Plugin' class
+  * Enhanced 'Plugin.kvargcheck()', now can default missing params
+  * Plugin_Auth uses 'Plugin.kvargcheck()'
+  * Re-ordered imports in *.py files
+  * Plugin_Databases uses 'Plugin.kvargcheck()'
+  * Plugin_DNS uses 'Plugin.kvargcheck()'
+  * Plugin_Loadbalancers uses 'Plugin.kvargcheck()'
+  * Plugin_Servers uses 'Plugin.kvargcheck()'
+  * Plugin_Services uses 'Plugin.kvargcheck()'
+  * Added support for custom path to credential file
+  * Added application version checking
+  * Added ANSI colours support
+  * Fixed issue # 4
+  * Added changing log level at run-time support
+
 ## 2013.09.29 - Version 0.2.4
   * Added SIGINT/SIGTERM handler to stop threads gracefully
   * Added Notifier (a threaded message queue system)

@@ -15,11 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
-import pyrax
 import logging
+import pyrax
 import threading
 import time
-from globals import msg_queue
+
+from globals import msg_queue, INFO, POLL_TIME
 
 
 class InstanceCreatorThread (threading.Thread):
@@ -27,7 +28,7 @@ class InstanceCreatorThread (threading.Thread):
     thread to create a Cloud Databases instance
     '''
     
-    def __init__(self, _name, flavor_id, volume, poll_time=30):
+    def __init__(self, _name, flavor_id, volume, poll_time=POLL_TIME):
         '''
         Constructor
         
@@ -70,6 +71,9 @@ class InstanceCreatorThread (threading.Thread):
                 logging.debug('server \'%s\', status:%s' % (cdbi.name,
                                                             cdbi.status))
             msg_queue.put('db instance \'%s\': %s' % (cdbi.name, cdbi.status))
+        cdbi.get()
+        msg = 'server \'%s\', status:%s' % (cdbi.name, cdbi.status)
+        self.r(0, msg, INFO)
 
 
 class LibDatabases(object):

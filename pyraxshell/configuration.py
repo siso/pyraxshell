@@ -17,10 +17,11 @@
 
 import argparse
 import logging
+import os.path
+
 from singleton import Singleton
 import ConfigParser
 from globals import CONFIG_FILE
-import os.path
 
 
 @Singleton
@@ -61,8 +62,7 @@ class Configuration:
         config_file = CONFIG_FILE
         if not os.path.isfile(config_file):
             logging.debug('creating default config file \'%s\'' % config_file)
-            cfg = '''
-[main]
+            cfg = '''[main]
 verbose = false
 
 [pyrax]
@@ -92,6 +92,15 @@ no_verify_ssl = False
         parser.add_argument('-i', '--identity-type',
                             help='identity type (default: \'rackspace\'',
                             default='rackspace')
+        parser.add_argument('-l', '--log-level', required=False,
+                            help=('set log level (possible values: DEBUG, INFO,'
+                                  ' WARNING, ERROR, CRITICAL)'
+                                  ' (default: INFO)'),
+                            choices=['DEBUG', 'INFO', 'WARNING', 'ERROR',
+                                     'CRITICAL',
+                                     'debug', 'info', 'warning', 'error',
+                                     'critical']#, default='INFO'
+                            )
         parser.add_argument('--pyrax-http-debug', nargs='?', const=True,
                             type=bool,
                             help = 'set pyrax http_debug on (default: False)')
@@ -103,11 +112,13 @@ no_verify_ssl = False
                             choices=['DFW', 'ORD', 'LON', 'SYD'],
 #                             default=pyrax.default_region
                             default='LON')
+        parser.add_argument('--tenant-id', help='Authentication tenant id')
+        parser.add_argument('-t', '--token', help='Authentication token')
         parser.add_argument('-u', '--username', help='Authentication username')
         parser.add_argument("-v", "--verbose", nargs='?', const=True,
-                            help="verbose output (default: False)")
+                            help="verbose output (default: False) "
+                            "(shortcut for --log-level DEBUG)")
         self.args = parser.parse_args()
-        logging.debug('username: %s', self.args.username)
 
     
     # ########################################
@@ -131,6 +142,12 @@ no_verify_ssl = False
     @property
     def interactive(self):
         return self.interactive
+    
+    @property
+    def log_level(self):
+        if self.args.log_level == None:
+            return None
+        return self.args.log_level.upper()
 
     # --pyrax-http-debug (True)
     @property
@@ -152,6 +169,16 @@ no_verify_ssl = False
     @property
     def region(self):
         return self.args.region
+    
+    # --tenant-id
+    @property
+    def tenant_id(self):
+        return self.args.tenant_id
+    
+    # -t, --token
+    @property
+    def token(self):
+        return self.args.token
     
     # -u, --username
     @property
@@ -176,9 +203,11 @@ no_verify_ssl = False
                              'identity-type:%s' % self.identity_type,
                              'interactive:%s' % self.interactive,
                              'identity-type:%s' % self.identity_type,
+                             'log_level:%s' % self.log_level,
                              'pyrax-http-debug:%s' % self.pyrax_http_debug,
                              'pyrax_no_verify_ssl:%s' % self.pyrax_no_verify_ssl,
                              'region:%s' % self.region,
+                             'token:%s' % self.token,
                              'username:%s' % self.username,
                              'verbose:%s' % self.verbose,
                              ])))

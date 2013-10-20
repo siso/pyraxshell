@@ -3,9 +3,9 @@
 # thanks to https://gist.github.com/jtriley/1108174
 
 import os
+import platform
 import shlex
 import struct
-import platform
 import subprocess
  
  

@@ -15,12 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
+import logging  # @UnusedImport
 import sys
 import terminalsize
-import logging  # @UnusedImport
-from globals import *  # @UnusedWildImport
-import uuid
 import threading
+import traceback
+import uuid
+
+from ansicolours import ANSIColours
+from configuration import Configuration
+from globals import *  # @UnusedWildImport
 
 
 def check_dir_home():
@@ -45,8 +49,23 @@ def check_dir(directory):
             logging.warn("error creating directory '%s'")
             raise exc
 
+def get_ip_family(address):
+    '''
+    obtain the address family an IP belongs to
+    '''
+    if is_ipv4(address):
+        return 'ipv4'
+    elif is_ipv6(address):
+        return 'ipv6'
+    return None
+
+def get_uuid():
+    return uuid.uuid4()
+
 def kvstring_to_dict(kvs):
     '''
+    DEPRECATED - use 'plugins.Plugin._kvarg' instead
+    
     transform a key-value-string to dictionary
     key-value separator can be ':' or '=', even mixed!
     
@@ -62,7 +81,8 @@ def kvstring_to_dict(kvs):
             kv = token.split(':')
             d_out[kv[0]] = kv[1]
     except:
-        logging.error('cannot parse key-value-string')
+        tb = traceback.format_exc()
+        logging.error(tb)
     return d_out
 
 def is_ipv4(address):
@@ -87,18 +107,51 @@ def is_ipv6(address):
     except socket.error:
         return False
 
-def get_ip_family(address):
+def l(cmd, retcode, msg, log_level):
     '''
-    obtain the address family an IP belongs to
+    logging message facility which logs and returns log message
+    
+    cmd        command-line with params
+    retcode    command return-code
+    msg        informative message
+    log_level  log level of the message
     '''
-    if is_ipv4(address):
-        return 'ipv4'
-    elif is_ipv6(address):
-        return 'ipv6'
-    return None
-
-def get_uuid():
-    return uuid.uuid4()
+    logging.debug("[IN] %s" % cmd)
+    logging.debug("[OUT] %s, log_level:%d" % (msg, log_level))
+    interactive = Configuration.Instance().interactive  # @UndefinedVariable
+    if interactive:
+        c = ANSIColours.Instance()  # @UndefinedVariable
+    if log_level == DEBUG:
+        if not interactive:
+            msg = "0|%s" % msg
+        else:
+            msg = "%s%s%s" % (c.get('white'), msg, c.endc)
+        logging.debug(msg)
+    if log_level == INFO:
+        if not interactive:
+            msg = "0|%s" % msg
+        else:
+            msg = "%s%s%s" % (c.get('blue'), msg, c.endc)
+        logging.info(msg)
+    if log_level == WARN:
+        if not interactive:
+            msg = "0|%s" % msg
+        else:
+            msg = "%s%s%s" % (c.get('magenta'), msg, c.endc)
+        logging.warn(msg)
+    if log_level == ERROR:
+        if not interactive:
+            msg = "1|%s" % msg
+        else:
+            msg = "%s%s%s" % (c.get('red'), msg, c.endc)
+        logging.error(msg)
+    if log_level == CRITICAL:  # @UndefinedVariable
+        if not interactive:
+            msg = "1|%s" % msg
+        else:
+            msg = "%s%s%s" % (c.get('red', True), msg, c.endc)
+        logging.critical(msg)
+    return msg
 
 def print_dict(d, indent=0, indent_string="--"):
     '''recursively print nested dictionaries''' 
@@ -117,13 +170,13 @@ def print_top_right(text):
     '''
     print text to top right in terminal
     '''
+#TODO - display multi-line messages
     (width, heigth) = terminalsize.get_terminal_size()  # @UnusedVariable
     text_len = len(text)
     text = '| %s |' % text
     print_there(1, width - len(text) + 1, '+%s+' % ('-' * (text_len + 2)))
     print_there(2, width - len(text) + 1, text)
     print_there(3, width - len(text) + 1, '+%s+' % ('-' * (text_len + 2)))
-
 
 def terminate_threads():
     '''
@@ -136,4 +189,3 @@ def terminate_threads():
             logging.debug('terminating thread: %s' % t.getName())
             t.terminate = True
     sys.exit(0)
-    
