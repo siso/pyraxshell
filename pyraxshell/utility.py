@@ -22,6 +22,7 @@ import threading
 import traceback
 import uuid
 
+from ansicolours import ANSIColours
 from configuration import Configuration
 from globals import *  # @UnusedWildImport
 
@@ -118,25 +119,37 @@ def l(cmd, retcode, msg, log_level):
     logging.debug("[IN] %s" % cmd)
     logging.debug("[OUT] %s, log_level:%d" % (msg, log_level))
     interactive = Configuration.Instance().interactive  # @UndefinedVariable
+    if interactive:
+        c = ANSIColours.Instance()  # @UndefinedVariable
     if log_level == DEBUG:
         if not interactive:
             msg = "0|%s" % msg
+        else:
+            msg = "%s%s%s" % (c.get('white'), msg, c.endc)
         logging.debug(msg)
     if log_level == INFO:
         if not interactive:
             msg = "0|%s" % msg
+        else:
+            msg = "%s%s%s" % (c.get('blue'), msg, c.endc)
         logging.info(msg)
     if log_level == WARN:
         if not interactive:
             msg = "0|%s" % msg
+        else:
+            msg = "%s%s%s" % (c.get('magenta'), msg, c.endc)
         logging.warn(msg)
     if log_level == ERROR:
         if not interactive:
             msg = "1|%s" % msg
+        else:
+            msg = "%s%s%s" % (c.get('red'), msg, c.endc)
         logging.error(msg)
     if log_level == CRITICAL:  # @UndefinedVariable
         if not interactive:
             msg = "1|%s" % msg
+        else:
+            msg = "%s%s%s" % (c.get('red', True), msg, c.endc)
         logging.critical(msg)
     return msg
 

@@ -129,6 +129,31 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
         l = sorted(self.plugin_names)
         logging.info("loaded plugins: %s" % ', '.join([p for p in l]))
     
+    def do_log_level(self, line):
+        '''
+        set log level
+        '''
+        log_levels = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+        if self.arg.upper() in log_levels:
+            l = logging.getLogger()
+            for h in l.handlers:
+                h.setLevel(self.arg.upper())
+        else:
+            cmd_out = 'log level can only be: %s' % ', '.join([l for l in
+                                                               log_levels])
+            self.r(0, cmd_out, WARN)
+    
+    def complete_log_level(self, text, line, begidx, endidx):
+        params = ['debug', 'info', 'warning', 'error', 'critical']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
+    
     def do_reload_plugins(self, line):
         '''
         manually load plugins

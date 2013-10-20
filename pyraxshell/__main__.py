@@ -15,22 +15,20 @@
 # You should have received a copy of the GNU General Public License
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
-import log
 import logging
 import pyrax
 import signal
 import sys
 
+import version
 from db import DB
 from configuration import Configuration
-from globals import CONFIG_FILE
+from globals import CONFIG_FILE, HOME_DIR, VERSION_FILE  # @UnusedImport
+from log import start_logging
 from notifier import Notifier
 from pyraxshell import Cmd_Pyraxshell
 from sessions import Sessions
 from utility import check_dir_home, terminate_threads
-from globals import VERSION_FILE
-import version
-from globals import HOME_DIR
 
 
 def main():
@@ -42,8 +40,6 @@ def main():
         DB()
         Sessions.Instance().create_table_sessions()  # @UndefinedVariable
         Sessions.Instance().create_table_commands()  # @UndefinedVariable
-        # create default logging configuration file 
-        log.Log()
         # create default configuration file
         Configuration.Instance()  # @UndefinedVariable
         sys.exit(0)
@@ -55,7 +51,7 @@ def main():
     
     # ########################################
     # LOGGING
-    log.Log().start()
+    start_logging()
     logging.debug('starting')
     
     # ########################################
@@ -66,6 +62,12 @@ def main():
     # override settings with CLI params
     cfg.parse_cli(sys.argv)
     logging.debug("configuration: %s" % cfg)
+    
+    # set user's log level if specified 
+    if not Configuration.Instance().log_level == None:  # @UndefinedVariable
+        l = logging.getLogger()
+        for h in l.handlers:
+            h.setLevel(cfg.log_level)
     
     # ########################################
     # START SESSION

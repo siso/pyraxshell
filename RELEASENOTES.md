@@ -1,7 +1,7 @@
 Release notes for pyraxshell
 =======
 
-## 2013.XX.XX - Version 0.2.5
+## 2013.10.20 - Version 0.2.5
   * Added logging to file/db feature
   * Lib/Plugin_Auth log to file/db (Plugin.r())
   * Added non verbose logging in non-interactive mode
@@ -22,6 +22,9 @@ Release notes for pyraxshell
   * Plugin_Services uses 'Plugin.kvargcheck()'
   * Added support for custom path to credential file
   * Added application version checking
+  * Added ANSI colours support
+  * Fixed issue # 4
+  * Added changing log level at run-time support
 
 ## 2013.09.29 - Version 0.2.4
   * Added SIGINT/SIGTERM handler to stop threads gracefully

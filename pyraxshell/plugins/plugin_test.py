@@ -22,7 +22,7 @@ import threading
 import time
 import uuid
 
-from globals import msg_queue, WARNING, INFO, ERROR
+from globals import msg_queue, DEBUG, INFO, WARNING, ERROR, CRITICAL
 from plugin import Plugin 
 from utility import print_top_right
 
@@ -79,6 +79,16 @@ class TestPlugin(Plugin, cmd.Cmd):
             self.r(1, retmsg, ERROR)
             return False
         self.r(0, retmsg, INFO)
+    
+    def do_log(self, line):
+        '''
+        test logging system
+        '''
+        self.r(0, 'debug', DEBUG)
+        self.r(0, 'info', INFO)
+        self.r(0, 'warn', WARNING)
+        self.r(0, 'error', ERROR)
+        self.r(0, 'critical', CRITICAL)
 
 
 class TestThread (threading.Thread):
