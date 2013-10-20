@@ -21,7 +21,7 @@ import os.path
 from globals import HOME_DIR
 from globals import VERSION_FILE
 
-VERSION='0.2.5'
+VERSION='0.2.6'
 
 def create_version_file():
     '''
