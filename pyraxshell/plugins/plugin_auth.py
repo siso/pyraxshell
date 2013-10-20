@@ -79,6 +79,34 @@ class Cmd_auth(Plugin, cmd.Cmd):
 #         '''
 # #TODO --
 #         logging.info('NOT IMPLEMENTED YET')
+
+    def do_account(self, line):
+        '''
+        authenticate using ACCOUNT_FILE
+        
+        @param alias    account alias (i.e.: name of stanza in ACCOUNT_FILE)
+        '''
+        try:
+            self.libplugin.authenticate_login(
+                **self.libplugin.get_account(self.arg))
+#                 identity_type = ,
+#                 username = None,
+#                 apikey = None,
+#                 region = pyrax.default_region)
+        except:
+            tb = traceback.format_exc()
+            self.r(1, tb, ERROR)
+    
+    def complete_account(self, text, line, begidx, endidx):
+        params = self.libplugin.list_accounts()
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
     
     def do_credentials(self, line):
         '''
@@ -139,6 +167,13 @@ class Cmd_auth(Plugin, cmd.Cmd):
         if self.libplugin.is_authenticated():
             retcode = 0
         self.r(retcode, 'authenticated', INFO)
+    
+    def do_list(self, line):
+        '''
+        list accounts defined in ACCOUNTS_FILE
+        '''
+        cmd_out = '\n'.join([a for a in self.libplugin.list_accounts()])
+        self.r(0, cmd_out, INFO)
     
     def do_login(self, line):
         '''

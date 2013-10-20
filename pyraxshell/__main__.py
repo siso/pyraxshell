@@ -21,6 +21,7 @@ import signal
 import sys
 
 import version
+from account import Account
 from db import DB
 from configuration import Configuration
 from globals import CONFIG_FILE, HOME_DIR, VERSION_FILE  # @UnusedImport
@@ -54,11 +55,17 @@ def main():
     start_logging()
     logging.debug('starting')
     
+#     from baseconfigfile import BaseConfigFile
+#     bcf = BaseConfigFile()
+    
+    # ########################################
+    # ACCOUNTS
+    accounts = Account.Instance()  # @UnusedVariable @UndefinedVariable
+    
+    # config file is read by 'BaseConfigFile' constructor 
     # ########################################
     # CONFIGURATION
     cfg = Configuration.Instance()  # @UndefinedVariable
-    # first read config file 
-    cfg.parse_config_file()
     # override settings with CLI params
     cfg.parse_cli(sys.argv)
     logging.debug("configuration: %s" % cfg)

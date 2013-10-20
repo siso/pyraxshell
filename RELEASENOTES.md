@@ -1,6 +1,10 @@
 Release notes for pyraxshell
 =======
 
+## 2013.10.20 - Version 0.2.6
+  * Added support for accounts file (novaclient format)
+  * Fixed issue #8
+
 ## 2013.10.20 - Version 0.2.5
   * Added logging to file/db feature
   * Lib/Plugin_Auth log to file/db (Plugin.r())
@@ -23,7 +27,7 @@ Release notes for pyraxshell
   * Added support for custom path to credential file
   * Added application version checking
   * Added ANSI colours support
-  * Fixed issue # 4
+  * Fixed issue #4
   * Added changing log level at run-time support
 
 ## 2013.09.29 - Version 0.2.4
