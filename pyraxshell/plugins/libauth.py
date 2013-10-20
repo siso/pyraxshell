@@ -22,6 +22,7 @@ from prettytable import PrettyTable
 import pyrax
 import traceback
 
+from account import Account
 from globals import ERROR, INFO, WARN, DEBUG
 from plugins.lib import Lib
 
@@ -30,6 +31,31 @@ class LibAuth(Lib):
     '''
     pyraxshell authenticate library
     '''
+    
+    # ########################################
+    # ACCOUNTS FILE
+    
+    def get_account(self, stanza):
+        '''
+        return dictionary based on stanza alias from ACOUNTS_FILE
+        '''
+        out = {}
+        a = Account.Instance()
+        a.parse_config_file()
+        out['identity_type'] = a.get_param(stanza, 'OS_AUTH_SYSTEM')
+        out['username'] = a.get_param(stanza, 'OS_USERNAME')
+        out['apikey'] = a.get_param(stanza, 'OS_PASSWORD')
+        out['region'] = a.get_param(stanza, 'OS_REGION_NAME')
+        return out
+    
+    def list_accounts(self):
+        '''
+        return a list of accounts defined in ACCOUNTS_FILE
+        '''
+        a = Account.Instance()
+        a.parse_config_file()
+        return a.list_stanzas()
+    
     
     # ########################################
     # AUTHENTICATE

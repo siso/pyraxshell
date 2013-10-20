@@ -19,13 +19,13 @@ import argparse
 import logging
 import os.path
 
-from singleton import Singleton
-import ConfigParser
+from baseconfigfile import BaseConfigFile
 from globals import CONFIG_FILE
+from singleton import Singleton
 
 
 @Singleton
-class Configuration:
+class Configuration(BaseConfigFile):
     '''
     CLI params and configuration file settings
     
@@ -36,32 +36,18 @@ class Configuration:
     def __init__(self):
         # check if it is running interactively
         self.interactive = os.isatty(0)
-        self.check_config_file()
+        self._file = CONFIG_FILE
+        BaseConfigFile.__init__(self, self._file)
     
     # ########################################
     # CONFIGURATION FILE
-    
-    def parse_config_file(self):
-        '''
-        parse configuration file
-        '''
-        self.check_config_file()
-        self.config = ConfigParser.ConfigParser()
-        self.config.read(CONFIG_FILE)
-        
-    def get_param(self, section, param, raw=1):
-        """
-        fetch a parameter from configuration file
-        """
-        return self.config.get(section, param, raw)
     
     def check_config_file(self):
         '''
         search config file, write it if missing
         '''
-        config_file = CONFIG_FILE
-        if not os.path.isfile(config_file):
-            logging.debug('creating default config file \'%s\'' % config_file)
+        if not os.path.isfile(self._file):
+            logging.debug('creating default config file \'%s\'' % self._file)
             cfg = '''[main]
 verbose = false
 
@@ -69,11 +55,11 @@ verbose = false
 http_debug = False
 no_verify_ssl = False
 '''
-            with open(config_file, 'w') as f:
+            with open(self._file, 'w') as f:
                 f.write(cfg)
                 f.flush()
         else:
-            logging.debug('found default config file \'%s\'' % config_file)
+            logging.debug('found default config file \'%s\'' % self._file)
 
 
     # ########################################

@@ -23,6 +23,12 @@ import Queue
 # ########################################
 # FILES and DIRS
 
+# base pyraxshell dir
+BASE_DIR = os.path.expanduser('~/.pyraxshell')
+
+# accounts file
+ACCOUNTS_FILE = os.path.expanduser('~/.pyraxshell/accounts.conf')
+
 # main configuration file
 CONFIG_FILE = os.path.expanduser('~/.pyraxshell/pyraxshell.conf')
 
