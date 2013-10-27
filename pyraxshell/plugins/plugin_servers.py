@@ -410,7 +410,7 @@ class Cmd_servers(Plugin, cmd.Cmd):
                            for f in params
                             if f.startswith(text)
                             ]
-        return completions   
+        return completions
     
     def do_list_snapshots(self, line):
         '''

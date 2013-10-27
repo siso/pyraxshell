@@ -16,6 +16,7 @@
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
 import logging  # @UnusedImport
+from prettytable import PrettyTable
 import sys
 import terminalsize
 import threading
@@ -62,6 +63,44 @@ def get_ip_family(address):
 def get_uuid():
     return uuid.uuid4()
 
+def is_ipv4(address):
+    '''
+    check if address is valid IP v4
+    '''
+    import socket
+    try:
+        socket.inet_aton(address)
+        return True
+    except socket.error:
+        return False
+
+def is_ipv6(address):
+    '''
+    check if address is valid IP v6
+    '''
+    import socket
+    try:
+        socket.inet_pton(socket.AF_INET6, address)
+        return True
+    except socket.error:
+        return False
+
+def kv_dict_to_pretty_table(d):
+    '''
+    pretty-print dictionary by key-value with PrettyTable
+    
+    @param d dictionary to pretty-print
+    '''
+    try:
+        pt = PrettyTable(['key', 'value'])
+        [pt.add_row(i) for i in d.items()]
+        pt.align['key'] = 'l'
+        pt.align['value'] = 'r'
+        return pt
+    except:
+        l('', 1, traceback.extract_stack(), ERROR)
+        return False
+
 def kvstring_to_dict(kvs):
     '''
     DEPRECATED - use 'plugins.Plugin._kvarg' instead
@@ -85,27 +124,6 @@ def kvstring_to_dict(kvs):
         logging.error(tb)
     return d_out
 
-def is_ipv4(address):
-    '''
-    check if address is valid IP v4
-    '''
-    import socket
-    try:
-        socket.inet_aton(address)
-        return True
-    except socket.error:
-        return False
-
-def is_ipv6(address):
-    '''
-    check if address is valid IP v6
-    '''
-    import socket
-    try:
-        socket.inet_pton(socket.AF_INET6, address)
-        return True
-    except socket.error:
-        return False
 
 def l(cmd, retcode, msg, log_level):
     '''
@@ -153,6 +171,32 @@ def l(cmd, retcode, msg, log_level):
         logging.critical(msg)
     return msg
 
+def objects_to_pretty_table(objs, props):
+    '''
+    pretty-print objects with PrettyTable
+    
+    This function returns a PrettyTable object so further customisation
+    can be applied, without adding complexity here
+    
+    @param objs        objects to render as table
+    @param props       class properties to render as columns
+    @return            PrettyTable object
+    '''
+    # preliminary check
+    if not isinstance(objs[0], object):
+        l('', 1, 'expected objects list, but got  \'%s\'' % type(objs[0]), ERROR)
+        return False
+    # create a PrettyTable obj with those columns
+    pt = PrettyTable(props)
+    # populate PrettyTable
+    for o in objs:
+        try:
+            pt.add_row([ getattr(o,p) for p in props if hasattr(o, p) ])
+        except:
+            l('', 1, traceback.extract_stack(), ERROR)
+    return pt
+                
+
 def print_dict(d, indent=0, indent_string="--"):
     '''recursively print nested dictionaries''' 
     for k, v in d.items():
@@ -170,7 +214,7 @@ def print_top_right(text):
     '''
     print text to top right in terminal
     '''
-#TODO - display multi-line messages
+# TODO - display multi-line messages
     (width, heigth) = terminalsize.get_terminal_size()  # @UnusedVariable
     text_len = len(text)
     text = '| %s |' % text
