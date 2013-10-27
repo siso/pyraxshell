@@ -81,7 +81,8 @@ class Cmd_cloudfiles(Plugin, cmd.Cmd):
             pt.align[c] = 'r'
         pt.sortby = 'name'
         #
-        print pt
+#         print pt
+        self.r(0, pt, INFO)
     
     def complete_list_container(self, text, line, begidx, endidx):
         params = ['all']

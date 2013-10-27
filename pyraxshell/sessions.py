@@ -59,18 +59,18 @@ class Sessions(DB):
         username = ''
         if hasattr(self.cfg, 'username') and self.cfg.username != None:
             username = self.cfg.username
-        sql = ('''insert into sessions
-        (sid, username, apikey, token, region,identity_type)
-        values ('%s', '%s', '%s', '%s', '%s', '%s')''' %
-        (self.sid, username, api_key, token, region, identity_type))
-        logging.debug(sql)
-        self.query(sql)
+        sql = ('''\
+insert into sessions
+(sid, username, apikey, token, region,identity_type)
+values (?, ?, ?, ?, ?, ?)''')
+        data = (str(self.sid), username, api_key, token, region, identity_type)
+        self.query(sql, data)
 
     def create_table_commands(self):
         '''
         create 'commands' table
         '''
-        sql = '''
+        sql = '''\
 CREATE TABLE commands (
 id    INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 sid   TEXT,
@@ -82,8 +82,7 @@ log_level   TEXT NOT NULL,
 FOREIGN KEY(sid) REFERENCES sessions(id)
 );
 '''
-        logging.debug(sql)
-        self.query(sql)
+        self.query(sql, None)
         
     def create_table_sessions(self):
         '''
@@ -100,8 +99,7 @@ region         TEXT NOT NULL,
 identity_type  TEXT NOT NULL
 );
 '''
-        logging.debug(sql)
-        self.query(sql)
+        self.query(sql, None)
 
     def insert_table_commands(self, cmd_in, cmd_out, retcode, log_level):
         '''
@@ -109,12 +107,8 @@ identity_type  TEXT NOT NULL
         '''
         logging.debug('cmd_in:%s, cmd_out:%s, retcode:%d, log_level:%s' %
                       (cmd_in, cmd_out, retcode, log_level))
-        sql = '''
+        sql = '''\
 INSERT INTO commands (sid, cmd_in, cmd_out, retcode, log_level)
-VALUES ('%s', '%s', '%s', %d, '%s')''' % (self.sid,
-                                          cmd_in.replace("'", "''"),
-                                          cmd_out.replace("'", "''"),
-                                          retcode,
-                                          log_levels[log_level])
-        logging.debug('sql: \'%s\'' % sql)
-        self.query(sql)
+VALUES (?, ?, ?, ?, ?)'''
+        data = (str(self.sid), str(cmd_in), str(cmd_out), retcode, log_levels[log_level])
+        self.query(sql, data)

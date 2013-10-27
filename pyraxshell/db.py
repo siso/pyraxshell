@@ -48,14 +48,15 @@ class DB:
         self.__con.commit()
         self.__con.close()
     
-    def query(self, sql):
+    def query(self, sql, data):
         '''
         query db
         '''
-        logging.debug('sql:%s' % sql)
+        logging.debug('[sql:%s][data:%s]' %
+                      (sql, ','.join(['%s' % d for d in data])))
         try:
             cur = self.__con.cursor()
-            cur.execute(sql)
+            cur.execute(sql, data)
             self.__con.commit()
             return cur.fetchall()
         except:
