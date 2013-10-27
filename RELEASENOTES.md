@@ -1,6 +1,10 @@
 Release notes for pyraxshell
 =======
 
+## 2013.10.27 - Version 0.2.7
+  * SQLite queries with placeholders
+  * Added CloudFiles plugin
+
 ## 2013.10.20 - Version 0.2.6
   * Added support for accounts file (novaclient format)
   * Fixed issue #8

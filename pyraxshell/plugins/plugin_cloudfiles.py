@@ -17,6 +17,7 @@
 
 import cmd
 import logging
+import os.path
 from prettytable import PrettyTable
 import pyrax
 import traceback
@@ -58,23 +59,173 @@ class Cmd_cloudfiles(Plugin, cmd.Cmd):
         self.do_list_container(line)
     
     # ########################################
-    # CONTAINER
+    # CONTAINER AND OBJECTS
     
-    def do_list_container(self, line):
+    def do_delete(self, line):
         '''
-        list container
+        download container or object
+        
+        Usage:
+        
+            delete container/object
+            delete container recursive
+        
+        @param element    to delete
+        @param recursive  recursive (WARNING: NO WAY TO RESTORE DELETED OBJECTS)
+        '''
+        retcode = 0
+        if len(self.varg) == 0:
+            retcode = 1
+            retmsg = 'delete what?'
+            self.r(0, retmsg, WARN)
+            return False
+        element = self.varg[0]
+        if element.find('/') == -1:
+            # delete container
+            container_name = element
+            try:
+                container = self.cf.get_container(container_name)
+                if len(self.varg) == 2 and self.varg[1] == 'recursive':
+                    container.delete_all_objects()
+                container.delete()
+            except:
+                tb = traceback.format_exc()
+                self.r(1, tb, ERROR)
+                return False
+        else:
+            # delete object
+            (container_name, object_name) = self.varg[0].split('/', 1)
+            try:
+                object = self.cf.get_object(container_name, object_name)
+                object.delete()
+            except:
+                tb = traceback.format_exc()
+                self.r(1, tb, ERROR)
+                return False
+        
+#         (container_name, object_name) = self.varg[0].split('/', 1)
+#         dest_dir = self.varg[1]
+#         if not os.path.isdir(dest_dir):
+#             retmsg = 'destination directory \'%s\' does not exist' % dest_dir
+#             self.r(1, retmsg, ERROR)
+#             return False            
+#         dest_dir = self.varg[1]
+#         # select container
+#         o = self.cf.get_object(container_name, object_name)
+#         o.download(dest_dir)
+#         self.r(0, '\'%s\' downloaded' % self.varg[0], INFO)     # everything's ok
+        
+    
+    def complete_delete(self, text, line, begidx, endidx):
+        # not auto-completing 'recursive' as it is dangerous
+        params = []
+        if len(self.varg) == 1:
+            # autocomplete src
+            pass
+        elif len(self.varg) == 2:
+            # autocomplete dest
+            pass    
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
+    
+    def do_download(self, line):
+        '''
+        download object
+        
+        Usage:
+        
+            download container/virt/path/to/obj /local/dir
+        
+        @param src    source container/object
+        @param dest   destination directory
+        '''
+        retcode = 0
+        if len(self.varg) == 0:
+            retcode = 1
+            retmsg = 'src and dest missing'
+        elif len(self.varg) == 1:
+            retcode = 1
+            retmsg = 'dest missing'
+        if retcode == 1:
+            self.r(0, retmsg, WARN)
+            return False
+        (container_name, object_name) = self.varg[0].split('/', 1)
+        dest_dir = self.varg[1]
+        if not os.path.isdir(dest_dir):
+            retmsg = 'destination directory \'%s\' does not exist' % dest_dir
+            self.r(1, retmsg, ERROR)
+            return False            
+        dest_dir = self.varg[1]
+        # select container
+        o = self.cf.get_object(container_name, object_name)
+        o.download(dest_dir)
+        self.r(0, '\'%s\' downloaded' % self.varg[0], INFO)     # everything's ok
+        
+    
+    def complete_download(self, text, line, begidx, endidx):
+#         params = ['src:', 'dst:']
+        params = []
+        if len(self.varg) == 1:
+            # autocomplete src
+            pass
+        elif len(self.varg) == 2:
+            # autocomplete dest
+            pass    
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
+    
+    def do_list(self, line):
+        '''
+        list containers and objects
+        
+        Usage:
+        
+            list            -->    list containers
+            list CONTAINER  -->    list objects within CONTAINER
         
         @param all    displays all the properties
         '''
-        cc = self.cf.get_all_containers()
-        # properties to be displayed
-        props = ['name', 'object_count', 'total_bytes']
-        if self.arg == 'all':
-            props = ['name', 'object_count', 'total_bytes',
-                    'cdn_enabled', 'cdn_ios_uri', 'cdn_log_retention',
-                    'cdn_ssl_uri', 'cdn_streaming_uri', 'cdn_ttl', 'cdn_uri',]
-        # create a PrettyTable obj with those columns
-        pt = objects_to_pretty_table(cc, props)
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name':'columns', 'default':''}
+        )
+        if not retcode:             # something bad happened
+            self.r(1, retmsg, ERROR)
+            return False
+        self.r(0, retmsg, INFO)     # everything's ok
+        
+        if len(self.varg) >= 1:
+            container_name = self.varg[0]
+            container = self.cf.get_container(container_name)
+            oo = container.get_objects(full_listing=True)
+            props = ['name', 'content_type', 'etag', 'total_bytes']
+            if len(oo):
+                pt = objects_to_pretty_table(oo, props)
+            else:
+                self.r(0, "None", INFO)
+                return True
+        else:
+            cc = self.cf.get_all_containers()
+            # properties to be displayed
+            props = ['name', 'object_count', 'total_bytes']
+            if self.kvarg['columns'] == 'all':
+                props = ['name', 'object_count', 'total_bytes',
+                        'cdn_enabled', 'cdn_ios_uri', 'cdn_log_retention',
+                        'cdn_ssl_uri', 'cdn_streaming_uri', 'cdn_ttl', 'cdn_uri',]
+            # create a PrettyTable obj with those columns
+            pt = objects_to_pretty_table(cc, props)
         # PrettyTable style
         pt.align['name'] = 'l' 
         for c in props[1:]:
@@ -84,8 +235,9 @@ class Cmd_cloudfiles(Plugin, cmd.Cmd):
 #         print pt
         self.r(0, pt, INFO)
     
-    def complete_list_container(self, text, line, begidx, endidx):
-        params = ['all']
+    def complete_list(self, text, line, begidx, endidx):
+        params = ['columns:all']
+#         print text
         if not text:
             completions = params[:]
         else:
@@ -95,7 +247,62 @@ class Cmd_cloudfiles(Plugin, cmd.Cmd):
                             ]
         return completions
 
-
+    def do_upload(self, line):
+        '''
+        upload object
+        
+        Usage:
+        
+            upload /path/to/local/file container/virt/path/to/obj
+        
+        @param src    local file
+        @param dest   source container/object
+        '''
+        retcode = 0
+        if len(self.varg) == 0:
+            retcode = 1
+            retmsg = 'src and dest missing'
+        elif len(self.varg) == 1:
+            retcode = 1
+            retmsg = 'dest missing'
+        if retcode == 1:
+            self.r(0, retmsg, WARN)
+            return False
+        (container_name, object_name) = self.varg[1].split('/', 1)
+        local_filename = self.varg[0]
+        if not os.path.isfile(local_filename):
+            retmsg = 'local file \'%s\' does not exist' % local_filename
+            self.r(1, retmsg, ERROR)
+            return False
+        # select container
+        container = self.cf.get_container(container_name)
+        container.upload_file(local_filename, object_name)
+        # verify file checksum
+        checksum_local = pyrax.utils.get_checksum(local_filename)
+        checksum_remote = container.get_object(object_name).etag
+        if checksum_local == checksum_remote:
+            self.r(0, 'file uploaded successfully', INFO)
+        else:
+            self.r(1, 'error uploading file', ERROR)
+    
+    def complete_upload(self, text, line, begidx, endidx):
+#         params = ['src:', 'dst:']
+        params = []
+        if len(self.varg) == 1:
+            # autocomplete src
+            pass
+        elif len(self.varg) == 2:
+            # autocomplete dest
+            pass    
+        if not text:
+            completions = params[:]
+        else:
+            completions = [ f
+                           for f in params
+                            if f.startswith(text)
+                            ]
+        return completions
+    
     # ########################################
     # METADATA
     

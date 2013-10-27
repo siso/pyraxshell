@@ -171,6 +171,17 @@ def l(cmd, retcode, msg, log_level):
         logging.critical(msg)
     return msg
 
+def mkdir_p(path):
+    '''
+    implement "mkdir -p"
+    '''
+    try:
+        os.makedirs(path)
+        return True
+    except:
+        l('', 1, traceback.extract_stack(), ERROR)
+        return False
+
 def objects_to_pretty_table(objs, props):
     '''
     pretty-print objects with PrettyTable

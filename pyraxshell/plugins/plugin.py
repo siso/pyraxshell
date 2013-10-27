@@ -59,7 +59,7 @@ class Plugin(cmd.Cmd):
         check 'self.kvarg' against passed check rules ('*args')
         
         Args:
-            *args should be dictionaries as thefollowing:
+            *args should be dictionaries as the following:
         
                 {'name':'key-name', 'default|required':value}
         
@@ -144,7 +144,7 @@ class Plugin(cmd.Cmd):
             for token in arg.split():
                 # determine token type
                 p1 = re.compile('^[a-zA-Z0-9_]+:[a-zA-Z0-9_~/\.]+$')
-                p2 = re.compile('^[a-zA-Z0-9_]+$')
+                p2 = re.compile('^.+$')
                 p3 = re.compile('^[a-zA-Z0-9_]+:\$[a-zA-Z0-9_]+$')
                 if p1.match(token) or p3.match(token):
                     # 'a:b' or 'x:$y'
