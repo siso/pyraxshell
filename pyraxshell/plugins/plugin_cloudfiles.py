@@ -22,7 +22,7 @@ from prettytable import PrettyTable
 import pyrax
 import traceback
 
-from globals import *  # @UnusedWildImport
+from globals import INFO, WARNING, ERROR  # @UnusedWildImport @UnresolvedImport
 from plugin import Plugin
 from plugins.libcloudfiles import LibCloudfiles  # @UnresolvedImport
 from utility import kv_dict_to_pretty_table, objects_to_pretty_table  # @UnresolvedImport
@@ -52,14 +52,25 @@ class Cmd_cloudfiles(Plugin, cmd.Cmd):
     # ########################################
     # DEFAULT METHODS
     
-    def do_list(self, line):
-        '''
-        set default list method
-        '''
-        self.do_list_container(line)
+#     def do_list(self, line):
+#         '''
+#         set default list method
+#         '''
+#         self.do_list_container(line)
     
     # ########################################
     # CONTAINER AND OBJECTS
+    
+    def do_create(self, line):
+        '''
+        create container
+        
+        @param container    name of the container
+        '''
+        if not len(self.varg) == 1:
+            self.r(1, "please, specify container name", WARNING)
+            return False
+        self.cf.create_container(self.varg[0])
     
     def do_delete(self, line):
         '''
@@ -172,11 +183,11 @@ class Cmd_cloudfiles(Plugin, cmd.Cmd):
 #         params = ['src:', 'dst:']
         params = []
         if len(self.varg) == 1:
-            # autocomplete src
+            # autocomplete src 'container/object'
             pass
         elif len(self.varg) == 2:
             # autocomplete dest
-            pass    
+            print self.varg[1]
         if not text:
             completions = params[:]
         else:
@@ -195,16 +206,15 @@ class Cmd_cloudfiles(Plugin, cmd.Cmd):
             list            -->    list containers
             list CONTAINER  -->    list objects within CONTAINER
         
-        @param all    displays all the properties
+        @param columns    if 'all' then all the properties displayed
         '''
         # check and set defaults
         retcode, retmsg = self.kvargcheck(
-            {'name':'columns', 'default':''}
+            {'name':'columns', 'default':''},
         )
         if not retcode:             # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)     # everything's ok
         
         if len(self.varg) >= 1:
             container_name = self.varg[0]
@@ -246,6 +256,52 @@ class Cmd_cloudfiles(Plugin, cmd.Cmd):
                             if f.startswith(text)
                             ]
         return completions
+    
+    def do_make_public(self, line):
+        '''
+        make a container public
+        
+        Usage:
+        
+            make_public FOO [TTL]
+            
+        @param container    container name
+        @param ttl          Time-To-Live (default: 900s)
+        '''
+        if not len(self.varg) == 1 and not len(self.varg) == 2:
+            self.r(1, "Usage: make_public FOO [TTL]", WARNING)
+            return False
+        # set defaults
+        (_name, _ttl) = (self.varg[0], 900)
+        if len(self.varg) == 2:
+            _ttl = self.varg[1]
+        try:
+            self.cf.make_container_public(_name, _ttl)
+            self.r(0, 'ok', INFO)
+        except:
+            tb = traceback.format_exc()
+            self.r(1, tb, ERROR)
+    
+    def do_make_private(self, line):
+        '''
+        make a container private
+        
+        Usage:
+        
+            make_private FOO
+            
+        @param container    container name
+        '''
+        if not len(self.varg) == 1:
+            self.r(1, self.do_make_private.__doc__, WARNING)
+            return False
+        _name = self.varg[0]
+        try:
+            self.cf.make_container_private(_name)
+            self.r(0, 'ok', INFO)
+        except:
+            tb = traceback.format_exc()
+            self.r(1, tb, ERROR)
 
     def do_upload(self, line):
         '''
