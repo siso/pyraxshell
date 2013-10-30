@@ -92,6 +92,7 @@ class Plugin(cmd.Cmd):
             IN: username:foo apikey:aa 
             OUT: username:foo apikey:aa identity_type:rackspace region:LON
         '''
+        logging.debug('args: %s' % pprint.pformat(args))
         try:
             for d in args:
                 if type(d) is type({}):
@@ -143,8 +144,8 @@ class Plugin(cmd.Cmd):
             arg = arg.replace('=', ':')
             for token in arg.split():
                 # determine token type
-                p1 = re.compile('^[a-zA-Z0-9_]+:[a-zA-Z0-9_~/\.]+$')
-                p2 = re.compile('^.+$')
+                p1 = re.compile('^[a-zA-Z0-9_]+:[a-zA-Z0-9_~/\.\-]+$')
+                p2 = re.compile('^[a-zA-Z0-9_]+$')
                 p3 = re.compile('^[a-zA-Z0-9_]+:\$[a-zA-Z0-9_]+$')
                 if p1.match(token) or p3.match(token):
                     # 'a:b' or 'x:$y'
