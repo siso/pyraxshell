@@ -24,7 +24,6 @@ import traceback
 from globals import *  # @UnusedWildImport
 from plugin import Plugin
 from plugins.libservers import LibServers, ServerCreatorThread
-from utility import kvstring_to_dict
 
 name = 'servers'
 
@@ -202,7 +201,7 @@ class Cmd_servers(Plugin, cmd.Cmd):
         # check and set defaults
         retcode, retmsg = self.kvargcheck(
             {'name':'id', 'required':True},
-            {'name':'name', 'required':True}
+            {'name':'name', 'default':''}
         )
         if not retcode:             # something bad happened
             self.r(1, retmsg, ERROR)
