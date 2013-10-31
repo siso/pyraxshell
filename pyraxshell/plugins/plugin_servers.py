@@ -125,7 +125,7 @@ class Cmd_servers(Plugin, cmd.Cmd):
                                       self.kvarg['image_id'],
                                       poll_time = POLL_TIME)
             # start thread
-            sct.setName('server-%s' % self.kvarg['name'])
+            sct.setName('%s' % self.kvarg['name'])
             sct.start()
             # completion message printed by thread in libservers
         except:

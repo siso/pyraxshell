@@ -23,7 +23,7 @@ import time
 
 from globals import msg_queue, INFO, ERROR
 from plugins.lib import Lib
-from utility import get_ip_family, get_uuid
+from utility import get_ip_family, get_uuid, l
 
 
 class ServerCreatorThread (threading.Thread):
@@ -96,7 +96,7 @@ class ServerCreatorThread (threading.Thread):
                 pt.add_row(['network private (%s)' % get_ip_family(srv_net), srv_net])
             pt.align['key'] = 'l'
             pt.align['value'] = 'l'
-            self.r(0, str(pt), INFO)
+            l('', 0, str(pt), INFO)
             print
             # return info
         else:

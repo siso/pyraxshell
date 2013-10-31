@@ -144,7 +144,7 @@ class Plugin(cmd.Cmd):
             arg = arg.replace('=', ':')
             for token in arg.split():
                 # determine token type
-                p1 = re.compile('^[a-zA-Z0-9_]+:[a-zA-Z0-9_~/\.\-]+$')
+                p1 = re.compile('^[a-zA-Z0-9_]+:[a-zA-Z0-9_~/\.\-@]+$')
                 p2 = re.compile('^[a-zA-Z0-9_]+$')
                 p3 = re.compile('^[a-zA-Z0-9_]+:\$[a-zA-Z0-9_]+$')
                 if p1.match(token) or p3.match(token):
