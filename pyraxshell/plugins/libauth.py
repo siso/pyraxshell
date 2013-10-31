@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
+import keyring
 import logging
 import os.path
 import pprint
@@ -46,6 +47,21 @@ class LibAuth(Lib):
         out['username'] = a.get_param(stanza, 'OS_USERNAME')
         out['apikey'] = a.get_param(stanza, 'OS_PASSWORD')
         out['region'] = a.get_param(stanza, 'OS_REGION_NAME')
+        # use keyring?
+        if out['apikey'] == 'USE_KEYRING':
+            # using 'stanza' as key as it is unique in accounts file
+            out['apikey'] = keyring.get_password('pyraxshell', stanza)
+            if out['apikey'] == None:
+                print "password undefined, please enter it: ",
+                pw1 = raw_input()
+                print "re-type password: ",
+                pw2 = raw_input()
+                if pw1 == pw2:
+                    keyring.set_password('pyraxshell', stanza, pw1)
+                    out['apikey'] = keyring.get_password('pyraxshell', stanza)
+                else:
+                    print "passwords do not match"
+                    return None
         return out
     
     def list_accounts(self):
@@ -177,6 +193,7 @@ class LibAuth(Lib):
             pt = PrettyTable(['key', 'value'])
             pt.add_row(['auth token', pyrax.identity.auth_token])
             pt.add_row(['authenticated', pyrax.identity.authenticated])
+            pt.add_row(['identity type', pyrax.get_setting('identity_type')])
             pt.add_row(['region', pyrax.identity.region])
             pt.add_row(['regions', ','.join(r for r in pyrax.identity.regions)])
             pt.add_row(['username', pyrax.identity.username])

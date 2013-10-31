@@ -17,6 +17,7 @@
 
 import cmd
 import logging
+import pyrax
 import traceback
 
 from globals import ERROR, INFO
@@ -284,3 +285,12 @@ class Cmd_auth(Plugin, cmd.Cmd):
                             if f.startswith(text)
                             ]
         return completions
+
+    def do_whoami(self, line):
+        '''
+        print briefly current identity
+        '''
+        msg = ('username: %s, region: %s, identity_type: %s' %
+               (pyrax.identity.username, pyrax.identity.region,
+                pyrax.get_setting('identity_type')))
+        self.r(0, msg, INFO)
