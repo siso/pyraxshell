@@ -21,21 +21,12 @@ from prettytable import PrettyTable
 import pyrax
 import traceback
 
-from globals import *  # @UnusedWildImport
-from plugin import Plugin
-from plugins.libservers import LibServers, ServerCreatorThread
-
-name = 'servers'
-
-def injectme(c):
-    setattr(c, 'do_servers', do_servers)
-    logging.debug('%s injected' % __file__)
-
-def do_servers(*args):
-    Cmd_servers().cmdloop()
+from pyraxshell.globals import *  # @UnusedWildImport
+import pyraxshell.plugins.plugin
+from pyraxshell.plugins.libservers import LibServers, ServerCreatorThread
 
 
-class Cmd_servers(Plugin, cmd.Cmd):
+class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
     '''
     pyrax shell POC - Manage servers module
     '''
@@ -43,7 +34,7 @@ class Cmd_servers(Plugin, cmd.Cmd):
     prompt = "RS servers>"    # default prompt
 
     def __init__(self):
-        Plugin.__init__(self)
+        pyraxshell.plugins.plugin.Plugin.__init__(self)
         self.libplugin = LibServers()
 
     # ########################################

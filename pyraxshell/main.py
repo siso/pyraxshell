@@ -20,7 +20,6 @@ import pyrax
 import signal
 import sys
 
-import version
 from account import Account
 from db import DB
 from configuration import Configuration
@@ -30,9 +29,14 @@ from notifier import Notifier
 from pyraxshell import Cmd_Pyraxshell
 from sessions import Sessions
 from utility import check_dir_home, terminate_threads
+import version
 
 
 def main():
+    # register SIGINT and SIGTERM handler
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    
     # check '~/.pyraxshell' and config files exist, create them if missing
     if not check_dir_home():
         print ("This is the first time 'pyraxshell' runs, please, configure "
@@ -104,8 +108,8 @@ def signal_handler(signal, frame):
 
 
 if __name__ == '__main__':
-    # register SIGINT and SIGTERM handler
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
+#     # register SIGINT and SIGTERM handler
+#     signal.signal(signal.SIGINT, signal_handler)
+#     signal.signal(signal.SIGTERM, signal_handler)
     
     main()

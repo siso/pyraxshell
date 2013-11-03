@@ -21,32 +21,20 @@ import pprint
 from prettytable import PrettyTable
 import pyrax
 
-from globals import INFO, ERROR
-from plugin import Plugin
-from plugins.libservices import LibServices
-from utility import kvstring_to_dict
-
-name = 'services'
-
-def injectme(c):
-    setattr(c, 'do_services', do_services)
-    logging.debug('%s injected' % __file__)
-#     
-#     logging.debug('c.get_names(): %s' % c.get_names())
-
-def do_services(*args):
-#     logging.debug("line: %s" % line)
-    Cmd_services().cmdloop()
+from pyraxshell.globals import INFO, ERROR
+import pyraxshell.plugins.plugin
+from pyraxshell.plugins.libservices import LibServices
+from pyraxshell.utility import kvstring_to_dict
 
 
-class Cmd_services(Plugin, cmd.Cmd):
+class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
     """
     pyraxshell - Services plugin 
     """
-    prompt = "RS %s>" % name    # default prompt
+    prompt = "RS services>"  # default prompt
     
     def __init__(self):
-        Plugin.__init__(self)
+        pyraxshell.plugins.plugin.Plugin.__init__(self)
         self.libplugin = LibServices()
 
     # ########################################
@@ -109,10 +97,3 @@ class Cmd_services(Plugin, cmd.Cmd):
         list services
         '''
         logging.info("\n".join([s for s in pyrax.services]))
-    
-    def do_test(self, line):
-        '''
-        provide credentials and authenticate
-        '''
-        logging.debug("TEST PLUGIN -- do_test")
-        logging.debug("line: %s" % line)

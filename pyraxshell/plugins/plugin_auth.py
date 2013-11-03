@@ -17,25 +17,16 @@
 
 import cmd
 import logging
+import os.path
 import pyrax
 import traceback
 
-from globals import ERROR, INFO
-from plugins.libauth import LibAuth
-from plugins.plugin import Plugin
-import os.path
-
-name = 'auth'
-
-def injectme(c):
-    setattr(c, 'do_auth', do_auth)
-    logging.debug('%s injected' % __file__)
-
-def do_auth(*args):
-    Cmd_auth().cmdloop()
+from pyraxshell.globals import ERROR, INFO
+from pyraxshell.plugins.libauth import LibAuth
+import pyraxshell.plugins.plugin import Plugin
 
 
-class Cmd_auth(Plugin, cmd.Cmd):
+class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
     '''
     pyrax shell POC - Authenticate module
     '''
@@ -43,7 +34,7 @@ class Cmd_auth(Plugin, cmd.Cmd):
     prompt = "RS auth>"    # default prompt
     
     def __init__(self):
-        Plugin.__init__(self)
+        pyraxshell.plugins.plugin.Plugin.__init__(self)
         self.libplugin = LibAuth()
 
     def do_EOF(self, line):

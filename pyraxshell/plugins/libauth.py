@@ -23,9 +23,9 @@ from prettytable import PrettyTable
 import pyrax
 import traceback
 
-from account import Account
-from globals import ERROR, INFO, WARN, DEBUG
-from plugins.lib import Lib
+from pyraxshell.account import Account
+from pyraxshell.globals import ERROR, INFO, WARN, DEBUG
+from pyraxshell.plugins.lib import Lib
 
 
 class LibAuth(Lib):

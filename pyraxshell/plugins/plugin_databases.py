@@ -21,21 +21,12 @@ import pyrax
 from prettytable import PrettyTable
 import traceback
 
-from globals import INFO, ERROR, WARN
-from plugin import Plugin
-from plugins.libdatabases import LibDatabases, InstanceCreatorThread
-
-name = 'databases'
-
-def injectme(c):
-    setattr(c, 'do_databases', do_databases)
-    logging.debug('%s injected' % __file__)
-
-def do_databases(*args):
-    Cmd_databases().cmdloop()
+from pyraxshell.globals import INFO, ERROR, WARN
+from pyraxshell.plugins.libdatabases import LibDatabases, InstanceCreatorThread
+import pyraxshell.plugins.plugin
 
 
-class Cmd_databases(Plugin, cmd.Cmd):
+class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
     '''
     pyrax shell POC - Manage databases
     '''
@@ -43,7 +34,7 @@ class Cmd_databases(Plugin, cmd.Cmd):
     prompt = "RS db>"    # default prompt
 
     def __init__(self):
-        Plugin.__init__(self)
+        pyraxshell.plugins.plugin.Plugin.__init__(self)
         self.libplugin = LibDatabases()
         self.cdb = pyrax.cloud_databases
     

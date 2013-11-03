@@ -20,7 +20,7 @@ import pyrax
 import threading
 import time
 
-from globals import msg_queue, INFO, POLL_TIME
+from pyraxshell.globals import msg_queue, INFO, POLL_TIME
 
 
 class InstanceCreatorThread (threading.Thread):

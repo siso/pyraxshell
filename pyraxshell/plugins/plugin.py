@@ -22,10 +22,10 @@ import re
 import sys
 import traceback
 
-from configuration import Configuration
-from globals import *  # @UnusedWildImport
-from sessions import Sessions
-from utility import l
+from pyraxshell.configuration import Configuration
+from pyraxshell.globals import *  # @UnusedWildImport
+from pyraxshell.sessions import Sessions
+from pyraxshell.utility import l
 
 name = 'none'
 
@@ -201,8 +201,8 @@ class Plugin(cmd.Cmd):
         '''
         cmd.Cmd.preloop(self)
         logging.debug("preloop")
-        import plugins.libauth
-        if not plugins.libauth.LibAuth().is_authenticated():
+        import pyraxshell.plugins.libauth
+        if not pyraxshell.plugins.libauth.LibAuth().is_authenticated():
             logging.warn('please, authenticate yourself before continuing')
     
     def do_EOF(self, line):

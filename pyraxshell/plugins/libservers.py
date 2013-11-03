@@ -21,9 +21,9 @@ import pyrax
 import threading
 import time
 
-from globals import msg_queue, INFO, ERROR
-from plugins.lib import Lib
-from utility import get_ip_family, get_uuid, l
+from pyraxshell.globals import msg_queue, INFO, ERROR
+from pyraxshell.plugins.lib import Lib
+from pyraxshell.utility import get_ip_family, get_uuid, l
 
 
 class ServerCreatorThread (threading.Thread):

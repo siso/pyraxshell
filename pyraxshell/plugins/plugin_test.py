@@ -22,28 +22,28 @@ import threading
 import time
 import uuid
 
-from globals import msg_queue, DEBUG, INFO, WARNING, ERROR, CRITICAL
-from plugin import Plugin 
-from utility import print_top_right
+from pyraxshell.globals import msg_queue, DEBUG, INFO, WARNING, ERROR, CRITICAL
+from pyraxshell.plugins.plugin import Plugin 
+from pyraxshell.utility import print_top_right
 
 name = 'test'
 
-def injectme(c):
-#     logging.debug(c)
-#     logging.debug(dir(c))
-#     
-#     c.do_test = do_test
-    setattr(c, 'do_test', do_test)
-    logging.debug('%s injected' % __file__)
+# def injectme(c):
+# #     logging.debug(c)
+# #     logging.debug(dir(c))
+# #     
+# #     c.do_test = do_test
+#     setattr(c, 'do_test', do_test)
+#     logging.debug('%s injected' % __file__)
 #     
 #     logging.debug('c.get_names(): %s' % c.get_names())
 
-def do_test(*args):
-#     logging.debug("line: %s" % line)
-    TestPlugin().cmdloop()
+# def do_test(*args):
+# #     logging.debug("line: %s" % line)
+#     TestPlugin().cmdloop()
 
 
-class TestPlugin(Plugin, cmd.Cmd):
+class Plugin(Plugin, cmd.Cmd):
     """
     pyraxshell - Test Plugin 
     """

@@ -23,22 +23,13 @@ import pyrax.exceptions as exc
 from prettytable import PrettyTable
 import traceback
 
-from globals import ERROR, WARN, INFO
-from plugin import Plugin
-from plugins.libdns import LibDNS
-from utility import kvstring_to_dict, is_ipv4
-
-name = 'dns'
-
-def injectme(c):
-    setattr(c, 'do_dns', do_dns)
-    logging.debug('%s injected' % __file__)
-
-def do_dns(*args):
-    Cmd_dns().cmdloop()
+from pyraxshell.globals import ERROR, WARN, INFO
+from pyraxshell.plugins.libdns import LibDNS
+from pyraxshell.utility import kvstring_to_dict, is_ipv4
+import pyraxshell.plugins.plugin
 
 
-class Cmd_dns(Plugin, cmd.Cmd):
+class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
     '''
     pyrax shell POC - DNS module
     '''
@@ -46,7 +37,7 @@ class Cmd_dns(Plugin, cmd.Cmd):
     prompt = "RS dns>"    # default prompt
     
     def __init__(self):
-        Plugin.__init__(self)
+        pyraxshell.plugins.plugin.Plugin.__init__(self)
         self.libplugin = LibDNS()
 
     # ########################################

@@ -20,34 +20,23 @@ import logging
 from prettytable import PrettyTable
 import pprint
 import pyrax
-import pyrax.exceptions as exc
 import traceback
 
-from globals import INFO, ERROR, WARN
-import plugins
-from utility import kvstring_to_dict, is_ipv4
+from pyraxshell.globals import INFO, ERROR, WARN
+from pyraxshell.utility import kvstring_to_dict, is_ipv4
+from pyraxshell.plugins.libloadbalancers import LibLoadBalancers
+import pyraxshell.plugins.plugin
 
-name = 'loadbalancers'
 
-def injectme(c):
-    setattr(c, 'do_loadbalancers', do_loadbalancers)
-    logging.debug('%s injected' % __file__)
-
-def do_loadbalancers(*args):
-    Cmd_loadbalancers().cmdloop()
-
-from plugins.libloadbalancers import LibLoadBalancers
-from plugin import Plugin
-
-class Cmd_loadbalancers(Plugin, cmd.Cmd):
+class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
     '''
     pyrax shell POC - load-balancers module
     '''
     
-    prompt = "RS lb>"  # default prompt
+    prompt = "RS load-balancers>"  # default prompt
     
     def __init__(self):
-        Plugin.__init__(self)
+        pyraxshell.plugins.plugin.Plugin.__init__(self)
         self.libplugin = LibLoadBalancers()
         
         # declared Cloud Load-balancers nodes

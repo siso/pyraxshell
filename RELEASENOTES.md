@@ -5,6 +5,7 @@ Release notes for pyraxshell
   * SQLite queries with placeholders
   * Added CloudFiles plugin
   * Fixed issue # 15
+  * Re-written (and simplified) how plug-ins are imported at run-time
 
 ## 2013.10.20 - Version 0.2.6
   * Added support for accounts file (novaclient format)

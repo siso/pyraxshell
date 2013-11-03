@@ -1,0 +1,16 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+import traceback
+
+if __name__ == "__main__":
+    sys.path.insert( 0,  os.path.join(os.sep, *os.path.realpath(__file__).split(os.sep)[:-2]) )
+
+    try:
+        import pyraxshell.main
+    except:
+        print traceback.format_exc()
+        sys.exit(1)
+    pyraxshell.main.main()

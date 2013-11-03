@@ -18,8 +18,8 @@
 import pyrax
 import traceback
 
-from globals import ERROR  # @UnresolvedImport
-from plugins.lib import Lib  # @UnresolvedImport
+from pyraxshell.globals import ERROR  # @UnresolvedImport
+from pyraxshell.plugins.lib import Lib  # @UnresolvedImport
 
 
 class LibCloudfiles(Lib):

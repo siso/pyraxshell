@@ -16,7 +16,7 @@
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
 import cmd
-import imp
+import importlib
 import logging  # @UnusedImport
 import os.path  # @UnusedImport
 
@@ -38,7 +38,7 @@ class Cmd_Pyraxshell(Plugin, cmd.Cmd):
         cmd.Cmd.__init__(self)
         # plug-ins
         self.plugin_names = list()
-        self.load_plugins()
+        self.search_plugins()
         # cmd as singleton
         self.cfg = Configuration.Instance()  # @UndefinedVariable
         
@@ -47,6 +47,8 @@ class Cmd_Pyraxshell(Plugin, cmd.Cmd):
         if not interactive:
             f = open(os.devnull, 'w')
             sys.stdout = f
+        # list of methods to hide
+        self.hidden_methods = ['EOF', 'plugin']
 
     def do_EOF(self, line):
         '''
@@ -153,24 +155,27 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
                             if f.startswith(text)
                             ]
         return completions
+
+    def do_plugin(self, line):
+        '''
+        run PLUGIN.cmdloop()
+        '''
+        cmd, arg, line = self.parseline(line)  # @UnusedVariable
+        if not cmd == '' and not cmd == None: 
+            i = importlib.import_module('pyraxshell.plugins.plugin_%s' % cmd)
+            i.Plugin().cmdloop()
     
-    def do_reload_plugins(self, line):
-        '''
-        manually load plugins
-        '''
-        self.unload_plugins('')
-        self.load_plugins()
-    
-    def unload_plugins(self, line):
-        '''
-        list loaded plugins
-        '''
-        logging.debug(dir(self))
-        logging.debug('unloading plug-ins')
-        for i in range(len(self.plugin_names)):  # @UnusedVariable
-            p = 'do_%s' % self.plugin_names.pop()
-            delattr(self, p)
-            logging.debug('plugin \'%s\' unloaded' % p)
+    def precmd(self, line):
+        """Hook method executed just before the command line is
+        interpreted, but after the input prompt is generated and issued.
+
+        """
+        cmd, arg, line = self.parseline(line)  # @UnusedVariable
+        if cmd in self.plugin_names:
+            # change 'line' to make 'self.onecmd' call the right plugin
+            # via 'do_plugin'
+            line = "plugin %s" % cmd
+        return line
     
     def do_version(self, line):
         '''
@@ -185,16 +190,25 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
         '''
         # get names from super method
         names = cmd.Cmd.get_names(self)
+        # remove methods to hide
+        [ names.remove('do_%s' % n) for n in self.hidden_methods]
         # and append commands provided by plug-ins
         for p in self.plugin_names:
             names.append('do_' + p)
         return names
-        
-    def load_plugins(self):
+    
+    def do_scan_plugins(self, line):
         '''
-        load plug-ins from './plugins' directory
+        search plug-ins
+        '''
+        self.plugin_names = []
+        self.search_plugins()
+    
+    def search_plugins(self):
+        '''
+        search plug-ins from './plugins' directory
         
-        every plug-in filename is 'plugin_*.py'
+        Every plug-in filename is in the form 'plugin_*.py'.
         '''
         logging.debug('searching plug-ins')
         this_dir, this_filename = os.path.split(__file__)  # @UnusedVariable
@@ -212,14 +226,14 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
                 logging.debug('plugin_filename: %s' % plugin_filename)
                 logging.debug('plugin: %s' % plugin)
                 logging.debug('plugin_name: \'%s\'' % plugin_name)
-                __import__(plugin, globals(), locals(),
-                           [('Cmd_%s' % plugin_name)], -1)
+#                 __import__(plugin, globals(), locals(),
+#                            [('Cmd_%s' % plugin_name)], -1)
                 self.plugin_names.append(plugin_name)
-                p = imp.load_source(plugin, plugin_filename)
-                p.injectme(self)
+#                 p = imp.load_source(plugin, plugin_filename)
+#                 p.injectme(self)
                 msg_loaded_plugins += " " + plugin_name
-        logging.debug('loading plug-ins done')
-        logging.debug('plug-ins loaded: %s' %
+        logging.debug('seaching plug-ins done')
+        logging.debug('plug-ins found: %s' %
                      ", ".join(sorted(msg_loaded_plugins.split())))
         return True
 

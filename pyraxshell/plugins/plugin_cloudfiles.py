@@ -22,22 +22,13 @@ from prettytable import PrettyTable
 import pyrax
 import traceback
 
-from globals import INFO, WARNING, ERROR  # @UnusedWildImport @UnresolvedImport
-from plugin import Plugin
-from plugins.libcloudfiles import LibCloudfiles  # @UnresolvedImport
-from utility import kv_dict_to_pretty_table, objects_to_pretty_table  # @UnresolvedImport
-
-name = 'cloudfiles'
-
-def injectme(c):
-    setattr(c, 'do_cloudfiles', do_cloudfiles)
-    logging.debug('%s injected' % __file__)
-
-def do_cloudfiles(*args):
-    Cmd_cloudfiles().cmdloop()
+from pyraxshell.globals import INFO, WARNING, ERROR  # @UnusedWildImport @UnresolvedImport
+from pyraxshell.plugins.libcloudfiles import LibCloudfiles  # @UnresolvedImport
+from pyraxshell.utility import kv_dict_to_pretty_table, objects_to_pretty_table  # @UnresolvedImport
+import pyraxshell.plugins.plugin
 
 
-class Cmd_cloudfiles(Plugin, cmd.Cmd):
+class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
     '''
     pyrax shell POC - Manage CloudFiles module
     '''
@@ -45,7 +36,7 @@ class Cmd_cloudfiles(Plugin, cmd.Cmd):
     prompt = "RS cloudfiles>"    # default prompt
 
     def __init__(self):
-        Plugin.__init__(self)
+        pyraxshell.plugins.plugin.Plugin.__init__(self)
         self.libplugin = LibCloudfiles()
         self.cf = pyrax.cloudfiles
     
