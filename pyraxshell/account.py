@@ -28,23 +28,23 @@ class Account(BaseConfigFile):
     Account manager
     '''
 
-
     def __init__(self):
         '''
         Constructor
         '''
         self._file = ACCOUNTS_FILE
         BaseConfigFile.__init__(self, self._file)
-    
+
     # ########################################
     # CONFIGURATION FILE
-        
+
     def check_config_file(self):
         '''
         search config file, write it if missing
         '''
         if not os.path.isfile(self._file):
-            self.logger.debug('creating default config file \'%s\'' % self._file)
+            self.logger.debug('creating default config file \'%s\'' %
+                              self._file)
             cfg = '''#[account_alias_0]
 #OS_USERNAME = foo
 #OS_PASSWORD = a_very_secure_password

@@ -32,15 +32,15 @@ class TestVersion(unittest.TestCase):
         pyraxshell.version.read_version_file = MagicMock(return_value = '0.0.0')
         pyraxshell.version.VERSION = MagicMock(return_value = '0.0.1')
         self.assertFalse(check_version_file())
-        
+
         pyraxshell.version.read_version_file = MagicMock(return_value = '0.0.0')
         pyraxshell.version.VERSION = MagicMock(return_value = '0.0.0')
         self.assertFalse(check_version_file())
-        
+
         pyraxshell.version.read_version_file = MagicMock(return_value = 'WRONG')
         pyraxshell.version.VERSION = MagicMock(return_value = '0.0.0')
         self.assertFalse(check_version_file())
-        
+
         pyraxshell.version.read_version_file = MagicMock(return_value = '')
         pyraxshell.version.VERSION = MagicMock(return_value = '0.0.0')
         self.assertFalse(check_version_file())

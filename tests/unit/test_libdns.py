@@ -26,25 +26,25 @@ class Test(unittest.TestCase):
         record = "foo.bar.example.co.uk"
         domain = "bar.example.com"
         self.assertEqual(None, LibDNS().missing_subdomains(record, domain))
-        
+
         record = "bar.example.com"
         domain = "bar.example.com"
         self.assertEqual([], LibDNS().missing_subdomains(record, domain))
-        
+
         record = "foo.bar.example.com"
         domain = "bar.example.com"
         self.assertEqual([], LibDNS().missing_subdomains(record, domain))
-        
+
         record = "yyy.foo.bar.example.com"
         domain = "bar.example.com"
         self.assertEqual(['foo.bar.example.com'],
                          LibDNS().missing_subdomains(record, domain))
-        
+
         record = "xxx.yyy.foo.bar.example.com"
         domain = "bar.example.com"
         self.assertEqual(['yyy.foo.bar.example.com', 'foo.bar.example.com'],
                          LibDNS().missing_subdomains(record, domain))
-    
+
     def test_is_parent(self):
         libdns = LibDNS()
         self.assertTrue(libdns.is_parent('foo.bar.com', 'bar.com'))
@@ -56,15 +56,15 @@ class Test(unittest.TestCase):
     def test_nearest_domain(self):
         domains = [ "bar.example.co.uk", "example.co.uk", "example.com",
                     "someexample.com", "example.bar.com", "bar.example.com"]
-        
+
         record = "foo.bar.example.com"
         nearest_domain = LibDNS().nearest_domain(record, domains)
         self.assertEqual('bar.example.com', nearest_domain)
-         
+
         record = "yyy.foo.bar.example.com"
         nearest_domain = LibDNS().nearest_domain(record, domains)
         self.assertEqual('bar.example.com', nearest_domain)
-        
+
         record = "x.example.com"
         nearest_domain = LibDNS().nearest_domain(record, domains)
         self.assertEqual('example.com', nearest_domain)

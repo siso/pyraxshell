@@ -30,12 +30,12 @@ class ServerCreatorThread (threading.Thread):
     '''
     thread to create a CouldServers
     '''
-    
+
     def __init__(self, name, flavor_id, image_id, poll_time,
-                 threadID = get_uuid()):
+                 threadID=get_uuid()):
         '''
         Constructor
-        
+
         name        CloudServer name
         flavor_id   CloudServer flavour id
         image_id    CloudServer image id
@@ -51,12 +51,12 @@ class ServerCreatorThread (threading.Thread):
                       % (threadID, name, flavor_id, image_id))
         # 'terminate' causes the thread to stop
         self._terminate = False
-    
+
     def run(self):
         '''
-        create a server, wait for completion, 
+        create a server, wait for completion,
         aka server status in ('ACTIVE', 'ERROR', 'UNKNOWN')
-        
+
         poll_time    polling time waiting for completion in seconds
         '''
         logging.debug("Starting %s" % self.threadID)
@@ -70,7 +70,7 @@ class ServerCreatorThread (threading.Thread):
                 return
             time.sleep(1)
             if int(time.time()) % self.poll_time == 0:
-                # mitigate polling server creation progress 
+                # mitigate polling server creation progress
                 server.get()
                 logging.debug('server \'%s\', status:%s, progress:%s' %
                           (server.name, server.status, server.progress))
@@ -78,11 +78,11 @@ class ServerCreatorThread (threading.Thread):
                           (server.name, server.status, server.progress))
         if server.status == 'ACTIVE':
             d = {
-                'name'      : server.name,
-                'id'        : server.id,
-                'status'    : server.status,
-                'adminPass' : server.adminPass,
-                'networks'  : server.networks
+                'name': server.name,
+                'id': server.id,
+                'status': server.status,
+                'adminPass': server.adminPass,
+                'networks': server.networks
                 }
             # print info
             pt = PrettyTable(['key', 'value'])
@@ -91,9 +91,11 @@ class ServerCreatorThread (threading.Thread):
             pt.add_row(['status', d['status']])
             pt.add_row(['adminPass', d['adminPass']])
             for srv_net in d['networks']['public']:
-                pt.add_row(['network public (%s)' % get_ip_family(srv_net), srv_net])
+                pt.add_row(['network public (%s)' % get_ip_family(srv_net),
+                            srv_net])
             for srv_net in server.networks['private']:
-                pt.add_row(['network private (%s)' % get_ip_family(srv_net), srv_net])
+                pt.add_row(['network private (%s)' % get_ip_family(srv_net),
+                            srv_net])
             pt.align['key'] = 'l'
             pt.align['value'] = 'l'
             l('', 0, str(pt), INFO)
@@ -103,14 +105,14 @@ class ServerCreatorThread (threading.Thread):
             cmd_out = ('Error. Cannot create server \'%s\' (status:%s)' %
                        (server.name, server.status))
             msg_queue.put(cmd_out)
-            self.r(1, cmd_out, ERROR)
+            l('', 1, cmd_out, ERROR)
             return None
         logging.debug("Exiting %s" % self.name)
-    
+
     @property
     def terminate(self):
         return self._terminate
-    
+
     @terminate.setter
     def terminate(self, value=True):
         self._terminate = value
@@ -120,7 +122,7 @@ class LibServers(Lib):
     '''
     pyraxshell servers library
     '''
-    
+
     # ########################################
     # SERVERS
     def get_by_id(self, server_id):
@@ -129,22 +131,22 @@ class LibServers(Lib):
         '''
         cs = pyrax.cloudservers
         return [s for s in cs.list() if s.id == server_id][0]
-    
+
     def list_cloudservers(self):
         cs = pyrax.cloudservers
         return cs.list()
-    
+
     def list_cloudservers_flavors(self):
         return pyrax.cloudservers.list_flavors()
-    
+
     def list_cloudservers_images(self):
         return pyrax.cloudservers.list_images()
-    
+
     def delete_server(self, _id=None, name=None):
         cs = pyrax.cloudservers
         server = cs.servers.get(_id)
         server.delete()
-    
+
     def details_server(self, _id=None, name=None):
         cs = self.list_cloudservers()
         for server in cs:
@@ -160,18 +162,23 @@ class LibServers(Lib):
                 for a in attrs_to_show:
                     pt.add_row([a, getattr(server, a)])
 #TODO -- display image info
-#                  pt.add_row(['image', self.get_cloudserver_flavor(server.image['id']).name])
-                pt.add_row(['flavor', self.get_cloudserver_flavor(server.flavor['id']).name])
+#                  pt.add_row(['image',
+#                    self.get_cloudserver_flavor(server.image['id']).name])
+                pt.add_row(['flavor',
+                            self.
+                            get_cloudserver_flavor(server.flavor['id']).name])
 #                 pt.add_row(['password', server.get_password()])
                 pt.add_row(['progress', server.progress])
 #                 pt.add_row(['adminPass', server.get_password()])
                 for srv_net in server.networks['public']:
-                    pt.add_row(['network public (%s)' % get_ip_family(srv_net), srv_net])
+                    pt.add_row(['network public (%s)' % get_ip_family(srv_net),
+                                srv_net])
                 for srv_net in server.networks['private']:
-                    pt.add_row(['network private (%s)' % get_ip_family(srv_net), srv_net])				
+                    pt.add_row(['network private (%s)' %
+                                get_ip_family(srv_net), srv_net])
                 pt.add_row(['created on', server.created])
                 self.r(0, str(pt), INFO)
-    
+
     def get_cloudserver_flavor(self, _id):
         csf = self.list_cloudservers_flavors()
         for f in csf:
@@ -180,12 +187,12 @@ class LibServers(Lib):
         return None
 
     def get_cloudserver_image(self, _id):
-        csi = self.list_cloudservers_image()
+        csi = self.list_cloudservers_images()
         for f in csi:
             if f.id == _id:
                 return f
         return None
-    
+
     def print_pt_cloudservers(self):
         '''print cloud servers flavors with PrettyTable'''
         cs = self.list_cloudservers()
@@ -210,7 +217,7 @@ class LibServers(Lib):
                             ])
         pt.get_string(sortby='name')
         self.r(0, str(pt), INFO)
-    
+
     def print_pt_cloudservers_flavors(self):
         '''print cloud servers flavors with PrettyTable'''
         csflavors = self.list_cloudservers_flavors()
@@ -221,7 +228,7 @@ class LibServers(Lib):
 
     def print_pt_cloudservers_images(self, sortby='name'):
         '''print cloud servers images with PrettyTable
-        
+
         with 'sortby' data can be sorted by column; if 'raw' is passed, then
         data is printed as it is returned by OpenStack'''
         csflavors = self.list_cloudservers_images()

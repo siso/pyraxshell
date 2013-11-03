@@ -25,10 +25,10 @@ class LibDNS(object):
     '''
     pyraxshell DNS library
     '''
-    
+
     # ########################################
     # DNS
-    
+
     def create_domain(self, domain_name, email_address, ttl, comment):
         '''
         create a domain
@@ -38,10 +38,10 @@ class LibDNS(object):
                           'ttl:%s, comment:%s' %
                           (domain_name, email_address, ttl, comment))
             dns = pyrax.cloud_dns
-            dom = dns.create(name = domain_name,
-                             emailAddress = email_address,
-                             ttl = ttl,
-                             comment = comment)
+            dom = dns.create(name=domain_name,
+                             emailAddress=email_address,
+                             ttl=ttl,
+                             comment=comment)
             logging.info("domain created: %s" % dom)
             return True
         except exc.DomainCreationFailed as e:
@@ -57,7 +57,7 @@ class LibDNS(object):
         '''
         try:
             cdns = pyrax.cloud_dns
-            domain =  [d for d in cdns.list() if d.name == domain_name][0]
+            domain = [d for d in cdns.list() if d.name == domain_name][0]
             return domain
         except IndexError:
             logging.error('cannot find domain name: \'%s\'' % domain_name)
@@ -73,7 +73,7 @@ class LibDNS(object):
         '''
         dns = pyrax.cloud_dns
         return dns.list()
-    
+
     def is_parent(self, record, domain):
         '''
         check if record is a child of domain
@@ -86,23 +86,23 @@ class LibDNS(object):
             if domain_tokens[-i] != record_tokens[-i]:
                 return False
         return True
-    
+
     def list_domain_names(self):
         '''
         return list of domain names
         '''
         dns = pyrax.cloud_dns
         return [d.name for d in dns.list()]
-    
+
     def missing_subdomains(self, record, domain):
         '''return missing subdomains as a difference between given record and
            domain
-        
+
         i.e.: record:foo.bar.example.com, domain:example.com -> bar.example.com
-        
+
         record    DNS record as string
         domain    domain as string
-        
+
         return None if record is not within domain
         '''
         if record == domain:
@@ -122,20 +122,19 @@ class LibDNS(object):
         for i in range(len(diff)):
             diff[i] = diff[i] + '.' + domain
         return diff
-        
-    
+
     def nearest_domain(self, record, domains):
         '''return the nearest domain in domains for record
-        
-        
+
+
         i.e.:
-        
+
         domains = [ "bar.example.co.uk", "example.co.uk", "example.com",
                     "someexample.com", "example.bar.com", "bar.example.com"]
         record = "foo.bar.example.com"
         ...
         return 'bar.example.com'
-        
+
         record    DNS record as string
         domains   list of domains as string
         '''
@@ -145,11 +144,11 @@ class LibDNS(object):
             domparts = domain.split(".")
             recparts = record.split(".")
             domparts.reverse()
-            i = len(recparts)-1
+            i = len(recparts) - 1
             matches = 0
             for dompart in domparts:
                 if recparts[i] == dompart:
-                    matches +=1
+                    matches += 1
                 i -= 1
             domain_num_tokens = len(domain.split('.'))
             if (matches >= biggest_match) and (matches >= domain_num_tokens):

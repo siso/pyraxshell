@@ -32,10 +32,10 @@ class LibAuth(Lib):
     '''
     pyraxshell authenticate library
     '''
-    
+
     # ########################################
     # ACCOUNTS FILE
-    
+
     def get_account(self, stanza):
         '''
         return dictionary based on stanza alias from ACOUNTS_FILE
@@ -63,7 +63,7 @@ class LibAuth(Lib):
                     print "passwords do not match"
                     return None
         return out
-    
+
     def list_accounts(self):
         '''
         return a list of accounts defined in ACCOUNTS_FILE
@@ -71,15 +71,14 @@ class LibAuth(Lib):
         a = Account.Instance()
         a.parse_config_file()
         return a.list_stanzas()
-    
-    
+
     # ########################################
     # AUTHENTICATE
-    
+
     def authenticate_credentials_file(self, credentials_file=None):
         '''
         authenticate with Rackspace Cloud
-        
+
         @param credentials_file    credential file (pyrax format)
         @return    True if successful, False otherwise
         '''
@@ -110,7 +109,7 @@ class LibAuth(Lib):
             return self.is_authenticated()
         except pyrax.exceptions.AuthenticationFailed:
             cmd_out = 'authentication with credentials file failed'
-            self.r(cmd_out)
+            self.r(1, cmd_out, ERROR)
             return False
         except pyrax.exceptions.IdentityClassNotDefined:
             cmd_out = ('authentication failed: IdentityClassNotDefined. '
@@ -121,21 +120,21 @@ class LibAuth(Lib):
             cmd_out = '%s' % pprint.pprint(e)
             self.r(1, cmd_out, WARN)
         return True
-    
+
     def authenticate_login(self,
-                           identity_type = "rackspace",
-                           username = None,
-                           apikey = None,
-                           region = pyrax.default_region):
+                           identity_type="rackspace",
+                           username=None,
+                           apikey=None,
+                           region=pyrax.default_region):
         '''authenticate with \'%s\'
-        
+
         using username and api-key'''
         logging.debug('authenticating with login'
                       '(identity_type:%s, username:%s, api-key:%s, region=%s)'
                       % (identity_type, username, apikey, region))
         try:
             pyrax.set_setting("identity_type", identity_type)
-            pyrax.set_credentials(username, apikey, region = region)
+            pyrax.set_credentials(username, apikey, region=region)
             cmd_out = "authentication with login successful"
             self.r(0, cmd_out, INFO)
             return self.is_authenticated()
@@ -143,13 +142,13 @@ class LibAuth(Lib):
             cmd_out = "authentication with login failed"
             self.r(1, cmd_out, WARN)
             return False
-    
+
     def authenticate_token(self, token, tenantId, region,
                            identity_type='rackspace'):
         '''authenticate with Rackspace Cloud
-        
+
         using existing token
-        
+
         tenantId: see top-right --> NAME (#XXX)
         '''
         logging.debug('setting identity_type=%s' % identity_type)
@@ -161,7 +160,7 @@ class LibAuth(Lib):
         except:
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
-    
+
     def is_authenticated(self):
         '''whether or not the user is authenticated'''
         try:
@@ -177,7 +176,7 @@ class LibAuth(Lib):
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
             return False
-    
+
     def get_token(self):
         '''return the token issued by Rackspace Cloud'''
         return pyrax.identity.auth_token
@@ -195,7 +194,8 @@ class LibAuth(Lib):
             pt.add_row(['authenticated', pyrax.identity.authenticated])
             pt.add_row(['identity type', pyrax.get_setting('identity_type')])
             pt.add_row(['region', pyrax.identity.region])
-            pt.add_row(['regions', ','.join(r for r in pyrax.identity.regions)])
+            pt.add_row(['regions', ','.join(r for r in
+                                            pyrax.identity.regions)])
             pt.add_row(['username', pyrax.identity.username])
             pt.add_row(['tenant id', pyrax.identity.tenant_id])
             pt.add_row(['tenant name', pyrax.identity.tenant_name])
@@ -206,12 +206,12 @@ class LibAuth(Lib):
         else:
             cmd_out = 'No info. Are you authenticated?'
             self.r(1, cmd_out, WARN)
-    
+
     # ########################################
     # ENDPOINTS
     def list_endpoints(self):
         return pyrax.identity.services
-    
+
     # ########################################
     # REGION
     def default_region(self):
@@ -219,13 +219,13 @@ class LibAuth(Lib):
         return default region defined in pyrax
         '''
         return pyrax.default_region
-            
+
 #     def default_region(self):
 #         '''
 #         return default region defined in pyrax
 #         '''
 #         return pyrax.default_region
-    
+
     def get_region(self):
         '''
         return the region for which user is currently authenticated
@@ -238,7 +238,7 @@ class LibAuth(Lib):
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
             return None
-    
+
     # ########################################
     # VARIA
     def set_output_verbosity(self, value):

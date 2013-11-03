@@ -28,20 +28,20 @@ from singleton import Singleton
 class Configuration(BaseConfigFile):
     '''
     CLI params and configuration file settings
-    
+
     Configuration file settings are read first, and can be overwritten by
     CLI params.
     '''
-    
+
     def __init__(self):
         # check if it is running interactively
         self.interactive = os.isatty(0)
         self._file = CONFIG_FILE
         BaseConfigFile.__init__(self, self._file)
-    
+
     # ########################################
     # CONFIGURATION FILE
-    
+
     def check_config_file(self):
         '''
         search config file, write it if missing
@@ -64,7 +64,7 @@ no_verify_ssl = False
 
     # ########################################
     # CLI
-    
+
     def parse_cli(self, cliargv):
         '''
         parse CLI parameters
@@ -79,19 +79,19 @@ no_verify_ssl = False
                             help='identity type (default: \'rackspace\'',
                             default='rackspace')
         parser.add_argument('-l', '--log-level', required=False,
-                            help=('set log level (possible values: DEBUG, INFO,'
-                                  ' WARNING, ERROR, CRITICAL)'
+                            help=('set log level (possible values: DEBUG, '
+                                  'INFO, WARNING, ERROR, CRITICAL)'
                                   ' (default: INFO)'),
                             choices=['DEBUG', 'INFO', 'WARNING', 'ERROR',
                                      'CRITICAL',
                                      'debug', 'info', 'warning', 'error',
-                                     'critical']#, default='INFO'
+                                     'critical']  # , default='INFO'
                             )
         parser.add_argument('--pyrax-http-debug', nargs='?', const=True,
                             type=bool,
-                            help = 'set pyrax http_debug on (default: False)')
+                            help='set pyrax http_debug on (default: False)')
         parser.add_argument('--pyrax-no-verify-ssl', nargs='?', const=True,
-                            help = 'set pyrax verify_ssl (default: False)')
+                            help='set pyrax verify_ssl (default: False)')
         parser.add_argument('-r', '--region', required=False,
                             help=('cloud data center to build the servers in'
                                   ' (default: LON)'),
@@ -106,29 +106,28 @@ no_verify_ssl = False
                             "(shortcut for --log-level DEBUG)")
         self.args = parser.parse_args()
 
-    
     # ########################################
     # SETTERs & GETTERs
-        
+
     # -c
     @property
     def credentials(self):
         return self.args.credentials
-    
+
     # -k, --api-key
     @property
     def api_key(self):
         return self.args.api_key
-    
+
     # -i --identity-type
     @property
     def identity_type(self):
         return self.args.identity_type
-    
+
     @property
     def interactive(self):
         return self.interactive
-    
+
     @property
     def log_level(self):
         if self.args.log_level == None:
@@ -142,7 +141,7 @@ no_verify_ssl = False
             return self.args.pyrax_http_debug
         else:
             return self.get_param('pyrax', 'http_debug')
-    
+
     # --pyrax-no-verify-ssl
     @property
     def pyrax_no_verify_ssl(self):
@@ -150,27 +149,27 @@ no_verify_ssl = False
             return self.args.pyrax_no_verify_ssl
         else:
             return self.get_param('pyrax', 'no_verify_ssl')
-    
+
     # -r, --region
     @property
     def region(self):
         return self.args.region
-    
+
     # --tenant-id
     @property
     def tenant_id(self):
         return self.args.tenant_id
-    
+
     # -t, --token
     @property
     def token(self):
         return self.args.token
-    
+
     # -u, --username
     @property
     def username(self):
         return self.args.username
-    
+
     # -v, --verbose
     @property
     def verbose(self):
@@ -178,22 +177,23 @@ no_verify_ssl = False
             return self.args.verbose
         else:
             return self.get_param('main', 'verbose')
-     
+
     def __str__(self):
         '''
         string representation of Configuration
         '''
         return ("%s" %
-                (', '.join( [ 'credentials:%s' % self.credentials,
-                             'api-key:%s' % self.api_key,
-                             'identity-type:%s' % self.identity_type,
-                             'interactive:%s' % self.interactive,
-                             'identity-type:%s' % self.identity_type,
-                             'log_level:%s' % self.log_level,
-                             'pyrax-http-debug:%s' % self.pyrax_http_debug,
-                             'pyrax_no_verify_ssl:%s' % self.pyrax_no_verify_ssl,
-                             'region:%s' % self.region,
-                             'token:%s' % self.token,
-                             'username:%s' % self.username,
-                             'verbose:%s' % self.verbose,
-                             ])))
+                (', '.join(['credentials:%s' % self.credentials,
+                            'api-key:%s' % self.api_key,
+                            'identity-type:%s' % self.identity_type,
+                            'interactive:%s' % self.interactive,
+                            'identity-type:%s' % self.identity_type,
+                            'log_level:%s' % self.log_level,
+                            'pyrax-http-debug:%s' % self.pyrax_http_debug,
+                            ('pyrax_no_verify_ssl:%s' %
+                             self.pyrax_no_verify_ssl),
+                            'region:%s' % self.region,
+                            'token:%s' % self.token,
+                            'username:%s' % self.username,
+                            'verbose:%s' % self.verbose,
+                            ])))

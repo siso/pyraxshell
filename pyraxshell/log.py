@@ -22,6 +22,7 @@ import traceback
 
 from globals import LOG_CONF_FILE
 
+
 def check_config_file():
     '''
     search logging configuration file, write it if missing
@@ -65,15 +66,16 @@ datefmt=
             f.write(log_cfg)
             f.flush()
 
+
 def start_logging():
     '''
-    start logging facility, write default configuration file if missing 
+    start logging facility, write default configuration file if missing
     '''
     check_config_file()
     try:
         this_dir, this_filename = os.path.split(__file__)  # @UnusedVariable
         log_config_file_locations = [LOG_CONF_FILE]
-        log_config_file = None    
+        log_config_file = None
         for f in log_config_file_locations:
             if os.path.exists(os.path.expanduser(f)):
                 logging.debug("found log config file: %s" %
@@ -81,8 +83,8 @@ def start_logging():
                 log_config_file = os.path.expanduser(f)
                 logging.config.fileConfig(log_config_file)
         if log_config_file == None:
-            logging.warn('could not find log config file (default locations: \'%s\')'
-                         % log_config_file_locations)
+            logging.warn('could not find log config file (default locations: '
+                         '\'%s\')' % log_config_file_locations)
             return False
         return True
     except:

@@ -23,7 +23,7 @@ import time
 import uuid
 
 from pyraxshell.globals import msg_queue, DEBUG, INFO, WARNING, ERROR, CRITICAL
-from pyraxshell.plugins.plugin import Plugin 
+from pyraxshell.plugins.plugin import Plugin
 from pyraxshell.utility import print_top_right
 
 name = 'test'
@@ -31,11 +31,11 @@ name = 'test'
 # def injectme(c):
 # #     logging.debug(c)
 # #     logging.debug(dir(c))
-# #     
+# #
 # #     c.do_test = do_test
 #     setattr(c, 'do_test', do_test)
 #     logging.debug('%s injected' % __file__)
-#     
+#
 #     logging.debug('c.get_names(): %s' % c.get_names())
 
 # def do_test(*args):
@@ -45,16 +45,16 @@ name = 'test'
 
 class Plugin(Plugin, cmd.Cmd):
     """
-    pyraxshell - Test Plugin 
+    pyraxshell - Test Plugin
     """
-    prompt = "RS %s>" % name    # default prompt
+    prompt = "RS %s>" % name  # default prompt
 
     def do_run_test_thread(self, line):
         TestThread().start()
-    
+
     def do_run_test_thread1(self, line):
         TestThread1().start()
-    
+
     def do_test(self, line):
         '''
         provide credentials and authenticate
@@ -70,16 +70,16 @@ class Plugin(Plugin, cmd.Cmd):
         # set default and parse 'self.kvarg' parameters
         logging.debug('kvarg before: %s' % pprint.pformat(self.kvarg))
         retcode, retmsg = self.kvargcheck(
-              {'name':'identity_type', 'default':'rackspace'},
-              {'name':'username', 'required':True},
-              {'name':'apikey', 'required':True},
-              {'name':'region', 'default':'LON'}
+              {'name': 'identity_type', 'default': 'rackspace'},
+              {'name': 'username', 'required': True},
+              {'name': 'apikey', 'required': True},
+              {'name': 'region', 'default': 'LON'}
         )
         if not retcode:
             self.r(1, retmsg, ERROR)
             return False
         self.r(0, retmsg, INFO)
-    
+
     def do_log(self, line):
         '''
         test logging system
@@ -92,14 +92,14 @@ class Plugin(Plugin, cmd.Cmd):
 
 
 class TestThread (threading.Thread):
-    def __init__(self, threadID = uuid.uuid4()):
+    def __init__(self, threadID=uuid.uuid4()):
         '''
         test thread
         '''
         threading.Thread.__init__(self)
         self.threadID = threadID
         logging.debug('thread id:%s' % (threadID))
-    
+
     def run(self):
         logging.debug("Starting %s" % self.threadID)
         max_rep = 5
@@ -110,7 +110,7 @@ class TestThread (threading.Thread):
 
 
 class TestThread1 (threading.Thread):
-    def __init__(self, threadID = uuid.uuid4()):
+    def __init__(self, threadID=uuid.uuid4()):
         '''
         test thread 1
         '''
@@ -120,7 +120,7 @@ class TestThread1 (threading.Thread):
         # 'terminate' causes the thread to stop
         self._terminate = False
 #         threading.Thread.setName('TestThread1')
-        
+
     def run(self):
         logging.debug("Starting %s" % self.threadID)
         max_rep = 5
@@ -136,7 +136,7 @@ class TestThread1 (threading.Thread):
     @property
     def terminate(self):
         return self._terminate
-    
+
     @terminate.setter
     def terminate(self, value=True):
         self._terminate = value

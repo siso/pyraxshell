@@ -20,7 +20,7 @@ import os.path
 import sqlite3
 import traceback
 
-from globals import SQLITE_DB, ERROR
+from globals import SQLITE_DB
 
 
 class DB:
@@ -28,26 +28,25 @@ class DB:
     manage db
     '''
 
-
     def __init__(self):
         '''
         Constructor
         '''
         self.start_db()
-    
+
     def __del__(self):
         '''
         Destructor
         '''
         self.close_db()
-    
+
     def close_db(self):
         '''
         close db handles
         '''
         self.__con.commit()
         self.__con.close()
-    
+
     def query(self, sql, data):
         '''
         query db

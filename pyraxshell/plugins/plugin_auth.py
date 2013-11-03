@@ -30,9 +30,9 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
     '''
     pyrax shell POC - Authenticate module
     '''
-    
+
     prompt = "RS auth>"    # default prompt
-    
+
     def __init__(self):
         pyraxshell.plugins.plugin.Plugin.__init__(self)
         self.libplugin = LibAuth()
@@ -43,7 +43,7 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         '''
         print
         return True
-    
+
     def emptyline(self):
         """Called when an empty line is entered in response to the prompt.
 
@@ -61,10 +61,10 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         import plugins.libauth
         if not plugins.libauth.LibAuth().is_authenticated():
             logging.warn('please, authenticate yourself before continuing')
-    
+
     # ########################################
     # CLOUD AUTHENTICATION
-    
+
 #     def do_change_password(self, line):
 #         '''
 #         change user\'s password
@@ -75,7 +75,7 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
     def do_account(self, line):
         '''
         authenticate using ACCOUNT_FILE
-        
+
         @param alias    account alias (i.e.: name of stanza in ACCOUNT_FILE)
         '''
         try:
@@ -88,29 +88,26 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         except:
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
-    
+
     def complete_account(self, text, line, begidx, endidx):
         params = self.libplugin.list_accounts()
         if not text:
             completions = params[:]
         else:
-            completions = [ f
-                           for f in params
-                            if f.startswith(text)
-                            ]
+            completions = [f for f in params if f.startswith(text)]
         return completions
-    
+
     def do_credentials(self, line):
         '''
         authentication with credentials file
-        
+
         @param file    credential file (pyrax format)
-        
+
         i.e.: credentials file:~/.pyrax
         '''
         # check and set defaults
         retcode, retmsg = self.kvargcheck(
-            {'name':'file', 'default':''}
+            {'name': 'file', 'default': ''}
         )
         if not retcode:             # something bad happened
             self.r(1, retmsg, ERROR)
@@ -136,21 +133,18 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
             cmd_out = ("cannot authenticate using credentials file")
             self.r(1, cmd_out, ERROR)
             return False
-    
+
     def complete_credentials(self, text, line, begidx, endidx):
         params = ['file:']
         if not text:
             completions = params[:]
         else:
-            completions = [ f
-                           for f in params
-                            if f.startswith(text)
-                            ]
+            completions = [f for f in params if f.startswith(text)]
         return completions
 
-    def do_exit(self,*args):
+    def do_exit(self, *args):
         return True
-    
+
     def do_is_authenticated(self, line):
         '''
         show Whether or not the user is authenticated
@@ -159,20 +153,20 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if self.libplugin.is_authenticated():
             retcode = 0
         self.r(retcode, 'authenticated', INFO)
-    
+
     def do_list(self, line):
         '''
         list accounts defined in ACCOUNTS_FILE
         '''
         cmd_out = '\n'.join([a for a in self.libplugin.list_accounts()])
         self.r(0, cmd_out, INFO)
-    
+
     def do_login(self, line):
         '''
         authenticate using username and api-key and authenticate
-        
+
         Parameters:
-        
+
         apikey
         username
         identity_type    (default: rackspace)
@@ -180,41 +174,38 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         '''
         # check and set defaults
         retcode, retmsg = self.kvargcheck(
-            {'name':'apikey', 'required':True},
-            {'name':'username', 'required':True},
-            {'name':'identity_type', 'default':'rackspace'},
-            {'name':'region', 'default':self.libplugin.default_region()}
+            {'name': 'apikey', 'required': True},
+            {'name': 'username', 'required': True},
+            {'name': 'identity_type', 'default': 'rackspace'},
+            {'name': 'region', 'default': self.libplugin.default_region()}
         )
         if not retcode:             # something bad happened
             self.r(1, retmsg, ERROR)
             return False
         self.r(0, retmsg, INFO)     # everything's ok
-        
+
         try:
             self.libplugin.authenticate_login(
-                apikey = self.kvarg['apikey'],
-                username = self.kvarg['username'],
-                identity_type = self.kvarg['identity_type'],
-                region = self.kvarg['region'],
+                apikey=self.kvarg['apikey'],
+                username=self.kvarg['username'],
+                identity_type=self.kvarg['identity_type'],
+                region=self.kvarg['region'],
             )
-            cmd_out  = ('login - indentity_type:%s, username=%s, apikey=%s, '
-                        'region=%s' % 
-                        (self.kvarg['identity_type'], self.kvarg['username'],
-                         self.kvarg['apikey'], self.kvarg['region']))
+            cmd_out = ('login - indentity_type:%s, username=%s, apikey=%s, '
+                       'region=%s' %
+                       (self.kvarg['identity_type'], self.kvarg['username'],
+                       self.kvarg['apikey'], self.kvarg['region']))
             self.r(0, cmd_out, INFO)
         except:
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
-    
+
     def complete_login(self, text, line, begidx, endidx):
         params = ['identity_type:', 'username:', 'apikey:', 'region:']
         if not text:
             completions = params[:]
         else:
-            completions = [ f
-                           for f in params
-                            if f.startswith(text)
-                            ]
+            completions = [f for f in params if f.startswith(text)]
         return completions
 
     def do_print_identity(self, line):
@@ -222,7 +213,7 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         print current identity information
         '''
         self.libplugin.print_pt_identity_info()
-    
+
     def do_print_token(self, line):
         '''
         print token for current session
@@ -230,23 +221,23 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if self.libplugin.is_authenticated():
             cmd_out = "token: %s" % self.libplugin.get_token()
             self.r(0, cmd_out, INFO)
-    
+
     def do_token(self, line):
         '''
         authenticate using token and tenantId
-        
+
         Parameters:
-        
+
         identity_type    (default: rackspace)
         region           (default: LON)
         tenantId
         token
         '''
         retcode, retmsg = self.kvargcheck(
-              {'name':'identity_type', 'default':'rackspace'},
-              {'name':'region', 'default':'LON'},
-              {'name':'tenantId', 'required':True},
-              {'name':'token', 'required':True}
+              {'name': 'identity_type', 'default': 'rackspace'},
+              {'name': 'region', 'default': 'LON'},
+              {'name': 'tenantId', 'required': True},
+              {'name': 'token', 'required': True}
         )
         if not retcode:
             self.r(1, retmsg, ERROR)
@@ -265,16 +256,13 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         except:
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
-    
+
     def complete_token(self, text, line, begidx, endidx):
         params = ['identity_type', 'region', 'tenantId', 'token']
         if not text:
             completions = params[:]
         else:
-            completions = [ f
-                           for f in params
-                            if f.startswith(text)
-                            ]
+            completions = [f for f in params if f.startswith(text)]
         return completions
 
     def do_whoami(self, line):

@@ -9,7 +9,7 @@ class TestANSIColours(unittest.TestCase):
     def test_endc(self):
         c = ANSIColours()
         self.assertEqual(c.endc, '\033[0m')
-    
+
     def test_get(self):
         c = ANSIColours()
         # normal colours
@@ -30,7 +30,7 @@ class TestANSIColours(unittest.TestCase):
         self.assertEqual(c.get('magenta', True), '\033[105m')
         self.assertEqual(c.get('cyan', True), '\033[106m')
         self.assertEqual(c.get('white', True), '\033[107m')
-    
+
     def test_list_colours(self):
         c = ANSIColours()
         colours_list = ['black', 'red', 'green', 'yellow', 'blue', 'magenta',

@@ -28,10 +28,9 @@ from utility import get_uuid
 class Sessions(DB):
     '''
     manage sessions
-    
+
     sid has a local meaning
     '''
-
 
     def __init__(self):
         '''
@@ -83,7 +82,7 @@ FOREIGN KEY(sid) REFERENCES sessions(id)
 );
 '''
         self.query(sql, None)
-        
+
     def create_table_sessions(self):
         '''
         create 'sessions' table
@@ -110,5 +109,6 @@ identity_type  TEXT NOT NULL
         sql = '''\
 INSERT INTO commands (sid, cmd_in, cmd_out, retcode, log_level)
 VALUES (?, ?, ?, ?, ?)'''
-        data = (str(self.sid), str(cmd_in), str(cmd_out), retcode, log_levels[log_level])
+        data = (str(self.sid), str(cmd_in), str(cmd_out), retcode,
+                log_levels[log_level])
         self.query(sql, data)

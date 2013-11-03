@@ -28,8 +28,7 @@ class BaseConfigFile:
     file.
     '''
 
-
-    def __init__(self, _file = None):
+    def __init__(self, _file=None):
         '''
         Constructor set logger up, checks if config file exists, create it if
         needed, eventually parse it.
@@ -38,10 +37,10 @@ class BaseConfigFile:
         self._file = _file or os.path.join(BASE_DIR, 'sample.conf')
         self.check_config_file()
         self.parse_config_file()
-    
+
     # ########################################
     # CONFIGURATION FILE
-    
+
     def parse_config_file(self):
         '''
         parse configuration file
@@ -49,19 +48,20 @@ class BaseConfigFile:
         self.check_config_file()
         self.config = ConfigParser.ConfigParser()
         self.config.read(self._file)
-        
+
     def get_param(self, section, param, raw=1):
         """
         fetch a parameter from configuration file
         """
         return self.config.get(section, param, raw)
-    
+
     def check_config_file(self):
         '''
         search config file, write it if missing
         '''
         if not os.path.isfile(self._file):
-            self.logger.debug('creating default config file \'%s\'' % self._file)
+            self.logger.debug('creating default config file \'%s\'' %
+                              self._file)
             cfg = '''[sample]
 key = value
 '''

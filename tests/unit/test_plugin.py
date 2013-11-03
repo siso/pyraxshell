@@ -24,76 +24,76 @@ class Test(unittest.TestCase):
 
     def test_parseline(self):
         p = Plugin()
-        
+
         line = 'foocommand'
-        p.parseline(line) 
+        p.parseline(line)
         self.assertEqual(p.cmd, "foocommand")
         self.assertEqual(p.arg, "")
         self.assertEqual(p.line, "foocommand")
-        
+
         line = 'foocommand fooarg'
-        p.parseline(line) 
+        p.parseline(line)
         self.assertEqual(p.cmd, "foocommand")
         self.assertEqual(p.arg, "fooarg")
         self.assertEqual(p.line, "foocommand fooarg")
-        
+
         line = 'foocommand a:b'
-        p.parseline(line) 
+        p.parseline(line)
         self.assertEqual(p.cmd, "foocommand")
         self.assertEqual(p.arg, "a:b")
         self.assertEqual(p.line, "foocommand a:b")
-        
+
         line = 'foocommand a:b c:d'
-        p.parseline(line) 
+        p.parseline(line)
         self.assertEqual(p.cmd, "foocommand")
         self.assertEqual(p.arg, "a:b c:d")
         self.assertEqual(p.line, "foocommand a:b c:d")
-        
+
         line = 'foocommand a:b foo c:d bar'
-        p.parseline(line) 
+        p.parseline(line)
         self.assertEqual(p.cmd, "foocommand")
         self.assertEqual(p.arg, "a:b foo c:d bar")
         self.assertEqual(p.line, "foocommand a:b foo c:d bar")
-        
-        
+
+
 #         _in = kvstring_to_dict("k0:v0             k1:v1 ki:vi")
 #         _out = {'k0':'v0','k1':'v1','ki':'vi'}
 #         self.assertItemsEqual(_in, _out)
-#         
+#
 #         _in = kvstring_to_dict("k0=v0             k1=v1 ki:vi")
 #         _out = {'k0':'v0','k1':'v1','ki':'vi'}
 #         self.assertItemsEqual(_in, _out)
-#         
+#
 #         _in = kvstring_to_dict("")
 #         _out = {}
 #         self.assertItemsEqual(_in, _out)
-#         
+#
 #         _in = "k0!v0"
 #         self.assertRaises(TypeError, kvstring_to_dict(_in))
-#         
+#
 #         _in = "k0:"
 #         self.assertRaises(TypeError, kvstring_to_dict(_in))
 
     def test_argparse(self):
         p = Plugin()
-        
+
         line = 'foocommand'
-        p.parseline(line) 
+        p.parseline(line)
         self.assertEqual(p.kvarg, {})
         self.assertEqual(p.varg, [])
-        
+
         line = 'foocommand a:b'
-        p.parseline(line) 
+        p.parseline(line)
         self.assertEqual(p.kvarg, {'a':'b'})
         self.assertEqual(p.varg, [])
-        
+
         line = 'foocommand a'
-        p.parseline(line) 
+        p.parseline(line)
         self.assertEqual(p.kvarg, {})
         self.assertEqual(p.varg, ['a'])
-        
+
         line = 'foocommand a c:d e f:g'
-        p.parseline(line) 
+        p.parseline(line)
         self.assertEqual(p.kvarg, {'c':'d', 'f':'g'})
         self.assertEqual(p.varg, ['a', 'e'])
 

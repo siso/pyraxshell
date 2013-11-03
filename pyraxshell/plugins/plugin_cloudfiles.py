@@ -32,52 +32,51 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
     '''
     pyrax shell POC - Manage CloudFiles module
     '''
-    
+
     prompt = "RS cloudfiles>"    # default prompt
 
     def __init__(self):
         pyraxshell.plugins.plugin.Plugin.__init__(self)
         self.libplugin = LibCloudfiles()
         self.cf = pyrax.cloudfiles
-    
+
     # ########################################
     # DEFAULT METHODS
-    
+
 #     def do_list(self, line):
 #         '''
 #         set default list method
 #         '''
 #         self.do_list_container(line)
-    
+
     # ########################################
     # CONTAINER AND OBJECTS
-    
+
     def do_create(self, line):
         '''
         create container
-        
+
         @param container    name of the container
         '''
         if not len(self.varg) == 1:
             self.r(1, "please, specify container name", WARNING)
             return False
         self.cf.create_container(self.varg[0])
-    
+
     def do_delete(self, line):
         '''
         download container or object
-        
+
         Usage:
-        
+
             delete container/object
             delete container recursive
-        
+
         @param element    to delete
-        @param recursive  recursive (WARNING: NO WAY TO RESTORE DELETED OBJECTS)
+        @param recursive  recursive (WARNING: NO WAY TO RESTORE DELETED
+                                     OBJECTS)
         '''
-        retcode = 0
         if len(self.varg) == 0:
-            retcode = 1
             retmsg = 'delete what?'
             self.r(0, retmsg, WARN)
             return False
@@ -98,26 +97,25 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
             # delete object
             (container_name, object_name) = self.varg[0].split('/', 1)
             try:
-                object = self.cf.get_object(container_name, object_name)
-                object.delete()
+                _object = self.cf.get_object(container_name, object_name)
+                _object.delete()
             except:
                 tb = traceback.format_exc()
                 self.r(1, tb, ERROR)
                 return False
-        
+
 #         (container_name, object_name) = self.varg[0].split('/', 1)
 #         dest_dir = self.varg[1]
 #         if not os.path.isdir(dest_dir):
 #             retmsg = 'destination directory \'%s\' does not exist' % dest_dir
 #             self.r(1, retmsg, ERROR)
-#             return False            
+#             return False
 #         dest_dir = self.varg[1]
 #         # select container
 #         o = self.cf.get_object(container_name, object_name)
 #         o.download(dest_dir)
-#         self.r(0, '\'%s\' downloaded' % self.varg[0], INFO)     # everything's ok
-        
-    
+#         self.r(0, '\'%s\' downloaded' % self.varg[0], INFO) # everything's ok
+
     def complete_delete(self, text, line, begidx, endidx):
         # not auto-completing 'recursive' as it is dangerous
         params = []
@@ -126,24 +124,21 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
             pass
         elif len(self.varg) == 2:
             # autocomplete dest
-            pass    
+            pass
         if not text:
             completions = params[:]
         else:
-            completions = [ f
-                           for f in params
-                            if f.startswith(text)
-                            ]
+            completions = [f for f in params if f.startswith(text)]
         return completions
-    
+
     def do_download(self, line):
         '''
         download object
-        
+
         Usage:
-        
+
             download container/virt/path/to/obj /local/dir
-        
+
         @param src    source container/object
         @param dest   destination directory
         '''
@@ -162,14 +157,13 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not os.path.isdir(dest_dir):
             retmsg = 'destination directory \'%s\' does not exist' % dest_dir
             self.r(1, retmsg, ERROR)
-            return False            
+            return False
         dest_dir = self.varg[1]
         # select container
         o = self.cf.get_object(container_name, object_name)
         o.download(dest_dir)
-        self.r(0, '\'%s\' downloaded' % self.varg[0], INFO)     # everything's ok
-        
-    
+        self.r(0, '\'%s\' downloaded' % self.varg[0], INFO)  # everything's ok
+
     def complete_download(self, text, line, begidx, endidx):
 #         params = ['src:', 'dst:']
         params = []
@@ -182,31 +176,28 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not text:
             completions = params[:]
         else:
-            completions = [ f
-                           for f in params
-                            if f.startswith(text)
-                            ]
+            completions = [f for f in params if f.startswith(text)]
         return completions
-    
+
     def do_list(self, line):
         '''
         list containers and objects
-        
+
         Usage:
-        
+
             list            -->    list containers
             list CONTAINER  -->    list objects within CONTAINER
-        
+
         @param columns    if 'all' then all the properties displayed
         '''
         # check and set defaults
         retcode, retmsg = self.kvargcheck(
-            {'name':'columns', 'default':''},
+            {'name': 'columns', 'default': ''},
         )
         if not retcode:             # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        
+
         if len(self.varg) >= 1:
             container_name = self.varg[0]
             container = self.cf.get_container(container_name)
@@ -224,38 +215,36 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
             if self.kvarg['columns'] == 'all':
                 props = ['name', 'object_count', 'total_bytes',
                         'cdn_enabled', 'cdn_ios_uri', 'cdn_log_retention',
-                        'cdn_ssl_uri', 'cdn_streaming_uri', 'cdn_ttl', 'cdn_uri',]
+                        'cdn_ssl_uri', 'cdn_streaming_uri', 'cdn_ttl',
+                        'cdn_uri']
             # create a PrettyTable obj with those columns
             pt = objects_to_pretty_table(cc, props)
         # PrettyTable style
-        pt.align['name'] = 'l' 
+        pt.align['name'] = 'l'
         for c in props[1:]:
             pt.align[c] = 'r'
         pt.sortby = 'name'
         #
 #         print pt
         self.r(0, pt, INFO)
-    
+
     def complete_list(self, text, line, begidx, endidx):
         params = ['columns:all']
 #         print text
         if not text:
             completions = params[:]
         else:
-            completions = [ f
-                           for f in params
-                            if f.startswith(text)
-                            ]
+            completions = [f for f in params if f.startswith(text)]
         return completions
-    
+
     def do_make_public(self, line):
         '''
         make a container public
-        
+
         Usage:
-        
+
             make_public FOO [TTL]
-            
+
         @param container    container name
         @param ttl          Time-To-Live (default: 900s)
         '''
@@ -272,15 +261,15 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         except:
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
-    
+
     def do_make_private(self, line):
         '''
         make a container private
-        
+
         Usage:
-        
+
             make_private FOO
-            
+
         @param container    container name
         '''
         if not len(self.varg) == 1:
@@ -297,11 +286,11 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
     def do_upload(self, line):
         '''
         upload object
-        
+
         Usage:
-        
+
             upload /path/to/local/file container/virt/path/to/obj
-        
+
         @param src    local file
         @param dest   source container/object
         '''
@@ -331,7 +320,7 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
             self.r(0, 'file uploaded successfully', INFO)
         else:
             self.r(1, 'error uploading file', ERROR)
-    
+
     def complete_upload(self, text, line, begidx, endidx):
 #         params = ['src:', 'dst:']
         params = []
@@ -340,19 +329,16 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
             pass
         elif len(self.varg) == 2:
             # autocomplete dest
-            pass    
+            pass
         if not text:
             completions = params[:]
         else:
-            completions = [ f
-                           for f in params
-                            if f.startswith(text)
-                            ]
+            completions = [f for f in params if f.startswith(text)]
         return completions
-    
+
     # ########################################
     # METADATA
-    
+
     def do_get_accout_metadata(self, line):
         '''
         overall usage for Cloud Files
@@ -369,7 +355,7 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
     def do_set_account_metadata(self, line):
         '''
         set account metadata
-        
+
         @param metadata_values  as 'key1:value1 .. keyn:valuen'
         '''
         try:
@@ -380,5 +366,3 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
             return False
-    
-    

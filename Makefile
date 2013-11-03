@@ -21,11 +21,12 @@ rpm:
 test:
 	#unit2 discover -s tests -t .
 	#python -mpytest weasyprint
-	nosetests
+	#nosetests
+	find tests/ -name test_\*.py | sed "s/.py$$//g" | sed "s;/;.;g" | xargs -n1 python -m
 
 check:
-	find . -name \*.py | grep -v "^test_" | xargs pylint --errors-only --reports=n
 	find . -name \*.py | xargs pep8
+	find . -name \*.py | grep -v "^test_" | xargs pylint --errors-only --reports=n
 	# pyntch
 	# pyflakes
 	# pychecker

@@ -19,7 +19,7 @@ from pyraxshell.utility import l
 
 
 class Lib():
-    
+
     def r(self, retcode, msg, log_level):
         '''
         record Session command input/output to 'commands' table, and

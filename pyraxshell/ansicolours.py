@@ -14,7 +14,6 @@ class ANSIColours(object):
     ANSI colours facility
     '''
 
-
     def __init__(self):
         '''
         Constructor
@@ -22,28 +21,28 @@ class ANSIColours(object):
         # supported ANSI colours
         self._colours = ['black', 'red', 'green', 'yellow', 'blue', 'magenta',
                          'cyan', 'white']
-        
+
         # reset all ANSI attributes escape string
         self._endc = '\033[0m'
-    
+
     @property
     def colours(self):
         '''
         list supported ANSI colours
         '''
         return self._colours
-    
+
     @property
     def endc(self):
         '''
         reset all ANSI attributes escape string
         '''
         return self._endc
-    
-    def get(self, colour, bright = False):
+
+    def get(self, colour, bright=False):
         '''
         return ANSI escape string which represents 'colour'
-        
+
         @param colour    name of the colour to translate to ANSI code
         @param bright    True for bright color, False for normal
         @return    ANSI colour escape string

@@ -27,11 +27,11 @@ class InstanceCreatorThread (threading.Thread):
     '''
     thread to create a Cloud Databases instance
     '''
-    
+
     def __init__(self, _name, flavor_id, volume, poll_time=POLL_TIME):
         '''
         Constructor
-        
+
         _name       Cloud Databases Instance name
         flavor_id   Cloud Databases Instance flavour id
         volume      Cloud Databases Instance volume
@@ -46,12 +46,12 @@ class InstanceCreatorThread (threading.Thread):
                       ' volume:%s'
                       % (self.getName, _name, flavor_id, volume))
         self._terminate = False
-    
+
     def run(self):
         '''
-        create a server, wait for completion, 
+        create a server, wait for completion,
         aka server status in ('ACTIVE', 'ERROR', 'UNKNOWN')
-        
+
         poll_time    polling time waiting for completion in seconds
         '''
         logging.debug("Starting %s" % self.name)
@@ -59,14 +59,15 @@ class InstanceCreatorThread (threading.Thread):
         cdb = pyrax.cloud_databases
         cdbi = cdb.create(self._name, flavor=int(self.flavor_id),
                           volume=self.volume)
-        logging.debug('polling Cloud database instance creation progress (%d)' % self.poll_time)
+        logging.debug('polling Cloud database instance creation progress (%d)'
+                      % self.poll_time)
         while cdbi.status not in statuses:
             if self._terminate == True:
                 logging.debug("terminating thread %s" % self.name)
                 return
             time.sleep(1)
             if int(time.time()) % self.poll_time == 0:
-                # mitigate polling server creation progress 
+                # mitigate polling server creation progress
                 cdbi.get()
                 logging.debug('server \'%s\', status:%s' % (cdbi.name,
                                                             cdbi.status))
@@ -80,7 +81,7 @@ class LibDatabases(object):
     '''
     pyraxshell database library
     '''
-    
+
     # ########################################
     # CLOUD DATABASES - INSTANCES
     def get_instance_by_id(self, instance_id):
@@ -98,7 +99,7 @@ class LibDatabases(object):
             logging.error('error searching cloud databases instance by id:%s' %
                           instance_id)
             return None
-    
+
     def get_instance_flavor_by_id(self, flavor_id):
         '''
         return cloud databases instance flavour by id
@@ -122,6 +123,6 @@ class LibDatabases(object):
             except IndexError:
                 return None
             except:
-                logging.error('cannot find database name:%s in instance_id:%s' %
-                              (database_name, instance_id))
+                logging.error('cannot find database name:%s in instance_id:%s'
+                              % (database_name, instance_id))
                 return None

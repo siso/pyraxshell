@@ -25,7 +25,7 @@ from utility import print_top_right
 class Notifier(threading.Thread):
     '''
     A consumer class which get stuff from the Message Queue 'msg_queue'
-    
+
     By default Notifier poll the queue every second, get messages, and
     print them one at a time. For the time being 'Producers' should not put
     more that one message per second on the queue
@@ -36,15 +36,15 @@ class Notifier(threading.Thread):
         self._terminate = False
 #         threading.Thread.setName('notifier')
         threading.Thread.__init__(self)
- 
+
     @property
     def terminate(self):
         return self._terminate
-    
+
     @terminate.setter
     def terminate(self, value=True):
         self._terminate = value
-           
+
     def run(self):
         while True:
             # pop an item from the queue, if any
@@ -53,5 +53,3 @@ class Notifier(threading.Thread):
             if self._terminate == True:
                 break
             time.sleep(self.polltime)
-        
-        

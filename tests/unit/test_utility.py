@@ -39,28 +39,28 @@ class Test(unittest.TestCase):
         self.assertFalse(is_ipv6('0.0.0.999'))
         self.assertFalse(is_ipv6('THIS IS NOT AN IP ADDRESS!'))
         self.assertTrue(is_ipv6('2a00:1a48:7806:0116:b1ee:476b:ff08:7bb4'))
-    
+
     def test_kvstring_to_dict(self):
         _in = kvstring_to_dict("k0:v0 k1:v1 ki:vi")
         _out = {'k0':'v0','k1':'v1','ki':'vi'}
         self.assertItemsEqual(_in, _out)
-        
+
         _in = kvstring_to_dict("k0:v0             k1:v1 ki:vi")
         _out = {'k0':'v0','k1':'v1','ki':'vi'}
         self.assertItemsEqual(_in, _out)
-        
+
         _in = kvstring_to_dict("k0=v0             k1=v1 ki:vi")
         _out = {'k0':'v0','k1':'v1','ki':'vi'}
         self.assertItemsEqual(_in, _out)
-        
+
         _in = kvstring_to_dict("")
         _out = {}
         self.assertItemsEqual(_in, _out)
-        
+
 #   get rid of this as pyraxshell.utility.kvstring_to_dict() is deprecated
 #        _in = "k0!v0"
 #        self.assertRaises(TypeError, kvstring_to_dict(_in))
-        
+
         _in = "k0:"
         self.assertRaises(TypeError, kvstring_to_dict(_in))
 

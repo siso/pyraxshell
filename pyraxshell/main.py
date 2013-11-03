@@ -36,7 +36,7 @@ def main():
     # register SIGINT and SIGTERM handler
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
-    
+
     # check '~/.pyraxshell' and config files exist, create them if missing
     if not check_dir_home():
         print ("This is the first time 'pyraxshell' runs, please, configure "
@@ -48,43 +48,42 @@ def main():
         # create default configuration file
         Configuration.Instance()  # @UndefinedVariable
         sys.exit(0)
-    
+
     # ########################################
     # VERSION CHECK
     if not version.check_version_file():
         sys.exit(1)
-    
+
     # ########################################
     # LOGGING
     start_logging()
     logging.debug('starting')
-    
+
 #     from baseconfigfile import BaseConfigFile
 #     bcf = BaseConfigFile()
-    
+
     # ########################################
     # ACCOUNTS
     accounts = Account.Instance()  # @UnusedVariable @UndefinedVariable
-    
-    # config file is read by 'BaseConfigFile' constructor 
+
+    # config file is read by 'BaseConfigFile' constructor
     # ########################################
     # CONFIGURATION
     cfg = Configuration.Instance()  # @UndefinedVariable
     # override settings with CLI params
     cfg.parse_cli(sys.argv)
     logging.debug("configuration: %s" % cfg)
-    
-    # set user's log level if specified 
+
+    # set user's log level if specified
     if not Configuration.Instance().log_level == None:  # @UndefinedVariable
         l = logging.getLogger()
         for h in l.handlers:
             h.setLevel(cfg.log_level)
-    
+
     # ########################################
     # START SESSION
     Sessions.Instance().start_session()  # @UndefinedVariable
-#     Sessions.Instance().insert_table_commands('IN', 'OUT')  # @UndefinedVariable
-    
+
     # ########################################
     # DO STUFF
     # handle configuration
@@ -101,7 +100,7 @@ def main():
 
 def signal_handler(signal, frame):
     '''
-    handle signals (i.e.: SIGINT, SIGTERM), and stop threads 
+    handle signals (i.e.: SIGINT, SIGTERM), and stop threads
     '''
     terminate_threads()
     sys.exit(0)
@@ -111,5 +110,4 @@ if __name__ == '__main__':
 #     # register SIGINT and SIGTERM handler
 #     signal.signal(signal.SIGINT, signal_handler)
 #     signal.signal(signal.SIGTERM, signal_handler)
-    
     main()

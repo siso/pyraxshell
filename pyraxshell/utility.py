@@ -38,17 +38,20 @@ def check_dir_home():
         return False
     return True
 
+
 def check_dir(directory):
     '''
     Check dir, create it if necessary
     '''
     if not os.path.isdir(directory):
-        logging.info("ipnotify directory '%s' is missing, creating it" % directory)
+        logging.info("ipnotify directory '%s' is missing, creating it" %
+                     directory)
         try:
             os.mkdir(directory)
         except OSError as exc:
             logging.warn("error creating directory '%s'")
             raise exc
+
 
 def get_ip_family(address):
     '''
@@ -60,8 +63,10 @@ def get_ip_family(address):
         return 'ipv6'
     return None
 
+
 def get_uuid():
     return uuid.uuid4()
+
 
 def is_ipv4(address):
     '''
@@ -74,6 +79,7 @@ def is_ipv4(address):
     except socket.error:
         return False
 
+
 def is_ipv6(address):
     '''
     check if address is valid IP v6
@@ -85,10 +91,11 @@ def is_ipv6(address):
     except socket.error:
         return False
 
+
 def kv_dict_to_pretty_table(d):
     '''
     pretty-print dictionary by key-value with PrettyTable
-    
+
     @param d dictionary to pretty-print
     '''
     try:
@@ -101,15 +108,16 @@ def kv_dict_to_pretty_table(d):
         l('', 1, traceback.extract_stack(), ERROR)
         return False
 
+
 def kvstring_to_dict(kvs):
     '''
     DEPRECATED - use 'plugins.Plugin._kvarg' instead
-    
+
     transform a key-value-string to dictionary
     key-value separator can be ':' or '=', even mixed!
-    
+
     return None in case of error
-    
+
     i.e.: "k0:v0 k1:v1 ... ki:vi" ==> {'k0':'v0','k1':'v1','ki':'vi'}
     '''
     logging.debug(kvs)
@@ -128,7 +136,7 @@ def kvstring_to_dict(kvs):
 def l(cmd, retcode, msg, log_level):
     '''
     logging message facility which logs and returns log message
-    
+
     cmd        command-line with params
     retcode    command return-code
     msg        informative message
@@ -171,6 +179,7 @@ def l(cmd, retcode, msg, log_level):
         logging.critical(msg)
     return msg
 
+
 def mkdir_p(path):
     '''
     implement "mkdir -p"
@@ -182,34 +191,38 @@ def mkdir_p(path):
         l('', 1, traceback.extract_stack(), ERROR)
         return False
 
+
 def objects_to_pretty_table(objs, props):
     '''
     pretty-print objects with PrettyTable
-    
+
     This function returns a PrettyTable object so further customisation
     can be applied, without adding complexity here
-    
+
     @param objs        objects to render as table
     @param props       class properties to render as columns
     @return            PrettyTable object
     '''
     # preliminary check
     if not isinstance(objs[0], object):
-        l('', 1, 'expected objects list, but got  \'%s\'' % type(objs[0]), ERROR)
+        l('', 1, 'expected objects list, but got  \'%s\'' % type(objs[0]),
+          ERROR)
         return False
     # create a PrettyTable obj with those columns
     pt = PrettyTable(props)
     # populate PrettyTable
     for o in objs:
         try:
-            pt.add_row([ getattr(o,p) for p in props if hasattr(o, p) ])
+            pt.add_row([getattr(o, p) for p in props if hasattr(o, p)])
         except:
             l('', 1, traceback.extract_stack(), ERROR)
     return pt
-                
+
 
 def print_dict(d, indent=0, indent_string="--"):
-    '''recursively print nested dictionaries''' 
+    '''
+    recursively print nested dictionaries
+    '''
     for k, v in d.items():
         if type(v) is not dict:
             print "%s%s --> %s" % ((indent_string * indent), k, v)
@@ -217,9 +230,11 @@ def print_dict(d, indent=0, indent_string="--"):
             print "%s%s:" % ((indent_string * indent), k)
             print_dict(v, indent + 1)
 
+
 def print_there(row, col, text):
     sys.stdout.write("\x1b7\x1b[%d;%df%s\x1b8" % (row, col, text))
     sys.stdout.flush()
+
 
 def print_top_right(text):
     '''
@@ -233,9 +248,10 @@ def print_top_right(text):
     print_there(2, width - len(text) + 1, text)
     print_there(3, width - len(text) + 1, '+%s+' % ('-' * (text_len + 2)))
 
+
 def terminate_threads():
     '''
-    stop threads gracefully 
+    stop threads gracefully
     '''
     logging.debug("terminate threads gracefully and exit")
     logging.debug('%d threads running' % len(threading.enumerate()))

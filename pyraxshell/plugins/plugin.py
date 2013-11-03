@@ -34,9 +34,9 @@ class Plugin(cmd.Cmd):
     '''
     Plugin base class
     '''
-    
-    prompt = "RS %s>" % name    # default prompt
-    
+
+    prompt = "RS %s>" % name  # default prompt
+
     def __init__(self):
         '''
         Constructor
@@ -47,49 +47,49 @@ class Plugin(cmd.Cmd):
         self.cmd = None
         self.arg = None
         self.line = None
-        
+
         # no 'Cmd' output in non-interactive mode
         interactive = os.isatty(0)
         if not interactive:
             f = open(os.devnull, 'w')
             sys.stdout = f
-    
+
     def kvargcheck(self, *args):
         '''
         check 'self.kvarg' against passed check rules ('*args')
-        
+
         Args:
             *args should be dictionaries as the following:
-        
+
                 {'name':'key-name', 'default|required':value}
-        
+
         Returns:
             (bool, msg). The return code::
-            
+
                 True    -- Success!
                 False   -- No good.
             and 'msg' is an informative message
-        
+
         Example:
-        
+
         The following code will ensure that 'self.kvarg' contains required
         parameters 'username' and 'apikey', and will default missing parameters
         to those provided.
         Additional parameters will be wiped out:
-        
+
             retcode, retmsg = self.kvargcheck(
                   {'name':'identity_type', 'default':'rackspace'},
                   {'name':'username', 'required':True},
                   {'name':'apikey', 'required':True},
                   {'name':'region', 'default':'LON'}
             )
-        
+
         So, to recap:
-        
+
             IN: username:foo apikey:aa identity_type:openstack xx:yy TRUE
             OUT: username:foo apikey:aa identity_type:openstack region:LON
-            
-            IN: username:foo apikey:aa 
+
+            IN: username:foo apikey:aa
             OUT: username:foo apikey:aa identity_type:rackspace region:LON
         '''
         logging.debug('args: %s' % pprint.pformat(args))
@@ -113,26 +113,26 @@ class Plugin(cmd.Cmd):
         except:
             logging.debug("retcode:False, retmsg:unknown problem occurred")
             return False, 'unknown problem occurred'
-    
+
     def argparse(self):
         '''
         parse 'self.arg' and extract 'kvarg' and 'varg'
-        
+
         self.arg can be the following:
-        
+
         * a:b    --> added to 'self.kvarg'
         * x:$y   --> added to 'self.kvarg'
         * c      --> added to 'self.varg'
-        
+
         transform a key-value-args string to kvargs dictionary
         key-value separator can be ':' or '=', even mixed, i.e.:
-        
+
         "k0:v0 k1=v1 ... ki:vi" ==> {'k0':'v0','k1':'v1','ki':'vi'}
-        
-        This method is automatically called by 'self.parseline()'.    
-        
+
+        This method is automatically called by 'self.parseline()'.
+
         Returns:
-        
+
         True  -- parsed correctly
         False -- No good
         '''
@@ -162,8 +162,8 @@ class Plugin(cmd.Cmd):
             self.kvarg = None
         try:
             logging.debug("self.kvarg: %s" %
-                          ', '.join('%s:%s' % (k,v)
-                                    for k,v in self.kvarg.items()))
+                          ', '.join('%s:%s' % (k, v)
+                                    for k, v in self.kvarg.items()))
             logging.debug("self.varg: %s" %
                           ', '.join('%s' % v for v in self.varg))
         except:
@@ -179,7 +179,7 @@ class Plugin(cmd.Cmd):
         if self.lastcmd:
             self.lastcmd = ""
             return self.onecmd('\n')
-    
+
     def parseline(self, line):
         '''
         override 'cmd.Cmd.parseline' to store cmd, arg and line
@@ -194,7 +194,7 @@ class Plugin(cmd.Cmd):
         if not self.cfg.interactive:
             print
         return cmd.Cmd.precmd(self, line)
-    
+
     def preloop(self):
         '''
         override preloop and verify if user is authenticated
@@ -204,14 +204,14 @@ class Plugin(cmd.Cmd):
         import pyraxshell.plugins.libauth
         if not pyraxshell.plugins.libauth.LibAuth().is_authenticated():
             logging.warn('please, authenticate yourself before continuing')
-    
+
     def do_EOF(self, line):
         '''
         just press CTRL-D to quit this menu
         '''
         print
         return True
-    
+
     def do_dir(self, line):
         '''
         list alias
@@ -223,24 +223,24 @@ class Plugin(cmd.Cmd):
         EOF alias
         '''
         return self.do_EOF(line)
-    
+
     def do_list(self, line):
         '''
         default list method (this needs to be here to define aliases: ls, ll, dir)
         '''
-    
+
     def do_ll(self, line):
         '''
         list alias
         '''
         return self.do_list(line)
-    
+
     def do_ls(self, line):
         '''
         list alias
         '''
         return self.do_list(line)
-    
+
     def do_emptyline(self, line):
         '''
         print a new empty line
@@ -249,7 +249,7 @@ class Plugin(cmd.Cmd):
             print
         else:
             print "\n"
-    
+
     def do_quit(self, line):
         '''
         EOF alias
@@ -262,5 +262,6 @@ class Plugin(cmd.Cmd):
         logging message facility
         '''
         l(self.line, retcode, msg, log_level)
-        Sessions.Instance().insert_table_commands(self.line ,   # @UndefinedVariable
-                                                  msg, retcode, log_level)
+        (Sessions.Instance().
+         insert_table_commands(self.line,  # @UndefinedVariable
+                               msg, retcode, log_level))

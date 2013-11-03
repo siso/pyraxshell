@@ -17,7 +17,7 @@
 
 # usage:    $ python -m tests.unit.test_singleton
 
-import unittest 
+import unittest
 from pyraxshell.singleton import Singleton  # @UnresolvedImport
 
 

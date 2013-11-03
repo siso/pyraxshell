@@ -21,7 +21,8 @@ import os.path
 from globals import HOME_DIR
 from globals import VERSION_FILE
 
-VERSION='0.2.6'
+VERSION = '0.2.6'
+
 
 def create_version_file():
     '''
@@ -29,6 +30,7 @@ def create_version_file():
     '''
     with open(VERSION_FILE, 'w') as f:
         f.write(VERSION)
+
 
 def read_version_file():
     '''
@@ -39,6 +41,7 @@ def read_version_file():
     if version_on_disk[-1] == '\n':
             version_on_disk = version_on_disk[:-1]
     return version_on_disk
+
 
 def check_version_file():
     '''

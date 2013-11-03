@@ -30,7 +30,7 @@ if __name__ == '__main__':
     if len(sys.argv) == 1:
         show_usage()
         sys.exit(0)
-    args =  " ".join([a for a in sys.argv[1:]])
+    args = (" ".join([a for a in sys.argv[1:]]))
     commands = args.split(',')
     process = subprocess.Popen(['python', 'pyraxshell'],
                                stdin=subprocess.PIPE,

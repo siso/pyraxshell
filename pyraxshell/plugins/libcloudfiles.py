@@ -26,14 +26,14 @@ class LibCloudfiles(Lib):
     '''
     pyraxshell CloudFiles library
     '''
-    
+
     def __init__(self):
         '''
         default constructor
         '''
         self.cf = pyrax.cloudfiles
 
-    
+
 #     def pt_containers_info(self):
 #         '''
 #         return PrettyTable with containers information
