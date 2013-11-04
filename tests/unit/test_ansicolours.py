@@ -5,7 +5,6 @@ from pyraxshell.ansicolours import ANSIColours
 
 class TestANSIColours(unittest.TestCase):
 
-
     def test_endc(self):
         c = ANSIColours()
         self.assertEqual(c.endc, '\033[0m')

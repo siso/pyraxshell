@@ -61,7 +61,6 @@ no_verify_ssl = False
         else:
             logging.debug('found default config file \'%s\'' % self._file)
 
-
     # ########################################
     # CLI
 

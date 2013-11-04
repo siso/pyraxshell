@@ -25,7 +25,8 @@ class Test(unittest.TestCase):
 
     def test_get_ip_family(self):
         self.assertEquals(get_ip_family('0.0.0.0'), 'ipv4')
-        self.assertEquals(get_ip_family('2a00:1a48:7806:0116:b1ee:476b:ff08:7bb4'), 'ipv6')
+        self.assertEquals(get_ip_family('2a00:1a48:7806:0116:b1ee:476b:ff08:7b'
+                                        'b4'), 'ipv6')
         self.assertEquals(get_ip_family('THIS IS NOT AN IP ADDRESS!'), None)
 
     def test_is_ipv4(self):
@@ -42,15 +43,15 @@ class Test(unittest.TestCase):
 
     def test_kvstring_to_dict(self):
         _in = kvstring_to_dict("k0:v0 k1:v1 ki:vi")
-        _out = {'k0':'v0','k1':'v1','ki':'vi'}
+        _out = {'k0': 'v0', 'k1': 'v1', 'ki': 'vi'}
         self.assertItemsEqual(_in, _out)
 
         _in = kvstring_to_dict("k0:v0             k1:v1 ki:vi")
-        _out = {'k0':'v0','k1':'v1','ki':'vi'}
+        _out = {'k0': 'v0', 'k1': 'v1', 'ki': 'vi'}
         self.assertItemsEqual(_in, _out)
 
         _in = kvstring_to_dict("k0=v0             k1=v1 ki:vi")
-        _out = {'k0':'v0','k1':'v1','ki':'vi'}
+        _out = {'k0': 'v0', 'k1': 'v1', 'ki': 'vi'}
         self.assertItemsEqual(_in, _out)
 
         _in = kvstring_to_dict("")

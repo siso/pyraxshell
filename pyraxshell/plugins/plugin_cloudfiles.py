@@ -16,15 +16,14 @@
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
 import cmd
-import logging
 import os.path
-from prettytable import PrettyTable
 import pyrax
 import traceback
 
-from pyraxshell.globals import INFO, WARNING, ERROR  # @UnusedWildImport @UnresolvedImport
+from pyraxshell.globals import INFO, WARN, WARNING, ERROR  # @UnresolvedImport
 from pyraxshell.plugins.libcloudfiles import LibCloudfiles  # @UnresolvedImport
-from pyraxshell.utility import kv_dict_to_pretty_table, objects_to_pretty_table  # @UnresolvedImport
+from pyraxshell.utility import kv_dict_to_pretty_table  # @UnresolvedImport
+from pyraxshell.utility import objects_to_pretty_table  # @UnresolvedImport
 import pyraxshell.plugins.plugin
 
 

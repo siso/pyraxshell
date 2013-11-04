@@ -21,7 +21,7 @@ from prettytable import PrettyTable
 import pyrax
 import traceback
 
-from pyraxshell.globals import INFO, ERROR, WARNING
+from pyraxshell.globals import INFO, ERROR, WARNING, POLL_TIME
 import pyraxshell.plugins.plugin
 from pyraxshell.plugins.libservers import LibServers, ServerCreatorThread
 

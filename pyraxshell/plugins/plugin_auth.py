@@ -23,7 +23,7 @@ import traceback
 
 from pyraxshell.globals import ERROR, INFO
 from pyraxshell.plugins.libauth import LibAuth
-import pyraxshell.plugins.plugin import Plugin
+import pyraxshell.plugins.plugin
 
 
 class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
@@ -58,8 +58,8 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
     def preloop(self):
         cmd.Cmd.preloop(self)
         logging.debug("preloop")
-        import plugins.libauth
-        if not plugins.libauth.LibAuth().is_authenticated():
+        import pyraxshell.plugins.libauth
+        if not pyraxshell.plugins.libauth.LibAuth().is_authenticated():
             logging.warn('please, authenticate yourself before continuing')
 
     # ########################################

@@ -17,6 +17,7 @@
 
 import cmd
 import logging
+import os
 import pprint
 import re
 import sys
@@ -226,7 +227,8 @@ class Plugin(cmd.Cmd):
 
     def do_list(self, line):
         '''
-        default list method (this needs to be here to define aliases: ls, ll, dir)
+        default list method (this needs to be here to define aliases: ls, ll,
+        dir)
         '''
 
     def do_ll(self, line):

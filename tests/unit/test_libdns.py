@@ -21,7 +21,6 @@ from pyraxshell.plugins.libdns import LibDNS  # @UnresolvedImport
 
 class Test(unittest.TestCase):
 
-
     def test_missing_subdomains(self):
         record = "foo.bar.example.co.uk"
         domain = "bar.example.com"
@@ -54,8 +53,8 @@ class Test(unittest.TestCase):
         self.assertFalse(libdns.is_parent('yyy.foo.bar.com', 'bar.co.uk'))
 
     def test_nearest_domain(self):
-        domains = [ "bar.example.co.uk", "example.co.uk", "example.com",
-                    "someexample.com", "example.bar.com", "bar.example.com"]
+        domains = ["bar.example.co.uk", "example.co.uk", "example.com",
+                   "someexample.com", "example.bar.com", "bar.example.com"]
 
         record = "foo.bar.example.com"
         nearest_domain = LibDNS().nearest_domain(record, domains)

@@ -21,7 +21,6 @@ from pyraxshell.plugins.plugin import Plugin  # @UnresolvedImport
 
 class Test(unittest.TestCase):
 
-
     def test_parseline(self):
         p = Plugin()
 
@@ -55,25 +54,6 @@ class Test(unittest.TestCase):
         self.assertEqual(p.arg, "a:b foo c:d bar")
         self.assertEqual(p.line, "foocommand a:b foo c:d bar")
 
-
-#         _in = kvstring_to_dict("k0:v0             k1:v1 ki:vi")
-#         _out = {'k0':'v0','k1':'v1','ki':'vi'}
-#         self.assertItemsEqual(_in, _out)
-#
-#         _in = kvstring_to_dict("k0=v0             k1=v1 ki:vi")
-#         _out = {'k0':'v0','k1':'v1','ki':'vi'}
-#         self.assertItemsEqual(_in, _out)
-#
-#         _in = kvstring_to_dict("")
-#         _out = {}
-#         self.assertItemsEqual(_in, _out)
-#
-#         _in = "k0!v0"
-#         self.assertRaises(TypeError, kvstring_to_dict(_in))
-#
-#         _in = "k0:"
-#         self.assertRaises(TypeError, kvstring_to_dict(_in))
-
     def test_argparse(self):
         p = Plugin()
 
@@ -84,7 +64,7 @@ class Test(unittest.TestCase):
 
         line = 'foocommand a:b'
         p.parseline(line)
-        self.assertEqual(p.kvarg, {'a':'b'})
+        self.assertEqual(p.kvarg, {'a': 'b'})
         self.assertEqual(p.varg, [])
 
         line = 'foocommand a'
@@ -94,8 +74,9 @@ class Test(unittest.TestCase):
 
         line = 'foocommand a c:d e f:g'
         p.parseline(line)
-        self.assertEqual(p.kvarg, {'c':'d', 'f':'g'})
+        self.assertEqual(p.kvarg, {'c': 'd', 'f': 'g'})
         self.assertEqual(p.varg, ['a', 'e'])
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

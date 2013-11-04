@@ -27,17 +27,18 @@ class Foo:
 #         print 'Foo created'
         pass
 
-class SingletonTest(unittest.TestCase):
 
+class SingletonTest(unittest.TestCase):
 
     def test_foo_contructor(self):
         # Error, this isn't how you get the instance of a singleton
         self.assertRaises(TypeError, Foo)
 
     def test_foo_instance(self):
-        f = Foo.Instance() # Good. Being explicit is in line with the Python Zen
-        g = Foo.Instance() # Returns already created instance
+        f = Foo.Instance()  # Good. Being explicit is in line with Python Zen
+        g = Foo.Instance()  # Returns already created instance
         self.assertIs(f, g)
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

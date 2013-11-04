@@ -26,10 +26,12 @@ from pyraxshell.version import VERSION
 
 here = os.path.abspath(os.path.dirname(__file__))
 
+
 def read(*parts):
     return codecs.open(os.path.join(here, *parts), 'r').read()
 
 long_description = read('README.rst')
+
 
 class PyTest(TestCommand):
     def finalize_options(self):
@@ -42,37 +44,28 @@ class PyTest(TestCommand):
         errno = pytest.main(self.test_args)
         sys.exit(errno)
 
-setup(
-    name='pyraxshell',
-        version=VERSION,
-    url='http://github.com/siso/pyraxshell/',
-    license='GPL 3',
-    author='Simone Soldateschi',
-    tests_require=['pytest'],
+setup(name='pyraxshell', version=VERSION,
+      url='http://github.com/siso/pyraxshell/', license='GPL 3',
+      author='Simone Soldateschi', tests_require=['pytest'],
 #    install_requires=['pyrax=1.4.9',
 #                    ],
-    cmdclass={'test': PyTest},
-    author_email='simone.soldateschi@gmail.com',
-    description='pyrax shell - manage OpenStack with a CLI tool',
-    long_description=long_description,
-    packages=['pyraxshell'],
-    include_package_data=True,
-    platforms='any',
-    test_suite='pyraxshell.test.test_pyraxshell',
-    classifiers = [
-        'Programming Language :: Python',
-        'Development Status :: 0 - Beta',
-        'Natural Language :: English',
-        'Environment :: CLI tool',
-        'Intended Audience :: DevOps and SysAdm',
-        'License :: OSI Approved :: GPL 3 License',
-        'Operating System :: OS Independent',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-        'Topic :: Software Development :: Libraries :: Application Frameworks',
-        'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
-        ],
-    extras_require={
-        'testing': ['pytest'],
-    }
+      cmdclass={'test': PyTest}, author_email='simone.soldateschi@gmail.com',
+      description='pyrax shell - manage OpenStack with a CLI tool',
+      long_description=long_description,
+      packages=['pyraxshell'],
+      include_package_data=True,
+      platforms='any',
+      test_suite='pyraxshell.test.test_pyraxshell',
+      classifiers = ['Programming Language :: Python',
+                     'Development Status :: 0 - Beta',
+                     'Natural Language :: English',
+                     'Environment :: CLI tool',
+                     'Intended Audience :: DevOps and SysAdm',
+                     'License :: OSI Approved :: GPL 3 License',
+                     'Operating System :: OS Independent',
+                     'Topic :: Software Development :: Libraries :: Python Modules',
+                     'Topic :: Software Development :: Libraries :: Application Frameworks',
+                     'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
+                     ],
+      extras_require={ 'testing': ['pytest'],}
 )
-

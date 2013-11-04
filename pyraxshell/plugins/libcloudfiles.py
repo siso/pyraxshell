@@ -16,9 +16,7 @@
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
 import pyrax
-import traceback
 
-from pyraxshell.globals import ERROR  # @UnresolvedImport
 from pyraxshell.plugins.lib import Lib  # @UnresolvedImport
 
 
