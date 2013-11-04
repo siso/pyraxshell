@@ -15,10 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 import os.path
 
-from globals import HOME_DIR
 from globals import VERSION_FILE
 
 VERSION = '0.2.6'
@@ -49,15 +47,9 @@ def check_version_file():
     '''
     # is version file present?
     if not os.path.isfile(VERSION_FILE):
-        # assuming VERSION_FILE is missing means fresh pyrashell installation
+        # assuming VERSION_FILE is missing means fresh pyraxshell installation
         create_version_file()
     # read version in version file
-    version_on_disk = read_version_file()
-    if not VERSION == version_on_disk:
-        errmsg = ("Version mismatch. This is version '%s', but found version "
-                  "'%s' in '%s'" % (VERSION, version_on_disk, HOME_DIR))
-        errmsg += ("\nPlease, rename '%s' (i.e.: '%s.bak')" % (HOME_DIR,
-                                                               HOME_DIR))
-        logging.error(errmsg)
+    if not VERSION == read_version_file():
         return False
     return True

@@ -52,6 +52,12 @@ def main():
     # ########################################
     # VERSION CHECK
     if not version.check_version_file():
+        errmsg = ("Version mismatch. This is version '%s', but found version "
+                  "'%s' in '%s'" % (version.VERSION,
+                                    version.read_version_file(), HOME_DIR))
+        errmsg += ("\nPlease, rename '%s' (i.e.: '%s.bak')" % (HOME_DIR,
+                                                               HOME_DIR))
+#         logging.error(errmsg)
         sys.exit(1)
 
     # ########################################

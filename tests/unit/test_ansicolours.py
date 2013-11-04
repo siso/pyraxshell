@@ -6,11 +6,11 @@ from pyraxshell.ansicolours import ANSIColours
 class TestANSIColours(unittest.TestCase):
 
     def test_endc(self):
-        c = ANSIColours()
+        c = ANSIColours.Instance()
         self.assertEqual(c.endc, '\033[0m')
 
     def test_get(self):
-        c = ANSIColours()
+        c = ANSIColours.Instance()
         # normal colours
         self.assertEqual(c.get('black'), '\033[90m')
         self.assertEqual(c.get('red'), '\033[91m')
@@ -31,7 +31,7 @@ class TestANSIColours(unittest.TestCase):
         self.assertEqual(c.get('white', True), '\033[107m')
 
     def test_list_colours(self):
-        c = ANSIColours()
+        c = ANSIColours.Instance()
         colours_list = ['black', 'red', 'green', 'yellow', 'blue', 'magenta',
                         'cyan', 'white']
         self.assertEqual(c.colours, colours_list)
