@@ -21,7 +21,7 @@ import os.path
 import pyrax
 import traceback
 
-from pyraxshell.globals import ERROR, INFO
+from pyraxshell.globals import ERROR, INFO, WARN
 from pyraxshell.plugins.libauth import LibAuth
 import pyraxshell.plugins.plugin
 
@@ -54,13 +54,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if self.lastcmd:
             self.lastcmd = ""
             return self.onecmd('\n')
-
-    def preloop(self):
-        cmd.Cmd.preloop(self)
-        logging.debug("preloop")
-        import pyraxshell.plugins.libauth
-        if not pyraxshell.plugins.libauth.LibAuth().is_authenticated():
-            logging.warn('please, authenticate yourself before continuing')
 
     # ########################################
     # CLOUD AUTHENTICATION
@@ -269,7 +262,11 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         '''
         print briefly current identity
         '''
-        msg = ('username: %s, region: %s, identity_type: %s' %
-               (pyrax.identity.username, pyrax.identity.region,
-                pyrax.get_setting('identity_type')))
-        self.r(0, msg, INFO)
+        try:
+            msg = ('username: %s, region: %s, identity_type: %s' %
+                   (pyrax.identity.username, pyrax.identity.region,
+                    pyrax.get_setting('identity_type')))
+            self.r(0, msg, INFO)
+        except:
+            tb = traceback.format_exc()
+            self.r(1, tb, ERROR)

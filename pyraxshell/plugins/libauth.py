@@ -161,10 +161,10 @@ class LibAuth(Lib):
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
 
-    def is_authenticated(self):
+    def is_authenticated(self, quiet=False):
         '''whether or not the user is authenticated'''
         try:
-            if pyrax.identity.authenticated:
+            if not pyrax.identity == None and pyrax.identity.authenticated:
                 cmd_out = "user is authenticated"
                 self.r(0, cmd_out, DEBUG)
                 return True

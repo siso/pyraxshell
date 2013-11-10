@@ -270,7 +270,8 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
             except:
                 logging.warn('cannot authenticate automatically with %s' %
                              pyrax_default_config_file)
-        if not plugins.libauth.LibAuth().is_authenticated():
-            logging.warn('please, authenticate yourself before continuing')
-        else:
-            logging.debug('authenticated successfully')
+        Plugin.preloop(self)
+#         if not plugins.libauth.LibAuth().is_authenticated():
+#             self.r(0, 'please, authenticate yourself before continuing', WARN)
+#         else:
+#             self.r(0, 'authenticated successfully', DEBUG)
