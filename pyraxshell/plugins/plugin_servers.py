@@ -213,10 +213,7 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         '''
         list my servers
         '''
-        logging.info("list my servers")
-        logging.debug("line: %s" % line)
-        # output in libservers
-        self.libplugin.print_pt_cloudservers()
+        print self.libplugin.pt_cloudservers()
 
     def do_list_flavors(self, line):
         '''

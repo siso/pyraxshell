@@ -195,7 +195,7 @@ class Plugin(cmd.Cmd):
     def precmd(self, line):
         if not self.cfg.interactive:
             print
-        if not self.libplugin.is_authenticated():
+        if not LibAuth().is_authenticated():
             self.r(0, 'please, authenticate yourself before continuing', WARN)
         return cmd.Cmd.precmd(self, line)
 

@@ -193,8 +193,8 @@ class LibServers(Lib):
                 return f
         return None
 
-    def print_pt_cloudservers(self):
-        '''print cloud servers flavors with PrettyTable'''
+    def pt_cloudservers(self):
+        '''cloud servers list with PrettyTable'''
         cs = self.list_cloudservers()
         pt = PrettyTable(['id', 'name', 'status', 'progress', 'flavor id',
                           'flavor'])
@@ -216,7 +216,8 @@ class LibServers(Lib):
                             self.get_cloudserver_flavor(csf.flavor['id']).name
                             ])
         pt.get_string(sortby='name')
-        self.r(0, str(pt), INFO)
+        pt.align['name'] = 'l'
+        return pt
 
     def print_pt_cloudservers_flavors(self):
         '''print cloud servers flavors with PrettyTable'''
