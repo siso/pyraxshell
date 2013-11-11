@@ -209,32 +209,27 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
     def do_exit(self, *args):
         return True
 
+    def do_flavors(self, line):
+        '''
+        list servers flavors
+        '''
+        # output in libservers
+        msg = self.libplugin.print_pt_cloudservers_flavors()
+        self.r(0, msg, INFO)
+
     def do_list(self, line):
         '''
         list my servers
         '''
-        logging.info("list my servers")
-        logging.debug("line: %s" % line)
-        # output in libservers
-        self.libplugin.print_pt_cloudservers()
+        msg = self.libplugin.print_pt_cloudservers()
+        self.r(0, msg, INFO)
 
-    def do_list_flavors(self, line):
-        '''
-        list servers flavors
-        '''
-        logging.info("list servers")
-        logging.debug("line: %s" % line)
-        # output in libservers
-        self.libplugin.print_pt_cloudservers_flavors()
-
-    def do_list_images(self, line):
+    def do_images(self, line):
         '''
         list servers images
         '''
-        logging.info("list servers")
-        logging.debug("line: %s" % line)
-        # output in libservers
-        self.libplugin.print_pt_cloudservers_images()
+        msg = self.libplugin.print_pt_cloudservers_images()
+        self.r(0, msg, INFO)
 
     def do_reboot(self, line):
         '''
@@ -325,7 +320,7 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
             return False
         try:
             s.create_image(self.kvarg['snapshot_name'])
-            cmd_out = ('took snapshot name:%s of server id:%s' %
+            cmd_out = ('snapshot name:%s of server id:%s' %
                        (self.kvarg['snapshot_name'], self.kvarg['id']))
             self.r(0, cmd_out, INFO)
         except:

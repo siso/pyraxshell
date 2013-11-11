@@ -16,9 +16,10 @@
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
-from pyraxshell.utility import is_ipv4, is_ipv6     # @UnresolvedImport
-from pyraxshell.utility import get_ip_family        # @UnresolvedImport
-from pyraxshell.utility import kvstring_to_dict     # @UnresolvedImport
+from pyraxshell.utility import is_ipv4, is_ipv6
+from pyraxshell.utility import get_ip_family
+from pyraxshell.utility import kvstring_to_dict
+from pyraxshell.utility import objects_to_pretty_table
 
 
 class Test(unittest.TestCase):
@@ -64,6 +65,25 @@ class Test(unittest.TestCase):
 
         _in = "k0:"
         self.assertRaises(TypeError, kvstring_to_dict(_in))
+
+#     def test_objects_to_pretty_table(self):
+#         class Foo:
+#             def __init__(self, prop):
+#                 self.prop = prop
+#             
+#             @property
+#             def prop(self):
+#                 return self.prop
+# 
+#         f1 = Foo('property a')
+#         f2 = Foo('property b')
+#         props = ('prop')
+#         objs = [f1, f2]
+#         v1 = objects_to_pretty_table(objs, props)
+#         print v1
+# #         v2 =  pt = PrettyTable(props)
+# #         v1.add_row([]
+# #         self.assertEqual(v1, v2)
 
 
 if __name__ == "__main__":

@@ -92,21 +92,20 @@ class Cmd_Pyraxshell(Plugin, cmd.Cmd):
         '''
         give credits
         '''
-        _credits = '''
+        msg = '''
 pyraxshell - Copyright (c) 2013, Simone Soldateschi - All rights reserved.
 
 author:   Simone Soldateschi
 email:    simone.soldateschi@gmail.com
 homepage: https://github.com/siso/pyraxshell
-license:  GPLv3 or later (see LICENSE)
-'''
-        logging.info(_credits)
+license:  GPLv3 or later (see LICENSE)'''
+        self.r(0, msg, INFO)
 
     def do_license(self, line):
         '''
         display pyraxshell license
         '''
-        l = '''
+        msg = '''
 pyraxshell is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -118,16 +117,16 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
-'''
-        logging.info(l)
+along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.'''
+        self.r(0, msg, INFO)
 
     def do_list_plugins(self, line):
         '''
         list loaded plugins
         '''
         l = sorted(self.plugin_names)
-        logging.info("loaded plugins: %s" % ', '.join([p for p in l]))
+        msg = "loaded plugins: %s" % ', '.join([p for p in l])
+        self.r(0, msg, INFO)
 
     def do_log_level(self, line):
         '''
@@ -163,7 +162,6 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
     def precmd(self, line):
         """Hook method executed just before the command line is
         interpreted, but after the input prompt is generated and issued.
-
         """
         cmd, arg, line = self.parseline(line)  # @UnusedVariable
         if cmd in self.plugin_names:
@@ -177,7 +175,8 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
         display pyraxshell version
         '''
         import version
-        logging.info('pyraxshell version: %s' % version.VERSION)
+        msg = 'pyraxshell version: %s' % version.VERSION
+        self.r(0, msg, INFO)
 
     def get_names(self):
         '''

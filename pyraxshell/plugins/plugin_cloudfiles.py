@@ -20,6 +20,7 @@ import os.path
 import pyrax
 import traceback
 
+from pyraxshell.globals import DEBUG  # @UnresolvedImport
 from pyraxshell.globals import INFO, WARN, WARNING, ERROR  # @UnresolvedImport
 from pyraxshell.plugins.libcloudfiles import LibCloudfiles  # @UnresolvedImport
 from pyraxshell.utility import kv_dict_to_pretty_table  # @UnresolvedImport
@@ -288,23 +289,22 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
 
         Usage:
 
-            upload /path/to/local/file container/virt/path/to/obj
+            upload src:/path/to/local/file dest:container/virt/path/to/obj
 
         @param src    local file
         @param dest   source container/object
         '''
-        retcode = 0
-        if len(self.varg) == 0:
-            retcode = 1
-            retmsg = 'src and dest missing'
-        elif len(self.varg) == 1:
-            retcode = 1
-            retmsg = 'dest missing'
-        if retcode == 1:
-            self.r(0, retmsg, WARN)
+        retcode, retmsg = self.kvargcheck(
+            {'name': 'src', 'required': True},
+            {'name': 'dest', 'required': True}
+        )
+        if not retcode:  # something bad happened
+            self.r(1, retmsg, ERROR)
             return False
-        (container_name, object_name) = self.varg[1].split('/', 1)
-        local_filename = self.varg[0]
+        self.r(0, retmsg, DEBUG)  # everything's ok
+
+        (container_name, object_name) = self.kvarg['dest'].split('/', 1)
+        local_filename = self.kvarg['src']
         if not os.path.isfile(local_filename):
             retmsg = 'local file \'%s\' does not exist' % local_filename
             self.r(1, retmsg, ERROR)
@@ -321,14 +321,7 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
             self.r(1, 'error uploading file', ERROR)
 
     def complete_upload(self, text, line, begidx, endidx):
-#         params = ['src:', 'dst:']
-        params = []
-        if len(self.varg) == 1:
-            # autocomplete src
-            pass
-        elif len(self.varg) == 2:
-            # autocomplete dest
-            pass
+        params = ['src:', 'dest:']
         if not text:
             completions = params[:]
         else:

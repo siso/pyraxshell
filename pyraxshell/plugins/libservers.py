@@ -216,7 +216,7 @@ class LibServers(Lib):
                             self.get_cloudserver_flavor(csf.flavor['id']).name
                             ])
         pt.get_string(sortby='name')
-        self.r(0, str(pt), INFO)
+        return pt
 
     def print_pt_cloudservers_flavors(self):
         '''print cloud servers flavors with PrettyTable'''
@@ -224,7 +224,7 @@ class LibServers(Lib):
         pt = PrettyTable(['id', 'name', 'ram', 'swap', 'vcpus'])
         for csf in csflavors:
             pt.add_row([csf.id, csf.name, csf.ram, csf.swap, csf.vcpus])
-        self.r(0, str(pt), INFO)
+        return pt
 
     def print_pt_cloudservers_images(self, sortby='name'):
         '''print cloud servers images with PrettyTable
@@ -237,6 +237,9 @@ class LibServers(Lib):
             pt.add_row([csf.id, csf.name, csf.minDisk, csf.minRam])
         pt.align['name'] = 'l'
         if sortby != None:
-            self.r(0, pt.get_string(sortby=sortby), INFO)
-        else:
-            self.r(0, str(pt), INFO)
+            try:
+                pt.get_string(sortby=sortby)
+            except:
+                tb = traceback.format_exc()
+                self.r(1, tb, ERROR)
+        return pt

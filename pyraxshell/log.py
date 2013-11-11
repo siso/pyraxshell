@@ -60,7 +60,7 @@ format=%(asctime)s %(name)s %(levelname)s %(module)s %(message)s
 datefmt=
 
 [formatter_consoleFormatter]
-format=%(message)s (%(levelname)s)
+format=%(message)s
 datefmt=
 '''
             f.write(log_cfg)
