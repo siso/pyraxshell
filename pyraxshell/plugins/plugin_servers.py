@@ -219,7 +219,7 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         '''
         list my servers
         '''
-        msg = self.libplugin.print_pt_cloudservers()
+        msg = self.libplugin.pt_cloudservers()
         self.r(0, msg, INFO)
 
     def do_images(self, line):
