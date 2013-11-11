@@ -214,9 +214,9 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
             props = ['name', 'object_count', 'total_bytes']
             if self.kvarg['columns'] == 'all':
                 props = ['name', 'object_count', 'total_bytes',
-                        'cdn_enabled', 'cdn_ios_uri', 'cdn_log_retention',
-                        'cdn_ssl_uri', 'cdn_streaming_uri', 'cdn_ttl',
-                        'cdn_uri']
+                         'cdn_enabled', 'cdn_ios_uri', 'cdn_log_retention',
+                         'cdn_ssl_uri', 'cdn_streaming_uri', 'cdn_ttl',
+                         'cdn_uri']
             # create a PrettyTable obj with those columns
             pt = objects_to_pretty_table(cc, props)
         # PrettyTable style

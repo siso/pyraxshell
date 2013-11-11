@@ -65,7 +65,7 @@ class ServerCreatorThread (threading.Thread):
         server = cs.servers.create(self.name, self.image_id, self.flavor_id)
         logging.debug('polling server creation progress (%d)' % self.poll_time)
         while server.status not in statuses:
-            if self._terminate == True:
+            if self._terminate is True:
                 logging.debug("terminating thread %s" % self.name)
                 return
             time.sleep(1)
@@ -73,7 +73,7 @@ class ServerCreatorThread (threading.Thread):
                 # mitigate polling server creation progress
                 server.get()
                 logging.debug('server \'%s\', status:%s, progress:%s' %
-                          (server.name, server.status, server.progress))
+                              (server.name, server.status, server.progress))
             msg_queue.put('server \'%s\': %s %s' %
                           (server.name, server.status, server.progress))
         if server.status == 'ACTIVE':
@@ -237,7 +237,7 @@ class LibServers(Lib):
         for csf in csflavors:
             pt.add_row([csf.id, csf.name, csf.minDisk, csf.minRam])
         pt.align['name'] = 'l'
-        if sortby != None:
+        if sortby is not None:
             try:
                 pt.get_string(sortby=sortby)
             except:

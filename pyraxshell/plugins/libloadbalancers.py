@@ -55,8 +55,8 @@ class LibLoadBalancers(object):
             lb = clb.get(loadbalancer_id)
             return [node for node in lb.nodes if node.id == int(node_id)][0]
         except IndexError:
-            logging.error('cannot find node id:%s in Cloud loadbalancer id:%s' %
-                          (node_id, loadbalancer_id))
+            logging.error('cannot find node id:%s in Cloud loadbalancer id:%s'
+                          % (node_id, loadbalancer_id))
             return None
         except:
             logging.error('error searching node id:%s in Cloud loadbalancer '

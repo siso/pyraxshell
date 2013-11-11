@@ -70,11 +70,11 @@ class Test(unittest.TestCase):
 #         class Foo:
 #             def __init__(self, prop):
 #                 self.prop = prop
-#             
+#
 #             @property
 #             def prop(self):
 #                 return self.prop
-# 
+#
 #         f1 = Foo('property a')
 #         f2 = Foo('property b')
 #         props = ('prop')

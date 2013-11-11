@@ -51,7 +51,7 @@ class LibAuth(Lib):
         if out['apikey'] == 'USE_KEYRING':
             # using 'stanza' as key as it is unique in accounts file
             out['apikey'] = keyring.get_password('pyraxshell', stanza)
-            if out['apikey'] == None:
+            if out['apikey'] is None:
                 print "password undefined, please enter it: ",
                 pw1 = raw_input()
                 print "re-type password: ",
@@ -85,7 +85,7 @@ class LibAuth(Lib):
         logging.debug('authenticating with credentials file \'%s\'' %
                       credentials_file)
         self.credentials_file = credentials_file
-        if self.credentials_file == None:
+        if self.credentials_file is None:
             # search for credentials file default locations
             file_locations = ['~/.pyrax.cfg', './.pyrax.cfg']
             file_locations = [os.path.expanduser(f) for f in file_locations]
@@ -96,8 +96,8 @@ class LibAuth(Lib):
                     break
                 else:
                     logging.debug("cannot find credentials file: %s" %
-                                 os.path.expanduser(f))
-            if self.credentials_file == None:
+                                  os.path.expanduser(f))
+            if self.credentials_file is None:
                 cmd_out = ('cannot find pyrax config file '
                            '(default locations: \'%s\')'
                            % file_locations)
@@ -164,7 +164,7 @@ class LibAuth(Lib):
     def is_authenticated(self, quiet=False):
         '''whether or not the user is authenticated'''
         try:
-            if not pyrax.identity == None and pyrax.identity.authenticated:
+            if not pyrax.identity is None and pyrax.identity.authenticated:
                 cmd_out = "user is authenticated"
                 self.r(0, cmd_out, DEBUG)
                 return True
@@ -210,7 +210,7 @@ class LibAuth(Lib):
             pt.add_row(['identity type', pyrax.get_setting('identity_type')])
             pt.add_row(['region', pyrax.identity.region])
             pt.add_row(['regions', ', '.join(r for r in
-                                            pyrax.identity.regions)])
+                                             pyrax.identity.regions)])
             pt.add_row(['username', pyrax.identity.username])
             pt.add_row(['tenant id', pyrax.identity.tenant_id])
             pt.add_row(['tenant name', pyrax.identity.tenant_name])

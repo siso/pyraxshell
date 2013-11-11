@@ -70,10 +70,10 @@ class Plugin(Plugin, cmd.Cmd):
         # set default and parse 'self.kvarg' parameters
         logging.debug('kvarg before: %s' % pprint.pformat(self.kvarg))
         retcode, retmsg = self.kvargcheck(
-              {'name': 'identity_type', 'default': 'rackspace'},
-              {'name': 'username', 'required': True},
-              {'name': 'apikey', 'required': True},
-              {'name': 'region', 'default': 'LON'}
+            {'name': 'identity_type', 'default': 'rackspace'},
+            {'name': 'username', 'required': True},
+            {'name': 'apikey', 'required': True},
+            {'name': 'region', 'default': 'LON'}
         )
         if not retcode:
             self.r(1, retmsg, ERROR)
@@ -125,10 +125,10 @@ class TestThread1 (threading.Thread):
         logging.debug("Starting %s" % self.threadID)
         max_rep = 5
         for i in range(max_rep):  # @UnusedVariable
-            msg_queue.put("thread %d - %s" % (self.threadID,
-                                               time.strftime('%H:%M:%S')))
+            msg_queue.put("thread %d - %s" %
+                          (self.threadID, time.strftime('%H:%M:%S')))
             time.sleep(1)
-            if self._terminate == True:
+            if self._terminate is True:
                 logging.debug("terminating thread %s" % self.name)
                 return
         msg_queue.put('TestThread1 - task completed')

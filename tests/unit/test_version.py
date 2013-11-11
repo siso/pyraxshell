@@ -28,8 +28,8 @@ class TestVersion(unittest.TestCase):
     '''
 
     def test_check_version_file(self):
-        pyraxshell.version.create_version_file  = MagicMock(return_value=True)
-        pyraxshell.version.read_version_file = MagicMock(return_value='0.0.0') 
+        pyraxshell.version.create_version_file = MagicMock(return_value=True)
+        pyraxshell.version.read_version_file = MagicMock(return_value='0.0.0')
         pyraxshell.version.VERSION = MagicMock(return_value='0.0.1')
         self.assertFalse(check_version_file())
 

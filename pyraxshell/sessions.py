@@ -43,20 +43,20 @@ class Sessions(DB):
 
     def start_session(self):
         api_key = ''
-        if hasattr(self.cfg, 'api_key') and self.cfg.api_key != None:
+        if hasattr(self.cfg, 'api_key') and self.cfg.api_key is not None:
             api_key = self.cfg.api_key
         identity_type = ''
-        if (hasattr(self.cfg, 'identity_type') and
-            self.cfg.identity_type != None):
+        if ((hasattr(self.cfg, 'identity_type') and
+             self.cfg.identity_type is not None)):
             identity_type = self.cfg.identity_type
         region = ''
-        if hasattr(self.cfg, 'region') and self.cfg.region != None:
+        if hasattr(self.cfg, 'region') and self.cfg.region is not None:
             region = self.cfg.region
         token = ''
-        if hasattr(self.cfg, 'token') and self.cfg.token != None:
+        if hasattr(self.cfg, 'token') and self.cfg.token is not None:
             token = self.cfg.token
         username = ''
-        if hasattr(self.cfg, 'username') and self.cfg.username != None:
+        if hasattr(self.cfg, 'username') and self.cfg.username is not None:
             username = self.cfg.username
         sql = ('''\
 insert into sessions

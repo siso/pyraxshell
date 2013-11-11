@@ -50,6 +50,6 @@ class Notifier(threading.Thread):
             # pop an item from the queue, if any
             if not msg_queue.empty():
                 print_top_right(msg_queue.get())
-            if self._terminate == True:
+            if self._terminate is True:
                 break
             time.sleep(self.polltime)

@@ -385,16 +385,16 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
                               'progress', 'server id', 'status', 'updated'])
             for ss in cs.list_snapshots():
                 pt.add_row([
-                                ss.id,
-                                ss.name,
-                                ss.created,
-                                ss.minDisk,
-                                ss.minRam,
-                                ss.progress,
-                                ss.server['id'],
-                                ss.status,
-                                ss.updated
-                            ])
+                    ss.id,
+                    ss.name,
+                    ss.created,
+                    ss.minDisk,
+                    ss.minRam,
+                    ss.progress,
+                    ss.server['id'],
+                    ss.status,
+                    ss.updated
+                    ])
             pt.align['id'] = 'l'
             pt.align['name'] = 'l'
             self.r(0, str(pt), INFO)

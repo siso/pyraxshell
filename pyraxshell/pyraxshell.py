@@ -155,7 +155,7 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.'''
         run PLUGIN.cmdloop()
         '''
         cmd, arg, line = self.parseline(line)  # @UnusedVariable
-        if not cmd == '' and not cmd == None:
+        if not cmd == '' and not cmd is None:
             i = importlib.import_module('pyraxshell.plugins.plugin_%s' % cmd)
             i.Plugin().cmdloop()
 
@@ -228,7 +228,7 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.'''
                 msg_loaded_plugins += " " + plugin_name
         logging.debug('seaching plug-ins done')
         logging.debug('plug-ins found: %s' %
-                     ", ".join(sorted(msg_loaded_plugins.split())))
+                      ", ".join(sorted(msg_loaded_plugins.split())))
         return True
 
     def preloop(self):
@@ -237,7 +237,7 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.'''
         # AUTHENTICATION
         import plugins.libauth
         pyrax_default_config_file = os.path.expanduser('~/.pyrax.cfg')
-        if self.cfg.username != None and self.cfg.api_key != None:
+        if self.cfg.username is not None and self.cfg.api_key is not None:
             # authenticating with login
             logging.debug("authenticating with login username:%s, apikey:%s" %
                           (self.cfg.username, self.cfg.api_key))
@@ -251,7 +251,7 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.'''
             logging.debug('authenticated as \'%s@%s\' in \'%s\'' %
                          (self.cfg.username, self.cfg.identity_type,
                           self.cfg.region))
-        elif self.cfg.token != None:
+        elif self.cfg.token is not None:
             # authenticating with token
             logging.debug("authenticating with token:%s" % self.cfg.token)
             try:
@@ -270,7 +270,3 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.'''
                 logging.warn('cannot authenticate automatically with %s' %
                              pyrax_default_config_file)
         Plugin.preloop(self)
-#         if not plugins.libauth.LibAuth().is_authenticated():
-#             self.r(0, 'please, authenticate yourself before continuing', WARN)
-#         else:
-#             self.r(0, 'authenticated successfully', DEBUG)

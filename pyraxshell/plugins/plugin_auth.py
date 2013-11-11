@@ -36,7 +36,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         pyraxshell.plugins.plugin.Plugin.__init__(self)
         self.libplugin = LibAuth()
 
-
     # ########################################
     # CLOUD AUTHENTICATION
 
@@ -98,7 +97,7 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
             self.r(1, cmd_out, ERROR)
             return False
         # authenticating with credentials file
-        if _file != None and _file != '':
+        if _file is not None and _file != '':
             errcode = (self.libplugin.authenticate_credentials_file(_file))
         else:
             errcode = self.libplugin.authenticate_credentials_file()
@@ -125,7 +124,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         '''
         show Whether or not the user is authenticated
         '''
-        
         self.r(0, self.libplugin.is_authenticated(), INFO)
 
     def do_list(self, line):
@@ -204,10 +202,10 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         token
         '''
         retcode, retmsg = self.kvargcheck(
-              {'name': 'identity_type', 'default': 'rackspace'},
-              {'name': 'region', 'default': 'LON'},
-              {'name': 'tenantId', 'required': True},
-              {'name': 'token', 'required': True}
+            {'name': 'identity_type', 'default': 'rackspace'},
+            {'name': 'region', 'default': 'LON'},
+            {'name': 'tenantId', 'required': True},
+            {'name': 'token', 'required': True}
         )
         if not retcode:
             self.r(1, retmsg, ERROR)

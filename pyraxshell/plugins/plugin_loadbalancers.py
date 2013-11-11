@@ -98,10 +98,16 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
                        nodes=self.declared_nodes,
                        virtual_ips=[vip])
             cmd_out = ('created load-balancer name:%s, virtual_ip:%s, port:%s,'
-                      ' protocol:%s, nodes:[%s]' %
-                      (self.kvarg['name'], self.kvarg['virtual_ip_type'],
-                       self.kvarg['port'], self.kvarg['protocol'],
-                       ",".join(["%s" % n for n in self.declared_nodes])))
+                       ' protocol:%s, nodes:[%s]' % (self.kvarg['name'],
+                                                     self.
+                                                     kvarg['virtual_ip_type'],
+                                                     self.kvarg['port'],
+                                                     self.kvarg['protocol'],
+                                                     ",".join(["%s" % n for n
+                                                               in
+                                                               self.
+                                                               declared_nodes])
+                                                     ))
             self.r(0, cmd_out, INFO)
         except Exception:
             tb = traceback.format_exc()
@@ -266,12 +272,10 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
                           'virtual_ips',
                           'port', 'status', 'algorithm', 'timeout'])
         for lb in clb.list():
-            pt.add_row([
-                        lb.id, lb.name, lb.nodeCount, lb.protocol,
+            pt.add_row([lb.id, lb.name, lb.nodeCount, lb.protocol,
                         '\n'.join(["%s (%s)" % (i.address, i.type)
-                                   for i in lb.virtual_ips]),
-                        lb.port, lb.status, lb.algorithm, lb.timeout
-                        ])
+                                   for i in lb.virtual_ips]), lb.port,
+                        lb.status, lb.algorithm, lb.timeout])
         pt.align['virtual_ips'] = 'l'
         self.r(0, str(pt), INFO)
 
@@ -308,10 +312,8 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
             lb = clb.get(self.kvarg['id'])
             ctr = 0
             for n in lb.nodes:
-                pt.add_row([
-                            ctr, n.type, n.condition, n.id, n.address,
-                            n.port, n.weight
-                            ])
+                pt.add_row([ctr, n.type, n.condition, n.id, n.address, n.port,
+                            n.weight])
                 ctr += 1
             pt.align['virtual_ips'] = 'l'
             self.r(0, str(pt), INFO)
@@ -487,15 +489,16 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         # additional checks
         if self.kvarg['condition'] not in ('ENABLED', 'DISABLED', 'DRAINING'):
             cmd_out = ("condition value '%s' not allowed"
-                         "possible values: ENABLED, DISABLED, DRAINING" %
-                         self.kvarg['condition'])
+                       "possible values: ENABLED, DISABLED, DRAINING" %
+                       self.kvarg['condition'])
             self.r(1, cmd_out, WARN)
             return False
         try:
             clb = pyrax.cloud_loadbalancers
             self.declared_nodes.append(clb.Node(address=self.kvarg['address'],
-                                        port=self.kvarg['port'],
-                                        condition=self.kvarg['condition']))
+                                                port=self.kvarg['port'],
+                                                condition=
+                                                self.kvarg['condition']))
             cmd_out = ('declared node address:%s, port:%s, condition:%s' %
                        (self.kvarg['address'], self.kvarg['port'],
                         self.kvarg['condition']))
@@ -539,8 +542,8 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
             self.r(0, cmd_out, INFO)
         except Exception:
             logging.error("error deleting node id:%s from Cloud load-balancer "
-                         "id:%s deleted" % (self.kvarg['id'],
-                                            self.kvarg['node_id']))
+                          "id:%s deleted" % (self.kvarg['id'],
+                                             self.kvarg['node_id']))
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
 

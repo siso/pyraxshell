@@ -95,7 +95,6 @@ no_verify_ssl = False
                             help=('cloud data center to build the servers in'
                                   ' (default: LON)'),
                             choices=['DFW', 'ORD', 'LON', 'SYD'],
-#                             default=pyrax.default_region
                             default='LON')
         parser.add_argument('--tenant-id', help='Authentication tenant id')
         parser.add_argument('-t', '--token', help='Authentication token')
@@ -129,14 +128,14 @@ no_verify_ssl = False
 
     @property
     def log_level(self):
-        if self.args.log_level == None:
+        if self.args.log_level is None:
             return None
         return self.args.log_level.upper()
 
     # --pyrax-http-debug (True)
     @property
     def pyrax_http_debug(self):
-        if self.args.pyrax_http_debug != None:
+        if self.args.pyrax_http_debug is not None:
             return self.args.pyrax_http_debug
         else:
             return self.get_param('pyrax', 'http_debug')
@@ -144,7 +143,7 @@ no_verify_ssl = False
     # --pyrax-no-verify-ssl
     @property
     def pyrax_no_verify_ssl(self):
-        if self.args.pyrax_no_verify_ssl != None:
+        if self.args.pyrax_no_verify_ssl is not None:
             return self.args.pyrax_no_verify_ssl
         else:
             return self.get_param('pyrax', 'no_verify_ssl')
@@ -172,7 +171,7 @@ no_verify_ssl = False
     # -v, --verbose
     @property
     def verbose(self):
-        if self.args.verbose != None:
+        if self.args.verbose is not None:
             return self.args.verbose
         else:
             return self.get_param('main', 'verbose')

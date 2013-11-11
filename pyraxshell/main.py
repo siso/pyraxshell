@@ -81,7 +81,7 @@ def main():
     logging.debug("configuration: %s" % cfg)
 
     # set user's log level if specified
-    if not Configuration.Instance().log_level == None:  # @UndefinedVariable
+    if not Configuration.Instance().log_level is None:  # @UndefinedVariable
         l = logging.getLogger()
         for h in l.handlers:
             h.setLevel(cfg.log_level)
@@ -93,9 +93,9 @@ def main():
     # ########################################
     # DO STUFF
     # handle configuration
-    if cfg.pyrax_http_debug == True:
+    if cfg.pyrax_http_debug is True:
         pyrax.set_http_debug(True)
-    if cfg.pyrax_no_verify_ssl == True:
+    if cfg.pyrax_no_verify_ssl is True:
         # see: https://github.com/rackspace/pyrax/issues/187
         pyrax.set_setting("verify_ssl", False)
     # start notifier

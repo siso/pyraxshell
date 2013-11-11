@@ -62,7 +62,7 @@ class InstanceCreatorThread (threading.Thread):
         logging.debug('polling Cloud database instance creation progress (%d)'
                       % self.poll_time)
         while cdbi.status not in statuses:
-            if self._terminate == True:
+            if self._terminate is True:
                 logging.debug("terminating thread %s" % self.name)
                 return
             time.sleep(1)
@@ -114,7 +114,7 @@ class LibDatabases(object):
         return cloud databases database
         '''
         instance = self.get_instance_by_id(instance_id)
-        if instance == None:
+        if instance is None:
             return None
         else:
             try:

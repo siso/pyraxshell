@@ -177,16 +177,17 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
             return False
         self.r(0, retmsg, INFO)  # everything's ok
 
-        if ((self.kvarg['ram'] == None and self.kvarg['volume'] == None) or
-            (self.kvarg['ram'] != None and self.kvarg['volume'] != None)):
-            cmd_out = 'specify ram or volume'
-            self.r(1, cmd_out, WARN)
-            return False
+        if ((self.kvarg['ram'] is None and self.kvarg['volume'] is None) or
+            (self.kvarg['ram'] is not None and self.kvarg['volume'] is not
+             None)):
+                cmd_out = 'specify ram or volume'
+                self.r(1, cmd_out, WARN)
+                return False
         try:
             db_instance = self.libplugin.get_instance_by_id(self.kvarg['id'])
-            if self.kvarg['ram'] != None:
+            if self.kvarg['ram'] is not None:
                 db_instance.resize(int(self.kvarg['ram']))
-            if self.kvarg['volume'] != None:
+            if self.kvarg['volume'] is not None:
                 db_instance.resize_volume(self.kvarg['volume'])
             cmd_out = 'instance id:%s resized' % self.kvarg['id']
             self.r(0, cmd_out, INFO)
@@ -228,10 +229,9 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
             db_instance = (
                 self.libplugin.get_instance_by_id(self.kvarg['instance_id']))
             db_instance.create_database(self.kvarg['database_name'])
-            cmd_out = ('created database_name:%s in '
-                       'Cloud Databases instance id:%s,'
-                        % (self.kvarg['database_name'],
-                           self.kvarg['instance_id']))
+            cmd_out = ('created database_name:%s in Cloud Databases instance '
+                       'id:%s,' % (self.kvarg['database_name'],
+                                   self.kvarg['instance_id']))
             self.r(0, cmd_out, INFO)
         except:
             tb = traceback.format_exc()
@@ -267,7 +267,7 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
             database = (
                 self.libplugin.get_database(self.kvarg['instance_id'],
                                             self.kvarg['database_name']))
-            if database == None:
+            if database is None:
                 cmd_out = ('cannot find database name:%s in instance_id:%s' %
                            (self.kvarg['database_name'],
                             self.kvarg['instance_id']))
@@ -309,8 +309,8 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
 
         try:
             logging.debug('listing databases in instance name:%s, id:%s,'
-                          % (self.libplugin.get_instance_by_id(
-                                self.kvarg['instance_id']).name,
+                          % (self.libplugin.get_instance_by_id
+                             (self.kvarg['instance_id']).name,
                              self.kvarg['instance_id']))
             db_instance = (
                 self.libplugin.get_instance_by_id(self.kvarg['instance_id']))
@@ -361,7 +361,7 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
                 self.libplugin.get_instance_by_id(self.kvarg['instance_id']))
             db_instance.create_user(self.kvarg['username'],
                                     self.kvarg['password'],
-                                database_names=self.kvarg['database_name'])
+                                    database_names=self.kvarg['database_name'])
             cmd_out = ('created username:%s, password:%s to instance_id:%s,'
                        'database_name:%s' % (self.kvarg['username'],
                                              self.kvarg['password'],
@@ -434,19 +434,15 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         self.r(0, retmsg, INFO)  # everything's ok
 
         try:
-            logging.info('listing users for instance name:%s, id:%s,'
-                         % (self.libplugin.get_instance_by_id(
-                                self.kvarg['instance_id']).name,
-                                self.kvarg['instance_id']))
-            db_instance = (self.libplugin.get_instance_by_id(
-                            self.kvarg['instance_id']))
+            logging.info('listing users for instance name:%s, id:%s,' %
+                         (self.libplugin.get_instance_by_id
+                          (self.kvarg['instance_id']).name, self.kvarg
+                          ['instance_id']))
+            db_instance = (self.libplugin.
+                           get_instance_by_id(self.kvarg['instance_id']))
             pt = PrettyTable(['databases', 'host', 'name'])
             for user in db_instance.list_users():
-                pt.add_row([
-                            user.databases,
-                            user.host,
-                            user.name
-                            ])
+                pt.add_row([user.databases, user.host, user.name])
             self.r(0, str(pt), INFO)
         except:
             tb = traceback.format_exc()

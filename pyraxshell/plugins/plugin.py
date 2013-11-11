@@ -97,7 +97,7 @@ class Plugin(cmd.Cmd):
         logging.debug('args: %s' % pprint.pformat(args))
         try:
             for d in args:
-                if type(d) is type({}):
+                if isinstance(d, dict):
                     logging.debug('required param \'%s\'' % d['name'])
                     if not d['name'] in self.kvarg.keys():
                         if 'required' in d.keys():
@@ -139,7 +139,7 @@ class Plugin(cmd.Cmd):
         False -- No good
         '''
         self.kvarg, self.varg = {}, []
-        if self.arg == None or len(self.arg) == 0:
+        if self.arg is None or len(self.arg) == 0:
             return None
         try:
             arg = self.arg

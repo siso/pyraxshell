@@ -52,7 +52,8 @@ args=(sys.stdout,)
 [handler_fileHandler]
 class=handlers.RotatingFileHandler
 level=DEBUG
-args=(os.path.expanduser('~/.pyraxshell/pyraxshell.log'),'a','maxBytes=1024k','backupCount=5')
+args=(os.path.expanduser('~/.pyraxshell/pyraxshell.log'),'a','maxBytes=1024k',\
+'backupCount=5')
 formatter=simpleFormatter
 
 [formatter_simpleFormatter]
@@ -82,7 +83,7 @@ def start_logging():
                               os.path.expanduser(f))
                 log_config_file = os.path.expanduser(f)
                 logging.config.fileConfig(log_config_file)
-        if log_config_file == None:
+        if log_config_file is None:
             logging.warn('could not find log config file (default locations: '
                          '\'%s\')' % log_config_file_locations)
             return False

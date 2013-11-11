@@ -80,7 +80,7 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         domains = self.libplugin.list_domain_names()
         nearest_domain = self.libplugin.nearest_domain(self.kvarg['name'],
                                                        domains)
-        if nearest_domain == None:
+        if nearest_domain is None:
             cmd_out = 'no matching domain found'
             self.r(1, cmd_out, ERROR)
             return False
@@ -249,8 +249,8 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
             try:
                 for r in dom.list_records():
                     if (r.name == self.kvarg['name'] and
-                        r.type == self.kvarg['type'] and
-                        r.data == self.kvarg['data']):
+                            r.type == self.kvarg['type'] and
+                            r.data == self.kvarg['data']):
                         r.delete()
                 cmd_out = ("delete '%s' in domain '%s'" % (del_rec_data,
                                                            domain_name))
@@ -464,8 +464,8 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         self.r(0, retmsg, INFO)  # everything's ok
 
         try:
-            domain = (self.libplugin.get_domain_by_name(
-                        self.kvarg['domain_name']))
+            domain = (self.libplugin.get_domain_by_name(self.
+                                                        kvarg['domain_name']))
             subdomains = domain.list_subdomains()
             header = ['id', 'name', 'email address']
             pt = PrettyTable(header)

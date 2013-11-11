@@ -51,14 +51,14 @@ class DB:
         '''
         query db
         '''
-        if not data == None:
+        if not data is None:
             logging.debug('[sql:%s][data:%s]' %
                           (sql, ','.join(['%s' % d for d in data])))
         else:
             logging.debug('[sql:%s]' % sql)
         try:
             cur = self.__con.cursor()
-            if not data == None:
+            if not data is None:
                 cur.execute(sql, data)
             else:
                 cur.execute(sql)
