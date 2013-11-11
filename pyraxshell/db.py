@@ -47,15 +47,21 @@ class DB:
         self.__con.commit()
         self.__con.close()
 
-    def query(self, sql, data):
+    def query(self, sql, data=None):
         '''
         query db
         '''
-        logging.debug('[sql:%s][data:%s]' %
-                      (sql, ','.join(['%s' % d for d in data])))
+        if not data == None:
+            logging.debug('[sql:%s][data:%s]' %
+                          (sql, ','.join(['%s' % d for d in data])))
+        else:
+            logging.debug('[sql:%s]' % sql)
         try:
             cur = self.__con.cursor()
-            cur.execute(sql, data)
+            if not data == None:
+                cur.execute(sql, data)
+            else:
+                cur.execute(sql)
             self.__con.commit()
             return cur.fetchall()
         except:

@@ -136,11 +136,11 @@ class LibAuth(Lib):
             pyrax.set_setting("identity_type", identity_type)
             pyrax.set_credentials(username, apikey, region=region)
             cmd_out = "authentication with login successful"
-            self.r(0, cmd_out, INFO)
+            self.r(0, cmd_out, DEBUG)
             return self.is_authenticated()
         except pyrax.exceptions.AuthenticationFailed:
             cmd_out = "authentication with login failed"
-            self.r(1, cmd_out, WARN)
+            self.r(1, cmd_out, DEBUG)
             return False
 
     def authenticate_token(self, token, tenantId, region,
@@ -161,10 +161,10 @@ class LibAuth(Lib):
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
 
-    def is_authenticated(self):
+    def is_authenticated(self, quiet=False):
         '''whether or not the user is authenticated'''
         try:
-            if pyrax.identity.authenticated:
+            if not pyrax.identity == None and pyrax.identity.authenticated:
                 cmd_out = "user is authenticated"
                 self.r(0, cmd_out, DEBUG)
                 return True
@@ -177,13 +177,28 @@ class LibAuth(Lib):
             self.r(1, tb, ERROR)
             return False
 
+    def get_identity_info(self):
+        '''
+        return brief identity information
+        '''
+        try:
+            msg = ('username=%s, token=%s, region=%s' %
+                   (pyrax.identity.username, pyrax.identity.token,
+                    pyrax.identity.region))
+            self.r(0, msg, DEBUG)
+            return (0, msg, INFO)
+        except:
+            tb = traceback.format_exc()
+            self.r(1, tb, ERROR)
+            return (1, 'error fetching identity information', ERROR)
+
     def get_token(self):
         '''return the token issued by Rackspace Cloud'''
         return pyrax.identity.auth_token
 
-    def print_pt_identity_info(self):
+    def pt_identity_info(self):
         '''
-        print identity information of current authenticated user
+        PrettyTable identity information of current authenticated user
         '''
 #TODO -- implement a function to build PrettyTable on the fly from JSON
 #        interactively: print pt
@@ -194,7 +209,7 @@ class LibAuth(Lib):
             pt.add_row(['authenticated', pyrax.identity.authenticated])
             pt.add_row(['identity type', pyrax.get_setting('identity_type')])
             pt.add_row(['region', pyrax.identity.region])
-            pt.add_row(['regions', ','.join(r for r in
+            pt.add_row(['regions', ', '.join(r for r in
                                             pyrax.identity.regions)])
             pt.add_row(['username', pyrax.identity.username])
             pt.add_row(['tenant id', pyrax.identity.tenant_id])
@@ -202,7 +217,7 @@ class LibAuth(Lib):
             pt.align['key'] = 'l'
             pt.align['value'] = 'l'
             pt.get_string(sortby='key')
-            print pt
+            return pt
         else:
             cmd_out = 'No info. Are you authenticated?'
             self.r(1, cmd_out, WARN)

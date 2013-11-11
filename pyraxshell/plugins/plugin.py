@@ -24,9 +24,10 @@ import sys
 import traceback
 
 from pyraxshell.configuration import Configuration
-from pyraxshell.globals import *  # @UnusedWildImport
+from pyraxshell.globals import WARN
 from pyraxshell.sessions import Sessions
 from pyraxshell.utility import l
+from pyraxshell.plugins.libauth import LibAuth
 
 name = 'none'
 
@@ -194,17 +195,17 @@ class Plugin(cmd.Cmd):
     def precmd(self, line):
         if not self.cfg.interactive:
             print
+        if not LibAuth().is_authenticated():
+            self.r(0, 'please, authenticate yourself before continuing', WARN)
         return cmd.Cmd.precmd(self, line)
 
     def preloop(self):
         '''
         override preloop and verify if user is authenticated
         '''
+        if not LibAuth().is_authenticated():
+            self.r(0, 'please, authenticate yourself before continuing', WARN)
         cmd.Cmd.preloop(self)
-        logging.debug("preloop")
-        import pyraxshell.plugins.libauth
-        if not pyraxshell.plugins.libauth.LibAuth().is_authenticated():
-            logging.warn('please, authenticate yourself before continuing')
 
     def do_EOF(self, line):
         '''
@@ -263,6 +264,10 @@ class Plugin(cmd.Cmd):
         record Session command input/output to 'commands' table, and
         logging message facility
         '''
+        try:
+            self.line
+        except:
+            self.line = ''
         l(self.line, retcode, msg, log_level)
         (Sessions.Instance().
          insert_table_commands(self.line,  # @UndefinedVariable

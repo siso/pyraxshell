@@ -16,12 +16,11 @@
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
 import cmd
-import logging
 import os.path
 import pyrax
 import traceback
 
-from pyraxshell.globals import ERROR, INFO
+from pyraxshell.globals import ERROR, INFO, WARN, DEBUG
 from pyraxshell.plugins.libauth import LibAuth
 import pyraxshell.plugins.plugin
 
@@ -37,30 +36,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         pyraxshell.plugins.plugin.Plugin.__init__(self)
         self.libplugin = LibAuth()
 
-    def do_EOF(self, line):
-        '''
-        just press CTRL-D to quit this menu
-        '''
-        print
-        return True
-
-    def emptyline(self):
-        """Called when an empty line is entered in response to the prompt.
-
-        If this method is not overridden, it repeats the last nonempty
-        command entered.
-
-        """
-        if self.lastcmd:
-            self.lastcmd = ""
-            return self.onecmd('\n')
-
-    def preloop(self):
-        cmd.Cmd.preloop(self)
-        logging.debug("preloop")
-        import pyraxshell.plugins.libauth
-        if not pyraxshell.plugins.libauth.LibAuth().is_authenticated():
-            logging.warn('please, authenticate yourself before continuing')
 
     # ########################################
     # CLOUD AUTHENTICATION
@@ -85,6 +60,7 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
 #                 username = None,
 #                 apikey = None,
 #                 region = pyrax.default_region)
+            self.r(*self.libplugin.get_identity_info())
         except:
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
@@ -149,10 +125,8 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         '''
         show Whether or not the user is authenticated
         '''
-        retcode = 1
-        if self.libplugin.is_authenticated():
-            retcode = 0
-        self.r(retcode, 'authenticated', INFO)
+        
+        self.r(0, self.libplugin.is_authenticated(), INFO)
 
     def do_list(self, line):
         '''
@@ -182,7 +156,7 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:             # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)     # everything's ok
+        self.r(0, retmsg, DEBUG)     # everything's ok
 
         try:
             self.libplugin.authenticate_login(
@@ -191,11 +165,7 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
                 identity_type=self.kvarg['identity_type'],
                 region=self.kvarg['region'],
             )
-            cmd_out = ('login - indentity_type:%s, username=%s, apikey=%s, '
-                       'region=%s' %
-                       (self.kvarg['identity_type'], self.kvarg['username'],
-                       self.kvarg['apikey'], self.kvarg['region']))
-            self.r(0, cmd_out, INFO)
+            self.r(*self.libplugin.get_identity_info())
         except:
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
@@ -212,7 +182,7 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         '''
         print current identity information
         '''
-        self.libplugin.print_pt_identity_info()
+        self.r(0, self.libplugin.pt_identity_info(), INFO)
 
     def do_print_token(self, line):
         '''
@@ -242,7 +212,7 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)
+        self.r(0, retmsg, DEBUG)
         try:
             self.libplugin.authenticate_token(
                 identity_type=self.kvarg['identity_type'],
@@ -250,15 +220,13 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
                 tenantId=self.kvarg['tenantId'],
                 token=self.kvarg['token'],
             )
-            cmd_out = ('login - tenantId=%s, token=%s' %
-                       (self.kvarg['tenantId'], self.kvarg['token']))
-            self.r(0, cmd_out, INFO)
+            self.r(*self.libplugin.get_identity_info())
         except:
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
 
     def complete_token(self, text, line, begidx, endidx):
-        params = ['identity_type', 'region', 'tenantId', 'token']
+        params = ['identity_type:', 'region:', 'tenantId:', 'token:']
         if not text:
             completions = params[:]
         else:
@@ -269,7 +237,11 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         '''
         print briefly current identity
         '''
-        msg = ('username: %s, region: %s, identity_type: %s' %
-               (pyrax.identity.username, pyrax.identity.region,
-                pyrax.get_setting('identity_type')))
-        self.r(0, msg, INFO)
+        try:
+            msg = ('username: %s, region: %s, identity_type: %s' %
+                   (pyrax.identity.username, pyrax.identity.region,
+                    pyrax.get_setting('identity_type')))
+            self.r(0, msg, INFO)
+        except:
+            tb = traceback.format_exc()
+            self.r(1, tb, ERROR)

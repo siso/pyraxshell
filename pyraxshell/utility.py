@@ -157,13 +157,13 @@ def l(cmd, retcode, msg, log_level):
         if not interactive:
             msg = "0|%s" % msg
         else:
-            msg = "%s%s%s" % (c.get('blue'), msg, c.endc)
+            msg = "%s%s%s" % (c.get('green'), msg, c.endc)
         logging.info(msg)
     if log_level == WARN:
         if not interactive:
             msg = "0|%s" % msg
         else:
-            msg = "%s%s%s" % (c.get('magenta'), msg, c.endc)
+            msg = "%s%s%s" % (c.get('yellow'), msg, c.endc)
         logging.warn(msg)
     if log_level == ERROR:
         if not interactive:
