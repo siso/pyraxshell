@@ -15,9 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
-import cmd
-import os.path
-import pyrax
 import traceback
 
 from pyraxshell.globals import ERROR, INFO, WARN, DEBUG
@@ -38,6 +35,14 @@ class Plugin(pyraxshell.plugins.plugin.Plugin):
         pyraxshell.plugins.plugin.Plugin.__init__(self)
         self.libplugin = LibAutoscale()
         self.au = self.libplugin.au
+    
+    def cmdloop(self):
+        # check if 'autoscale' feature is available for the account
+        if self.au is None:
+            msg = 'autoscale feature not available'
+            self.r(0, msg, WARN)
+            return False
+        return pyraxshell.plugins.plugin.Plugin.cmdloop(self)
     
     def complete_id(self, text, line, begidx, endidx):
         params = ['id:']
@@ -72,18 +77,21 @@ class Plugin(pyraxshell.plugins.plugin.Plugin):
             return False
         # build key-value dict to print
         try:
-            msg = '## Configuration\n'
-            pt = kv_dict_to_pretty_table(sg.get_configuration())
-            pt.align['value'] = 'l'
-            msg += str(pt)
-            msg += '\n\n## Links\n'
-            pt = kv_dict_to_pretty_table(sg.links())
-            pt.align['value'] = 'l'
-            msg += str(pt)
-            msg += '\n\n## State\n'
-            pt = kv_dict_to_pretty_table(sg.get_state())
-            pt.align['value'] = 'l'
-            msg += str(pt)
+            msg = ''
+            try:
+                msg = '## Configuration\n'
+                pt = kv_dict_to_pretty_table(sg.get_configuration())
+                pt.align['value'] = 'l'
+                msg += str(pt)
+            except: 
+                self.r(0, 'cannot fetch configuration', WARN)
+            try:
+                msg += '\n\n## State\n'
+                pt = kv_dict_to_pretty_table(sg.get_state())
+                pt.align['value'] = 'l'
+                msg += str(pt)
+            except:
+                self.r(0, 'cannot fetch state', WARN)
             #
             self.r(0, msg, INFO)
         except:
@@ -93,25 +101,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin):
     
     def complete_info(self, text, line, begidx, endidx):
         return self.complete_id(text, line, begidx, endidx)
-
-    def do_list(self, line):
-        '''
-        list Scaling Groups
-        '''
-        sg = self.au.list()
-        # properties to be displayed
-        props = ['id', 'name', 'cooldown', 'min_entities', 'max_entities',
-                 'metadata']
-        # create a PrettyTable obj with those columns
-        pt = objects_to_pretty_table(sg, props)
-        # PrettyTable style
-        pt.align['name'] = 'l'
-        for c in props[1:]:
-            pt.align[c] = 'r'
-        pt.sortby = 'name'
-        #
-#         print pt
-        self.r(0, pt, INFO)
 
     def do_list(self, line):
         '''

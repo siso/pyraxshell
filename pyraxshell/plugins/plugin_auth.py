@@ -36,6 +36,11 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         pyraxshell.plugins.plugin.Plugin.__init__(self)
         self.libplugin = LibAuth()
 
+#     def cmdloop(self):
+#         if not LibAuth().is_authenticated():
+#             self.r(0, 'please, authenticate yourself before continuing', WARN)
+#         return cmd.Cmd.cmdloop(self)
+
     # ########################################
     # CLOUD AUTHENTICATION
 
