@@ -43,6 +43,8 @@ OS_REGION_NAME = LON
 
 If ```OS_PASSWORD``` is ```USE_KEYRING``` then keychain authentication is used, otherwise right-value is used.
 
+One account can be 'default' by specifying 'default = True'.
+
 ### Credentials file
 Create ```~/.pyrax.cfg``` file with your credentials:
 

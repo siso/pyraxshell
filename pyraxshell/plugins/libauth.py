@@ -64,6 +64,27 @@ class LibAuth(Lib):
                     return None
         return out
 
+    def get_default_account(self):
+        '''
+        return the default account, None if not defined
+        
+        i.e.:
+        
+            [ACCOUNT]
+            default = True
+            ...
+        '''
+        a = Account.Instance()
+        a.parse_config_file()
+        for i in self.list_accounts():
+            try:
+                if a.get_param(i, 'default') == 'True':
+                    return i
+            except:
+                msg = "account '%s' has no 'default' option" % i
+                self.r(0, msg, DEBUG)
+        return None
+
     def list_accounts(self):
         '''
         return a list of accounts defined in ACCOUNTS_FILE

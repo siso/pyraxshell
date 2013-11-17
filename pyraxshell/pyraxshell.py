@@ -268,9 +268,18 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.'''
                 libauth = plugins.libauth.LibAuth()
                 libauth.authenticate_login(
                     **libauth.get_account(self.cfg.account))
-#                 (plugins.libauth.LibAuth().authenticate_token
-#                  (self.cfg.token, self.cfg.tenant_id, self.cfg.region,
-#                   self.cfg.identity_type))
+            except:
+                tb = traceback.format_exc()
+                self.r(1, tb, ERROR)
+        elif plugins.libauth.LibAuth().get_default_account() is not None:
+            # authenticate with default account
+            default_account = plugins.libauth.LibAuth().get_default_account()
+            logging.debug("authenticating with default account:%s" %
+                          default_account)
+            try:
+                libauth = plugins.libauth.LibAuth()
+                libauth.authenticate_login(
+                    **libauth.get_account(default_account))
             except:
                 tb = traceback.format_exc()
                 self.r(1, tb, ERROR)
