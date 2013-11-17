@@ -18,11 +18,25 @@ Just clone the [pyraxshell repository](https://github.com/siso/pyraxshell) on [G
 ```
 $ git clone https://github.com/siso/pyraxshell
 $ cd pyraxshell
-$ python pyraxshell
+$ python -m pyraxshell.main
 ```
 
 ## Authentication
-*pyraxshell* supports three different authentication methods: credentials file, login and token.
+*pyraxshell* supports four authentication methods: accounts file, credentials file, login and token.
+
+### Accounts file
+This is the preferred method as it allows to streamline management of Cloud products, especially with multiple Cloud
+account. ```~/.pyraxshell/accounts``` is the INI configuration file with multiple stanzas:
+
+```
+[autoscaleuk1]
+OS_USERNAME = autoscaleuk1
+OS_PASSWORD = USE_KEYRING
+OS_AUTH_SYSTEM = rackspace
+OS_REGION_NAME = LON
+```
+
+If ```OS_PASSWORD``` is ```USE_KEYRING``` then keychain authentication is used, otherwise right-value is used.
 
 ### Credentials file
 Create ```~/.pyrax.cfg``` file with your credentials:
