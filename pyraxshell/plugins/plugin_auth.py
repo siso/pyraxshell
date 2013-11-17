@@ -59,7 +59,7 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
 #                 username = None,
 #                 apikey = None,
 #                 region = pyrax.default_region)
-            self.r(*self.libplugin.get_identity_info())
+#             self.r(*self.libplugin.get_identity_info())
         except:
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)

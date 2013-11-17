@@ -63,7 +63,8 @@ def main():
     # ########################################
     # LOGGING
     start_logging()
-    logging.debug('starting')
+    logging.debug('-' * 80)
+    logging.debug('pyraxshell starting')
 
 #     from baseconfigfile import BaseConfigFile
 #     bcf = BaseConfigFile()

@@ -25,8 +25,13 @@ $ python -m pyraxshell.main
 *pyraxshell* supports four authentication methods: accounts file, credentials file, login and token.
 
 ### Accounts file
-This is the preferred method as it allows to streamline management of Cloud products, especially with multiple Cloud
-account. ```~/.pyraxshell/accounts``` is the INI configuration file with multiple stanzas:
+This is the preferred method as it streamline authentication process, and can
+leverage keychain features to encrypt passwords:
+
+```python -m pyraxshell.main --account account_uk```
+
+```~/.pyraxshell/accounts``` is a INI configuration file with one stanza per
+account, i.e.:
 
 ```
 [autoscaleuk1]

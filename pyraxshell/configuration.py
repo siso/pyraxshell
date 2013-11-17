@@ -73,6 +73,7 @@ no_verify_ssl = False
 #                             help="command to execute")
         parser.add_argument('-c', '--credentials',
                             help='file with credentials')
+        parser.add_argument('-a', '--account', help='Authentication account')
         parser.add_argument('-k', '--api-key', help='Authentication api-key')
         parser.add_argument('-i', '--identity-type',
                             help='identity type (default: \'rackspace\'',
@@ -106,6 +107,11 @@ no_verify_ssl = False
 
     # ########################################
     # SETTERs & GETTERs
+
+    # -a
+    @property
+    def account(self):
+        return self.args.account
 
     # -c
     @property
@@ -181,7 +187,8 @@ no_verify_ssl = False
         string representation of Configuration
         '''
         return ("%s" %
-                (', '.join(['credentials:%s' % self.credentials,
+                (', '.join(['account:%s' % self.account,
+                            'credentials:%s' % self.credentials,
                             'api-key:%s' % self.api_key,
                             'identity-type:%s' % self.identity_type,
                             'interactive:%s' % self.interactive,

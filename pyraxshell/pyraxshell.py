@@ -261,6 +261,19 @@ along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.'''
             except:
                 tb = traceback.format_exc()
                 self.r(1, tb, ERROR)
+        elif self.cfg.account is not None:
+            # authentication with accounts file '~/.pyraxshell/accounts.conf'
+            logging.debug("authenticating with account:%s" % self.cfg.account)
+            try:
+                libauth = plugins.libauth.LibAuth()
+                libauth.authenticate_login(
+                    **libauth.get_account(self.cfg.account))
+#                 (plugins.libauth.LibAuth().authenticate_token
+#                  (self.cfg.token, self.cfg.tenant_id, self.cfg.region,
+#                   self.cfg.identity_type))
+            except:
+                tb = traceback.format_exc()
+                self.r(1, tb, ERROR)
         elif os.path.isfile(pyrax_default_config_file):
             # try to authenticate automatically if '~/.pyrax.cfg' exists
             try:
