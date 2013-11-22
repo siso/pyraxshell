@@ -52,11 +52,84 @@ class Plugin(pyraxshell.plugins.plugin.Plugin):
             completions = [f for f in params if f.startswith(text)]
         return completions
     
+    def do_add_webhook(self, line):
+        '''
+        add webhook to scaling policy
+
+        @param group        scaling group id or name
+        @param policy       scaling policy id or name
+        @param name         webhook name
+        '''
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name': 'group', 'required': True},
+            {'name': 'policy', 'required': True},
+            {'name': 'name', 'required': True},
+        )
+        if not retcode:  # something bad happened
+            self.r(1, retmsg, ERROR)
+            return False
+        try:
+            # get webhook anonymous URL
+            sg = self.libplugin.get_group(self.kvarg['group'])
+            sp = self.libplugin.get_policy(sg, self.kvarg['policy'])
+            wh = sp.add_webhook(self.kvarg['name'])
+            self.r(0, wh, INFO)
+        except:
+            tb = traceback.format_exc()
+            self.r(1, tb, ERROR)
+            return False
+
+    def complete_add_webhook(self, text, line, begidx, endidx):
+        params = ['group:', 'policy:', 'name:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [f for f in params if f.startswith(text)]
+        return completions
+
+    def do_delete_webhook(self, line):
+        '''
+        delete webhook
+        
+        @param group        scaling group id or name
+        @param policy       scaling policy id or name
+        @param webook       webhook id or name
+        '''
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name': 'group', 'required': True},
+            {'name': 'policy', 'required': True},
+            {'name': 'webhook', 'required': True},
+        )
+        if not retcode:  # something bad happened
+            self.r(1, retmsg, ERROR)
+            return False
+        try:
+            # get webhook anonymous URL
+            sg = self.libplugin.get_group(self.kvarg['group'])
+            sp = self.libplugin.get_policy(sg, self.kvarg['policy'])
+            wh = self.libplugin.get_webhook(sp, self.kvarg['webhook'])
+            wh.delete()
+            self.r(0, 'webhook deleted', INFO)
+        except:
+            tb = traceback.format_exc()
+            self.r(1, tb, ERROR)
+            return False
+
+    def complete_delete_webhook(self, text, line, begidx, endidx):
+        params = ['group:', 'policy:', 'webhook:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [f for f in params if f.startswith(text)]
+        return completions
+
     def do_info(self, line):
         '''
         display scaling group info
         
-        id    scaling group id
+        @param id    scaling group id
         '''
         # check and set defaults
         retcode, retmsg = self.kvargcheck(
@@ -123,14 +196,19 @@ class Plugin(pyraxshell.plugins.plugin.Plugin):
         for c in props[1:]:
             pt.align[c] = 'r'
         pt.sortby = 'name'
-        #
-#         print pt
         self.r(0, pt, INFO)
+
+    def do_list_groups(self, line):
+        '''
+        list scaling groups
+        '''
+        return self.do_list(line)
 
     def do_list_policies(self, line):
         '''
-        list Scaling Groups
-        id    scaling group id
+        list Scaling policies
+        
+        @param id    scaling group id
         '''
         # check and set defaults
         retcode, retmsg = self.kvargcheck(
@@ -160,3 +238,95 @@ class Plugin(pyraxshell.plugins.plugin.Plugin):
 
     def complete_list_policies(self, text, line, begidx, endidx):
         return self.complete_id(text, line, begidx, endidx)
+
+    def do_list_webhooks(self, line):
+        '''
+        list webhooks
+        
+        @param group        scaling group id or name
+        @param policy       scaling policy id or name
+        @param showLinks    show webhook URLs (default:False)
+        '''
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name': 'group', 'required': True},
+            {'name': 'policy', 'required': True},
+            {'name': 'showLinks', 'default': 'False'},
+        )
+        if not retcode:  # something bad happened
+            self.r(1, retmsg, ERROR)
+            return False
+        try:
+            lo_wh = self.libplugin.list_webhooks(self.kvarg['group'],
+                                                 self.kvarg['policy'])
+            # properties to be displayed
+            if self.kvarg['showLinks'] == 'False':
+                props = ['id', 'name', 'metadata']
+            else:
+                props = ['id', 'name', 'metadata', 'links']
+            # create a PrettyTable obj with those columns
+            pt = objects_to_pretty_table(lo_wh, props)
+            # PrettyTable style
+            pt.align['name'] = 'l'
+            for c in props[1:]:
+                pt.align[c] = 'r'
+            pt.sortby = 'name'
+            self.r(0, pt, INFO)
+        except:
+            tb = traceback.format_exc()
+            self.r(1, tb, ERROR)
+            return False
+
+    def complete_list_webhooks(self, text, line, begidx, endidx):
+        params = ['group:', 'policy:', 'showLinks:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [f for f in params if f.startswith(text)]
+        return completions
+
+    def do_trigger_webhook(self, line):
+        '''
+        trigger webhook
+        
+        @param group        scaling group id or name
+        @param policy       scaling policy id or name
+        @param webook       webhook id
+        '''
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name': 'group', 'required': True},
+            {'name': 'policy', 'required': True},
+            {'name': 'webhook', 'required': True},
+        )
+        if not retcode:  # something bad happened
+            self.r(1, retmsg, ERROR)
+            return False
+        try:
+            # get webhook anonymous URL
+            sg = self.libplugin.get_group(self.kvarg['group'])
+            sp = self.libplugin.get_policy(sg, self.kvarg['policy'])
+            wh = self.libplugin.get_webhook(sp, self.kvarg['webhook'])
+            # fetch it with POST
+            url = self.libplugin.get_webhook_url(wh)
+            import urllib
+            import urllib2
+#             values = {'name' : 'Michael Foord',
+#                       'location' : 'Northampton',
+#                       'language' : 'Python' }
+            values = {}
+            data = urllib.urlencode(values)
+            req = urllib2.Request(url, data)
+            urllib2.urlopen(req)
+        except:
+            tb = traceback.format_exc()
+            self.r(1, tb, ERROR)
+            return False
+
+    def complete_trigger_webhook(self, text, line, begidx, endidx):
+        params = ['group:', 'policy:', 'webhook:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [f for f in params if f.startswith(text)]
+        return completions

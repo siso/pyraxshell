@@ -219,7 +219,7 @@ class LibServers(Lib):
         pt.align['name'] = 'l'
         return pt
 
-    def print_pt_cloudservers_flavors(self):
+    def pt_cloudservers_flavors(self):
         '''print cloud servers flavors with PrettyTable'''
         csflavors = self.list_cloudservers_flavors()
         pt = PrettyTable(['id', 'name', 'ram', 'swap', 'vcpus'])
