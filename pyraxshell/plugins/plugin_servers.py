@@ -55,8 +55,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         try:
             s = self.libplugin.get_by_id(self.kvarg['id'])
         except IndexError:
@@ -104,8 +102,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         try:
             # create ServerCreatorTread
             sct = ServerCreatorThread(self.kvarg['name'],
@@ -154,8 +150,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         self.libplugin.delete_server(self.kvarg['id'])
         cmd_out = 'deleting server id:%s' % self.kvarg['id']
         self.r(0, cmd_out, INFO)
@@ -188,8 +182,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         try:
             # output in libservers
             self.libplugin.details_server(self.kvarg['id'], self.kvarg['name'])
@@ -244,8 +236,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         _type = str.upper(self.kvarg['type'])
         if _type != 'COLD' and _type != 'HARD':
             cmd_out = "reboot type can be: cold or hard, not \'%s\'" % _type
@@ -253,7 +243,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
             return False
         try:
             s = self.libplugin.get_by_id(self.kvarg['id'])
-            self.r(0, cmd_out, INFO)
         except IndexError:
             cmd_out = ('cannot find server identified with id:%s' %
                        self.kvarg['id'])
@@ -270,7 +259,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
                            (self.kvarg['id'], s.status))
                 self.r(1, cmd_out, ERROR)
                 return False
-
         except:
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
@@ -307,8 +295,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         try:
             s = self.libplugin.get_by_id(self.kvarg['id'])
         except IndexError:
@@ -346,8 +332,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         try:
             cs = pyrax.cloudservers
             snapshot = [ss for ss in cs.list_snapshots() if ss.id ==

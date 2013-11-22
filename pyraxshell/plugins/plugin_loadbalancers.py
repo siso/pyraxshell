@@ -83,8 +83,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         clb = pyrax.cloud_loadbalancers
         if self.kvarg['protocol'] not in clb.protocols:
             cmd_out = ("protocol '%s' not allowed possible values: "
@@ -134,8 +132,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         try:
             clb = pyrax.cloud_loadbalancers
             lb = clb.get(self.kvarg['id'])
@@ -167,8 +163,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         try:
             pt = PrettyTable(['key', 'value'])
 # TODO --   #
@@ -212,8 +206,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         lb = self.libplugin.get_loadbalancer_by_id(self.kvarg['id'])
         try:
             d_usage = lb.get_usage()['loadBalancerUsageRecords']
@@ -303,8 +295,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         clb = pyrax.cloud_loadbalancers
         pt = PrettyTable(['index', 'type', 'condition', 'id', 'address',
                           'port', 'weight'])
@@ -353,8 +343,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         try:
             clb = pyrax.cloud_loadbalancers
             lb = clb.get(self.kvarg['id'])
@@ -388,8 +376,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         lb = self.libplugin.get_loadbalancer_by_id(self.kvarg['id'])
         pt = PrettyTable(['key', 'value'])
         for k, v in lb.get_stats().items():
@@ -431,8 +417,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         lb = self.libplugin.get_loadbalancer_by_id(self.kvarg['id'])
         d_kv = self.kvarg
         _id = self.kvarg['id']
@@ -485,7 +469,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
         # additional checks
         if self.kvarg['condition'] not in ('ENABLED', 'DISABLED', 'DRAINING'):
             cmd_out = ("condition value '%s' not allowed"
@@ -530,8 +513,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         try:
             node = self.libplugin.get_node_by_id(self.kvarg['id'],
                                                  self.kvarg['node_id'])
@@ -566,8 +547,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         try:
             removed_node = self.declared_nodes.pop(self.kvarg['index'])
             logging.info('deleting node index: %d, address:%s, port:%s, '
@@ -620,7 +599,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
         # additional checks
         condition_domain = ['ENABLED', 'DISABLED', 'DRAINING']
         if self.kvarg['condition'] not in condition_domain:

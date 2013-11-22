@@ -301,8 +301,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, DEBUG)  # everything's ok
-
         (container_name, object_name) = self.kvarg['dest'].split('/', 1)
         local_filename = self.kvarg['src']
         if not os.path.isfile(local_filename):

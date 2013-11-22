@@ -65,7 +65,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-#         self.r(0, retmsg, INFO)  # everything's ok
         sg = None
         try:
             sg = self.au.get(self.kvarg['id'])
@@ -79,8 +78,15 @@ class Plugin(pyraxshell.plugins.plugin.Plugin):
         try:
             msg = ''
             try:
-                msg = '## Configuration\n'
+                msg += '## Configuration\n'
                 pt = kv_dict_to_pretty_table(sg.get_configuration())
+                pt.align['value'] = 'l'
+                msg += str(pt)
+            except: 
+                self.r(0, 'cannot fetch configuration', WARN)
+            try:
+                msg += '\n\n## Launch configuration\n'
+                pt = kv_dict_to_pretty_table(sg.get_launch_config())
                 pt.align['value'] = 'l'
                 msg += str(pt)
             except: 

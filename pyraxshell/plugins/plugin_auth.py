@@ -92,7 +92,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:             # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)     # everything's ok
         # additional checks
         _file = self.kvarg['file']
         if _file.find('~') == 0:
@@ -159,8 +158,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:             # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, DEBUG)     # everything's ok
-
         try:
             self.libplugin.authenticate_login(
                 apikey=self.kvarg['apikey'],

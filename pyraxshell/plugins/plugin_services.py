@@ -47,12 +47,11 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         '''
         # check and set defaults
         retcode, retmsg = self.kvargcheck(
-            {'name': 'raw', 'required': True}
+            {'name': 'raw', 'default': 'False'}
         )
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
 
         # parsing parameters
         if 'raw' in self.kvarg.keys():

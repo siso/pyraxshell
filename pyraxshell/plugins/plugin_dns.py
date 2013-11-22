@@ -62,7 +62,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
         # additional checks
         if not is_ipv4(self.kvarg['data']):
             cmd_out = ('\'%s\' is not a valid IP v4 address' %
@@ -142,8 +141,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         self.libplugin.create_domain(self.kvarg['name'],
                                      self.kvarg['email_address'],
                                      self.kvarg['ttl'], self.kvarg['comment'])
@@ -184,8 +181,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         try:
             subdomain_name = self.kvarg['name']
             domain_name = subdomain_name.split('.', 1)[1]
@@ -231,7 +226,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
         # additional checks
         if self.kvarg['type'] != 'A' and self.kvarg['type'] != 'MX':
             cmd_out = "type not supported"
@@ -282,8 +276,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         dns = pyrax.cloud_dns
         try:
             dom = dns.find(name=self.kvarg['domain_name'])
@@ -318,8 +310,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         dns = pyrax.cloud_dns
         try:
             dom = dns.find(name=self.kvarg['domain_name'])
@@ -380,8 +370,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         dns = pyrax.cloud_dns
         try:
             import time
@@ -461,8 +449,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         try:
             domain = (self.libplugin.get_domain_by_name(self.
                                                         kvarg['domain_name']))

@@ -59,8 +59,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         try:
             logging.debug('creating database instance - name:%s, flavor_id:%s,'
                           ' volume=%s' % (self.kvarg['name'],
@@ -97,7 +95,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
         try:
             db_instance = self.libplugin.get_instance_by_id(self.kvarg['id'])
             db_instance.delete()
@@ -175,8 +172,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         if ((self.kvarg['ram'] is None and self.kvarg['volume'] is None) or
             (self.kvarg['ram'] is not None and self.kvarg['volume'] is not
              None)):
@@ -223,8 +218,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         try:
             db_instance = (
                 self.libplugin.get_instance_by_id(self.kvarg['instance_id']))
@@ -261,8 +254,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         try:
             database = (
                 self.libplugin.get_database(self.kvarg['instance_id'],
@@ -305,8 +296,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         try:
             logging.debug('listing databases in instance name:%s, id:%s,'
                           % (self.libplugin.get_instance_by_id
@@ -354,8 +343,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         try:
             db_instance = (
                 self.libplugin.get_instance_by_id(self.kvarg['instance_id']))
@@ -396,8 +383,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         try:
             db_instance = (
                 self.libplugin.get_instance_by_id(self.kvarg['instance_id']))
@@ -431,8 +416,6 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
-        self.r(0, retmsg, INFO)  # everything's ok
-
         try:
             logging.info('listing users for instance name:%s, id:%s,' %
                          (self.libplugin.get_instance_by_id
