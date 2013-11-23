@@ -208,17 +208,18 @@ class Plugin(pyraxshell.plugins.plugin.Plugin):
         '''
         list Scaling policies
         
-        @param id    scaling group id
+        @param group    scaling group id or name
         '''
         # check and set defaults
         retcode, retmsg = self.kvargcheck(
-            {'name': 'id', 'required': True},
+            {'name': 'group', 'required': True},
         )
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
         try:
-            policies = self.au.list_policies(self.kvarg['id'])
+            group = self.libplugin.get_group(self.kvarg['group'])
+            policies = group.list_policies()
             # properties to be displayed
             props = ['id', 'args', 'change', 'cooldown', 'name', 'type']
             # create a PrettyTable obj with those columns
@@ -230,14 +231,19 @@ class Plugin(pyraxshell.plugins.plugin.Plugin):
             pt.sortby = 'name'
             self.r(0, pt, INFO)
         except:
-            msg = 'cannot find scaling group with id:%s' % self.kvarg['id']
+            msg = 'cannot find scaling group \'%s\'' % self.kvarg['group']
             self.r(0, msg, WARN)
             tb = traceback.format_exc()
             self.r(0, tb, DEBUG)
             return False
 
     def complete_list_policies(self, text, line, begidx, endidx):
-        return self.complete_id(text, line, begidx, endidx)
+        params = ['group:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [f for f in params if f.startswith(text)]
+        return completions
 
     def do_list_webhooks(self, line):
         '''
@@ -311,13 +317,16 @@ class Plugin(pyraxshell.plugins.plugin.Plugin):
             url = self.libplugin.get_webhook_url(wh)
             import urllib
             import urllib2
-#             values = {'name' : 'Michael Foord',
-#                       'location' : 'Northampton',
-#                       'language' : 'Python' }
             values = {}
             data = urllib.urlencode(values)
             req = urllib2.Request(url, data)
-            urllib2.urlopen(req)
+            msg = 'trigger \'%s\'' % url
+            response = urllib2.urlopen(req)
+            msg += ' (%d)' % response.getcode()
+            if response.getcode() == 202:
+                self.r(0, msg, INFO)
+            else:
+                self.r(1, msg, ERROR)
         except:
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
