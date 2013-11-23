@@ -51,6 +51,59 @@ class Plugin(pyraxshell.plugins.plugin.Plugin):
         else:
             completions = [f for f in params if f.startswith(text)]
         return completions
+
+    def do_add_policy(self, line):
+        '''
+        add policy to scaling group§
+
+        @param group        scaling group id or name
+        @param name         policy name
+        @param policy_type  only available type now is 'webhook' 
+        @param cooldown     Period in seconds after a policy execution in which
+                            further events are ignored.  
+        @param change       Can be positive or negative, which makes this a
+                            scale-up or scale-down policy, respectively. 
+        @param is_percent   determines if 'change' is absolute or not 
+        '''
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name': 'group', 'required': True},
+            {'name': 'name', 'required': True},
+            {'name': 'policy_type', 'default': 'webhook'},
+            {'name': 'cooldown', 'required': True},
+            {'name': 'change', 'required': True},
+            {'name': 'is_percent', 'default': ''},
+        )
+        if not retcode:  # something bad happened
+            self.r(1, retmsg, ERROR)
+            return False
+        try:
+            # get webhook anonymous URL
+            sg = self.libplugin.get_group(self.kvarg['group'])
+            name = self.kvarg['name']
+            policy_type = self.kvarg['policy_type']
+            cooldown = int(self.kvarg['cooldown'])
+            change = int(self.kvarg['change'])
+            if self.kvarg['is_percent'] == '':
+                sp = sg.add_policy(name, policy_type, cooldown, change)
+            else:
+                is_percent = bool(self.kvarg['is_percent'])
+                sp = sg.add_policy(name, policy_type, cooldown, change,
+                                   is_percent)
+            self.r(0, sp, INFO)
+        except:
+            tb = traceback.format_exc()
+            self.r(1, tb, ERROR)
+            return False
+
+    def complete_add_policy(self, text, line, begidx, endidx):
+        params = ['group:', 'name:', 'policy_type:', 'cooldown:', 'change:',
+                  'is_percent']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [f for f in params if f.startswith(text)]
+        return completions
     
     def do_add_webhook(self, line):
         '''
@@ -217,22 +270,33 @@ class Plugin(pyraxshell.plugins.plugin.Plugin):
         if not retcode:  # something bad happened
             self.r(1, retmsg, ERROR)
             return False
+        group = self.libplugin.get_group(self.kvarg['group'])
         try:
-            group = self.libplugin.get_group(self.kvarg['group'])
             policies = group.list_policies()
-            # properties to be displayed
-            props = ['id', 'args', 'change', 'cooldown', 'name', 'type']
-            # create a PrettyTable obj with those columns
-            pt = objects_to_pretty_table(policies, props)
-            # PrettyTable style
-            pt.align['name'] = 'l'
-            for c in props[1:]:
-                pt.align[c] = 'r'
-            pt.sortby = 'name'
-            self.r(0, pt, INFO)
+#             print policies
+#             return False
+            if len(policies) != 0:
+                # properties to be displayed
+                props = ['id', 'name', 'change', 'cooldown', 'type', 'args']
+#                 props = ['id', 'name']
+                # create a PrettyTable obj with those columns
+                pt = objects_to_pretty_table(policies, props)
+                # PrettyTable style
+                for c in props:
+                    if c != 'id':
+                        pt.align[c] = 'r'
+                try:
+                    pt.align['name'] = 'l'
+                    pt.sortby = 'name'
+                except:
+                    pass
+                self.r(0, pt, INFO)
+            else:
+                msg = '0 policies'
+                self.r(0, msg, INFO)
         except:
-            msg = 'cannot find scaling group \'%s\'' % self.kvarg['group']
-            self.r(0, msg, WARN)
+            msg = 'cannot list policies'
+            self.r(0, msg, ERROR)
             tb = traceback.format_exc()
             self.r(0, tb, DEBUG)
             return False
@@ -265,6 +329,10 @@ class Plugin(pyraxshell.plugins.plugin.Plugin):
         try:
             lo_wh = self.libplugin.list_webhooks(self.kvarg['group'],
                                                  self.kvarg['policy'])
+            if len(lo_wh) == 0:
+                msg = '0 webhooks'
+                self.r(0, msg, INFO)
+                return False
             # properties to be displayed
             if self.kvarg['showLinks'] == 'False':
                 props = ['id', 'name', 'metadata']
