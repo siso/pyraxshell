@@ -239,17 +239,21 @@ class Plugin(pyraxshell.plugins.plugin.Plugin):
         list Scaling Groups
         '''
         sg = self.au.list()
-        # properties to be displayed
-        props = ['id', 'name', 'cooldown', 'min_entities', 'max_entities',
-                 'metadata']
-        # create a PrettyTable obj with those columns
-        pt = objects_to_pretty_table(sg, props)
-        # PrettyTable style
-        pt.align['name'] = 'l'
-        for c in props[1:]:
-            pt.align[c] = 'r'
-        pt.sortby = 'name'
-        self.r(0, pt, INFO)
+        if len(sg) != 0:
+            # properties to be displayed
+            props = ['id', 'name', 'cooldown', 'min_entities', 'max_entities',
+                     'metadata']
+            # create a PrettyTable obj with those columns
+            pt = objects_to_pretty_table(sg, props)
+            # PrettyTable style
+            pt.align['name'] = 'l'
+            for c in props[1:]:
+                pt.align[c] = 'r'
+            pt.sortby = 'name'
+            self.r(0, pt, INFO)
+        else:
+            msg = '0 scaling groups'
+            self.r(0, msg, INFO)
 
     def do_list_groups(self, line):
         '''
