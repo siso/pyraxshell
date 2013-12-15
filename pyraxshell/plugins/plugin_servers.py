@@ -24,6 +24,7 @@ import traceback
 from pyraxshell.globals import INFO, ERROR, WARNING, POLL_TIME
 import pyraxshell.plugins.plugin
 from pyraxshell.plugins.libservers import LibServers, ServerCreatorThread
+from pyraxshell.utility import kv_dict_to_pretty_table
 
 
 class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
@@ -389,3 +390,99 @@ class Plugin(pyraxshell.plugins.plugin.Plugin, cmd.Cmd):
             tb = traceback.format_exc()
             self.r(1, tb, ERROR)
             return None
+
+    # ########################################
+    # SERVER METADATA
+
+    def do_del_metadata(self, line):
+        '''
+        delete server metadata
+        id        server id
+        key       metadata key
+        '''
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name': 'id', 'required': True},
+            {'name': 'key', 'required': True},
+        )
+        if not retcode:  # something bad happened
+            self.r(1, retmsg, ERROR)
+            return False
+        
+        o = self.libplugin.del_server_metadata(self.kvarg['id'],
+                                               self.kvarg['key'])
+        if o is True:
+            self.r(0, 'ok', INFO)
+        else:
+            self.r(0, 'cannot del metadata', WARNING)
+
+    def complete_del_metadata(self, text, line, begidx, endidx):
+        params = ['id:', 'key:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [f for f in params if f.startswith(text)]
+        return completions
+
+    def do_list_metadata(self, line):
+        '''
+        display server metadata
+        id        server id
+        '''
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name': 'id', 'required': True}
+        )
+        if not retcode:  # something bad happened
+            self.r(1, retmsg, ERROR)
+            return False
+        
+        m = self.libplugin.get_server_metadata(self.kvarg['id'])
+        if type(m) is dict:
+            pt = kv_dict_to_pretty_table(m)
+            self.r(0, pt, INFO)
+        else:
+            msg = 'no metadata'
+            self.r(0, msg, INFO)
+
+    def complete_list_metadata(self, text, line, begidx, endidx):
+        params = ['id:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [f for f in params if f.startswith(text)]
+        return completions
+    
+    def do_set_metadata(self, line):
+        '''
+        display server metadata
+        id        server id
+        key       metadata key
+        value     metadata value
+        '''
+        # check and set defaults
+        retcode, retmsg = self.kvargcheck(
+            {'name': 'id', 'required': True},
+            {'name': 'key', 'required': True},
+            {'name': 'value', 'required': True},
+        )
+        if not retcode:  # something bad happened
+            self.r(1, retmsg, ERROR)
+            return False
+        
+        o = self.libplugin.set_server_metadata(self.kvarg['id'],
+                                               self.kvarg['key'],
+                                               self.kvarg['value'])
+        if o is True:
+            self.r(0, 'ok', INFO)
+        else:
+            self.r(0, 'cannot set metadata', WARNING)
+
+    def complete_set_metadata(self, text, line, begidx, endidx):
+        params = ['id:', 'key:', 'value:']
+        if not text:
+            completions = params[:]
+        else:
+            completions = [f for f in params if f.startswith(text)]
+        return completions
+    

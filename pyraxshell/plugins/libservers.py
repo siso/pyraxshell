@@ -15,11 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with pyraxshell. If not, see <http://www.gnu.org/licenses/>.
 
+import json
 import logging
 from prettytable import PrettyTable
 import pyrax
+import requests
 import threading
 import time
+import traceback
 
 from pyraxshell.globals import msg_queue, INFO, ERROR
 from pyraxshell.plugins.lib import Lib
@@ -130,7 +133,10 @@ class LibServers(Lib):
         return a CloudServer object specified by id
         '''
         cs = pyrax.cloudservers
-        return [s for s in cs.list() if s.id == server_id][0]
+        try:
+            return [s for s in cs.list() if s.id == server_id][0]
+        except:
+            return None
 
     def list_cloudservers(self):
         cs = pyrax.cloudservers
@@ -244,3 +250,73 @@ class LibServers(Lib):
                 tb = traceback.format_exc()
                 self.r(1, tb, ERROR)
         return pt
+    
+    # ########################################
+    # SERVERS METADATA
+    
+    def del_server_metadata(self, server_id, key):
+        '''
+        delete metadata with key=key    
+        
+        @param     server_id      id of the server
+        @param     key            key of metadata to delete
+        '''
+        endpoint = (pyrax.identity.services['compute']['endpoints']
+                    [pyrax.identity.region]['public_url'] +
+                    ('/servers/%s/metadata' % server_id))
+        token = pyrax.identity.token
+        headers = {"X-Auth-Token":token, "Content-type":"application/json"}
+        r = requests.get(endpoint, headers=headers)
+        if r.status_code != requests.codes.ok:
+            return False
+        payload = r.json()
+        # remove key (new metadata)
+        try:
+            payload['metadata'].pop(key)
+            r_put = requests.put(endpoint, data=json.dumps(payload), headers=headers)
+            r_put.text
+            if r.status_code == requests.codes.ok:
+                return True
+            else:
+                return False
+        except KeyError:
+            # key not present in metadata
+            return False
+    
+    def get_server_metadata(self, server_id):
+        '''
+        fetch server metadata
+        
+        @param     server_id       id of the server
+        @return    dictionary with metadata
+        '''
+        s = self.get_by_id(server_id)
+        if s is None:
+            return None
+        return s.metadata
+    
+    def set_server_metadata(self, server_id, key, value):
+        '''
+        set server metadata
+        
+        @param     server_id      id of the server
+        @param     key            key of new item
+        @param     value          value of new item
+        '''
+        endpoint = (pyrax.identity.services['compute']['endpoints']
+                    [pyrax.identity.region]['public_url'] +
+                    ('/servers/%s/metadata' % server_id))
+        token = pyrax.identity.token
+        headers = {"X-Auth-Token":token, "Content-type":"application/json"}
+        r = requests.get(endpoint, headers=headers)
+        if r.status_code != requests.codes.ok:
+            return False
+        payload = r.json()
+        # add new item to payload (new metadata)
+        payload['metadata'][key] = value
+        r_put = requests.put(endpoint, data=json.dumps(payload), headers=headers)
+        r_put.text
+        if r.status_code == requests.codes.ok:
+            return True
+        else:
+            return False
